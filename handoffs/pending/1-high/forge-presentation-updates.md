@@ -1,6 +1,7 @@
 # FORGE — Presentation Updates Handoff
 
 **Created:** 2026-03-31
+**Updated:** 2026-03-31 16:30
 **Priority:** HIGH — Joseph presents to Cape Verdean government Wednesday April 2
 **Repo:** github.com/eslobrown/forge
 **Local path:** /Users/nunoandrade/git-repos/forge
@@ -8,6 +9,31 @@
 **Vercel env vars:** ANTHROPIC_API_KEY, PERPLEXITY_API_KEY
 
 ---
+
+## Current State
+
+**RAG document layer plan approved.** Design spec and implementation plan saved:
+- Spec: `docs/superpowers/specs/2026-03-31-rag-document-layer-design.md`
+- Plan: `docs/2026-03-31-RAG-DOCUMENT-LAYER.md`
+
+All 4 simulation modes, bilingual output, Perplexity research, PDF download, and featured analysis are working. The RAG document layer is the next feature to build.
+
+## Next Steps — Implement RAG Document Layer
+
+The plan has 11 tasks (Tasks 0-10). Key phases:
+
+1. **Task 0:** Install dependencies (`@upstash/vector`, `openai`, `@vercel/blob`, `pdf-parse`) and configure env vars
+2. **Tasks 1-4:** Build the processing pipeline — text chunker, PDF extraction, OpenAI embedding wrapper, Upstash Vector store wrapper
+3. **Tasks 5-6:** Create API routes — `POST/GET /api/documents` and `DELETE /api/documents/[id]`
+4. **Task 7:** Integrate RAG retrieval into existing `POST /api/forge` route
+5. **Task 8:** Add collapsible document upload UI and "Document-Grounded" badge to page.tsx
+6. **Task 9:** End-to-end verification (curl tests + browser testing)
+7. **Task 10:** Configure Vercel env vars (Upstash, OpenAI, Blob token) and deploy
+
+**Pre-requisites before starting:**
+- Create an Upstash Vector index (1536 dimensions, cosine similarity) via console.upstash.com
+- Have an OpenAI API key ready for text-embedding-3-small
+- Add Vercel Blob store to the Vercel project (auto-provisions BLOB_READ_WRITE_TOKEN)
 
 ## What This Is
 
@@ -19,7 +45,7 @@ The app takes a scenario (e.g., "Cabo Verde mobile money interoperability"), run
 
 **Stack:** Next.js 15.5 + Tailwind CSS 4 + Anthropic SDK + Perplexity API, deployed on Vercel.
 
-**3 source files that matter:**
+**3 source files that matter (pre-RAG):**
 
 | File | Lines | Purpose |
 |------|-------|---------|
@@ -27,18 +53,16 @@ The app takes a scenario (e.g., "Cabo Verde mobile money interoperability"), run
 | `src/app/api/forge/route.ts` | 380 | API route — Perplexity research + Claude analysis + bilingual output |
 | `src/app/featured-analysis.json` | ~800 | Pre-baked bilingual analysis that loads on page open |
 
-**Supporting files:**
-- `scripts/forge_analysis.py` — CLI tool to run analyses locally (uses ANTHROPIC_API_KEY env var)
-- `scripts/outputs/` — gitignored, stores local analysis JSON files
+**New files for RAG layer:**
 
-**Flow:**
-1. User enters scenario + selects simulation mode (Ancestor/Consciousness/Stress/Narrative)
-2. Frontend calls `/api/forge` with `{ scenario, mode, research: true }`
-3. API route calls Perplexity sonar API to gather real-world context
-4. API route sends scenario + research context + mode-specific prompt to Claude Sonnet 4.6
-5. Claude returns bilingual JSON `{ en: {...}, pt: {...} }`
-6. Frontend displays results, user toggles EN/PT instantly
-7. Successful analyses cached in localStorage + can be copied via `{}` button to update featured-analysis.json
+| File | Purpose |
+|------|---------|
+| `src/lib/chunker.ts` | Text chunking (~500 tokens, paragraph/sentence split) |
+| `src/lib/embeddings.ts` | OpenAI text-embedding-3-small wrapper |
+| `src/lib/vector-store.ts` | Upstash Vector upsert/query/delete |
+| `src/lib/pdf-extract.ts` | PDF + plain text extraction |
+| `src/app/api/documents/route.ts` | POST (upload) + GET (list) |
+| `src/app/api/documents/[id]/route.ts` | DELETE |
 
 ## Four Simulation Modes
 
@@ -60,31 +84,25 @@ The app takes a scenario (e.g., "Cabo Verde mobile money interoperability"), run
 - `{}` button copies analysis JSON to clipboard for updating featured-analysis.json
 - localStorage caches latest analysis for page reload persistence
 
-## What Needs Work / Known Issues
+## Known Issues
 
 ### PDF footer (copyright + page numbers)
-The `@page { @bottom-left / @bottom-right }` CSS rules for running footers work in Chrome but not all browsers. If the footer doesn't appear, Joseph should use Chrome to generate the PDF. May want to verify this renders correctly on the machine Joseph will demo from.
-
-### Featured analysis update workflow
-To update the featured analysis that loads on every device:
-1. Generate the analysis on the deployed site
-2. Click `{}` button (copies JSON to clipboard)
-3. Replace contents of `src/app/featured-analysis.json`
-4. Commit, push → Vercel auto-deploys
-This is manual but reliable. Could be automated with Vercel KV or Blob storage in the future.
+The `@page { @bottom-left / @bottom-right }` CSS rules for running footers work in Chrome but not all browsers. If the footer doesn't appear, Joseph should use Chrome to generate the PDF.
 
 ### page.tsx is 1349 lines
-The entire frontend is one file. If continued development happens, it should be split:
-- `components/StressResults.tsx`, `components/AncestorResults.tsx`, etc.
-- `components/Section.tsx`, `components/Badge.tsx`
-- `lib/constants.ts` (scenarios, colors, loading steps)
+The entire frontend is one file. If continued development happens, it should be split into components.
 
-### Potential token budget concern
-Bilingual output requires ~2x tokens. Narrative Engine produces the longest output. With max_tokens=12000 it should fit, but if a Narrative Engine bilingual analysis truncates, the error message says "Analysis was too long." Stress Test is the safest mode for bilingual.
+### Token budget concern
+Bilingual output requires ~2x tokens. Narrative Engine produces the longest output. With max_tokens=12000 it should fit, but if a Narrative Engine bilingual analysis truncates, the error message says "Analysis was too long."
 
-### Future features discussed but not built
-- **RAG document layer** — government uploads regulations/policies, FORGE validates against them. Discussed as next phase after the presentation. Would use vector DB (Supabase pgvector free tier).
-- **Perplexity Deep Research** can be slow (5-15 seconds). Could pre-fetch research for known scenarios.
+## Key Context
+
+- Joseph publishes under pen name **Augusto Bartolomeu**
+- The pitch is to **Dr. Pedro Lopes**, Secretário de Estado para a Economia Digital, Ministério das Finanças, República de Cabo Verde
+- Joseph is also approaching **Women in Tech Cabo Verde** for the technical build side
+- The MST paper is published on PhilArchive/Zenodo (DOI: 10.5281/zenodo.19116008)
+- The API uses **Claude Sonnet 4.6** (`claude-sonnet-4-6`)
+- Budget constraint: ~$20 total for API tokens
 
 ## Joseph's Presentation Documents
 
@@ -93,22 +111,8 @@ All in `/Users/nunoandrade/Desktop/Joseph Andrade/`:
 - `Forge_PedroLopes_CV.pdf` — The pitch letter to Dr. Pedro Lopes
 - `How Each Branch Works FORGE.pdf` — Explains the 4 modes + includes the original React prototype code
 
-## Key Context
+## Modified Files This Session
 
-- Joseph publishes under pen name **Augusto Bartolomeu**
-- The pitch is to **Dr. Pedro Lopes**, Secretário de Estado para a Economia Digital, Ministério das Finanças, República de Cabo Verde
-- Joseph is also approaching **Women in Tech Cabo Verde** for the technical build side
-- The MST paper is published on PhilArchive/Zenodo (DOI: 10.5281/zenodo.19116008)
-- The API uses **Claude Sonnet 4.6** (`claude-sonnet-4-6`) — good balance of quality, speed, and cost
-- Budget constraint: ~$20 total for API tokens
-
-## Demo Flow for the Presentation
-
-1. Open the URL — bilingual featured analysis is already visible
-2. Toggle PT to show Portuguese translation
-3. Walk through the Stress Test findings (constraints, branches, warnings)
-4. Switch to Narrative Engine, hit Forge — show "The Real Story" output
-5. Toggle PT again — same analysis in Portuguese
-6. Point out "Research-Enriched" badge — grounded in real data
-7. Hit Download PDF — show the clean printable report
-8. Invite Dr. Lopes to type his own scenario
+- `docs/superpowers/specs/2026-03-31-rag-document-layer-design.md` (new — design spec)
+- `docs/superpowers/plans/2026-03-31-rag-document-layer.md` (new — implementation plan)
+- `docs/2026-03-31-RAG-DOCUMENT-LAYER.md` (new — plan copy at standard location)
