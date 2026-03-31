@@ -1,5 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { embedText } from "@/lib/embeddings";
+import { querySimilar } from "@/lib/vector-store";
 
 const client = new Anthropic();
 
@@ -45,6 +47,46 @@ async function researchContext(scenario: string): Promise<string | null> {
   }
 }
 
+/* ── Document RAG retrieval step ── */
+async function retrieveDocumentContext(
+  scenario: string
+): Promise<{ context: string; chunkCount: number; docCount: number } | null> {
+  try {
+    // Check if vector store is configured
+    if (
+      !process.env.UPSTASH_VECTOR_REST_URL ||
+      !process.env.UPSTASH_VECTOR_REST_TOKEN ||
+      !process.env.OPENAI_API_KEY
+    ) {
+      return null;
+    }
+
+    const queryEmbedding = await embedText(scenario);
+    const chunks = await querySimilar(queryEmbedding, 10, 0.3);
+
+    if (chunks.length === 0) return null;
+
+    // Count unique documents
+    const uniqueDocs = new Set(chunks.map((c) => c.documentName));
+
+    // Format chunks with source attribution
+    const formattedChunks = chunks
+      .map((c) => `[From: ${c.documentName}]\n${c.text}`)
+      .join("\n\n");
+
+    const context = `--- DOCUMENT CONTEXT (uploaded reference documents) ---\n\n${formattedChunks}\n\n--- END DOCUMENT CONTEXT ---`;
+
+    return {
+      context,
+      chunkCount: chunks.length,
+      docCount: uniqueDocs.size,
+    };
+  } catch (e) {
+    console.error("Document retrieval failed:", e);
+    return null;
+  }
+}
+
 /* ── System prompts ── */
 const BASE_SYSTEM = `You are FORGE, a structural decision intelligence engine built on the Multi-Simulation Thesis (MST) by Augusto Bartolomeu.
 
@@ -62,6 +104,7 @@ RULES:
 - If conventional analysis is sufficient, say so explicitly. Do not manufacture complexity.
 - Separate constraint analysis from interpretation. Present what is structurally real; leave judgment to the humans.
 - Be specific to the context given. Generic advice is worthless.
+- When document context is provided, treat it as the primary source of truth. Reference specific documents and sections in your analysis. Document context takes precedence over research context when they conflict.
 - When research context is provided, USE IT. Reference real regulations, real precedents, real data. Do not ignore factual context in favor of generic analysis.`;
 
 const MODE_PROMPTS: Record<string, string> = {
@@ -262,8 +305,15 @@ export async function POST(request: NextRequest) {
       researchData = await researchContext(scenario.trim());
     }
 
-    // Step 2: Build the user message with research context
+    // Step 1.5: Retrieve relevant document chunks via RAG
+    const documentData = await retrieveDocumentContext(scenario.trim());
+
+    // Step 2: Build the user message with document + research context
     let userMessage = `Scenario to analyze:\n\n${scenario.trim()}`;
+
+    if (documentData) {
+      userMessage += `\n\n${documentData.context}\n\nUse the document context above as the primary source of truth. Reference specific documents and sections in your analysis.`;
+    }
 
     if (researchData) {
       userMessage += `\n\n--- RESEARCH CONTEXT (real-world data gathered before analysis) ---\n\n${researchData}\n\n--- END RESEARCH CONTEXT ---\n\nUse the research context above to ground your analysis in real-world facts, regulations, and precedents. Reference specific data points, laws, and comparable cases where relevant.`;
@@ -367,6 +417,10 @@ Return ONLY valid JSON. No preamble, no markdown.`;
       analysis: parsed,
       mode: selectedMode,
       research_enriched: !!researchData,
+      document_grounded: !!documentData,
+      document_chunks_used: documentData
+        ? { chunks: documentData.chunkCount, documents: documentData.docCount }
+        : null,
       usage: {
         input_tokens: message.usage.input_tokens,
         output_tokens: message.usage.output_tokens,

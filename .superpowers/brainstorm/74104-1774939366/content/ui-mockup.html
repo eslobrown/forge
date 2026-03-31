@@ -1,0 +1,55 @@
+<h2>Document Upload — Where in the UI?</h2>
+<p class="subtitle">The upload area needs to integrate with FORGE's existing single-page layout without cluttering the analysis flow.</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Collapsible Section Above Scenario Input</h3>
+      <p>A "Documents" section between the example scenarios and the scenario textarea. Collapsed by default showing a count badge ("3 documents loaded"). Expands to show drag-and-drop zone + document list with delete buttons.</p>
+      <div class="mockup" style="margin-top: 12px;">
+        <div class="mockup-header">FORGE Page Layout</div>
+        <div class="mockup-body" style="font-family: monospace; font-size: 11px; line-height: 2;">
+          <div style="text-align: center; color: #a78bfa; margin-bottom: 8px;">FORGE</div>
+          <div style="padding: 6px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; color: rgba(255,255,255,0.4);">[ Simulation Purpose — 4 mode cards ]</div>
+          <div style="padding: 6px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; color: rgba(255,255,255,0.4);">[ Example Scenarios — 3 buttons ]</div>
+          <div style="padding: 8px 10px; border: 1px solid #00f5c8; border-radius: 4px; margin-bottom: 6px; background: rgba(0,245,200,0.05);">
+            <div style="color: #00f5c8; cursor: pointer;">▸ Documents <span style="background: rgba(0,245,200,0.15); padding: 1px 6px; border-radius: 8px; font-size: 10px;">3</span></div>
+            <div style="color: rgba(255,255,255,0.3); font-size: 10px; margin-top: 4px;">Click to expand — drag & drop PDF or text files</div>
+          </div>
+          <div style="padding: 6px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; color: rgba(255,255,255,0.4);">[ Scenario textarea ]</div>
+          <div style="padding: 6px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; color: rgba(255,255,255,0.4);">[ Research toggle + Language toggle ]</div>
+          <div style="padding: 8px 10px; background: linear-gradient(135deg, #00f5c8, #a78bfa); border-radius: 4px; text-align: center; color: #000; font-weight: bold;">FORGE REALITY BRANCHES</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Slide-Out Panel (Right Side)</h3>
+      <p>A toggle button in the controls row opens a slide-out panel from the right side. Documents are managed there without disrupting the main flow. Good for keeping the main page clean.</p>
+      <div class="mockup" style="margin-top: 12px;">
+        <div class="mockup-header">FORGE Page Layout</div>
+        <div class="mockup-body" style="font-family: monospace; font-size: 11px; line-height: 2; display: flex; gap: 8px;">
+          <div style="flex: 1;">
+            <div style="text-align: center; color: #a78bfa; margin-bottom: 8px;">FORGE</div>
+            <div style="padding: 6px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; color: rgba(255,255,255,0.4);">[ Simulation Purpose ]</div>
+            <div style="padding: 6px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; color: rgba(255,255,255,0.4);">[ Example Scenarios ]</div>
+            <div style="padding: 6px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; color: rgba(255,255,255,0.4);">[ Scenario textarea ]</div>
+            <div style="padding: 6px 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; margin-bottom: 6px; color: rgba(255,255,255,0.4);">[ Research + Lang + <span style="color: #00f5c8;">📄 Docs (3)</span> ]</div>
+            <div style="padding: 8px 10px; background: linear-gradient(135deg, #00f5c8, #a78bfa); border-radius: 4px; text-align: center; color: #000; font-weight: bold;">FORGE</div>
+          </div>
+          <div style="width: 180px; border: 1px solid #00f5c8; border-radius: 4px; padding: 8px; background: rgba(0,245,200,0.03);">
+            <div style="color: #00f5c8; font-size: 10px; margin-bottom: 8px;">DOCUMENTS</div>
+            <div style="border: 1px dashed rgba(0,245,200,0.3); padding: 12px; text-align: center; color: rgba(255,255,255,0.3); font-size: 10px; margin-bottom: 8px;">Drop files here</div>
+            <div style="font-size: 10px; color: rgba(255,255,255,0.4); padding: 4px; border-bottom: 1px solid rgba(255,255,255,0.05);">📄 regulation.pdf ✕</div>
+            <div style="font-size: 10px; color: rgba(255,255,255,0.4); padding: 4px; border-bottom: 1px solid rgba(255,255,255,0.05);">📄 policy.pdf ✕</div>
+            <div style="font-size: 10px; color: rgba(255,255,255,0.4); padding: 4px;">📄 budget.txt ✕</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

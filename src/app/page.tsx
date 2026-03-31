@@ -638,12 +638,36 @@ export default function Home() {
       // ignore parse errors
     }
   }, []);
+
+  // Fetch documents on mount
+  useEffect(() => {
+    fetch("/api/documents")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.documents) setDocuments(data.documents);
+      })
+      .catch(() => {});
+  }, []);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeStep, setActiveStep] = useState("");
   const [researchEnabled, setResearchEnabled] = useState(true);
   const [researchEnriched, setResearchEnriched] = useState(false);
   const [lang, setLang] = useState<"en" | "pt">("en");
+
+  // Document state
+  const [documents, setDocuments] = useState<
+    { id: string; name: string; size: number; chunkCount: number; uploadedAt: string }[]
+  >([]);
+  const [docsExpanded, setDocsExpanded] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState("");
+  const [documentGrounded, setDocumentGrounded] = useState(false);
+  const [documentChunksUsed, setDocumentChunksUsed] = useState<{
+    chunks: number;
+    documents: number;
+  } | null>(null);
 
   // Derived: pick the analysis for the active language
   const analysis = analysisData
@@ -657,6 +681,8 @@ export default function Home() {
     setAnalysisData(null);
     setActiveMode(null);
     setResearchEnriched(false);
+    setDocumentGrounded(false);
+    setDocumentChunksUsed(null);
 
     const researchSteps = researchEnabled
       ? ["Researching real-world context via Perplexity..."]
@@ -697,6 +723,8 @@ export default function Home() {
       setAnalysisData(newAnalysis);
       setActiveMode(data.mode);
       setResearchEnriched(data.research_enriched || false);
+      setDocumentGrounded(data.document_grounded || false);
+      setDocumentChunksUsed(data.document_chunks_used || null);
 
       // Cache as featured analysis for page reload
       try {
@@ -719,6 +747,47 @@ export default function Home() {
       clearInterval(interval);
       setActiveStep("");
       setLoading(false);
+    }
+  };
+
+  const uploadDocument = async (file: File) => {
+    setUploading(true);
+    setUploadStatus("Uploading...");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      setUploadStatus("Extracting text...");
+      const res = await fetch("/api/documents", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        setUploadStatus(`Error: ${data.error}`);
+        setTimeout(() => setUploadStatus(""), 3000);
+        return;
+      }
+
+      setDocuments((prev) => [...prev, data]);
+      setUploadStatus(`${data.name} — ${data.chunkCount} chunks indexed`);
+      setTimeout(() => setUploadStatus(""), 3000);
+    } catch {
+      setUploadStatus("Upload failed");
+      setTimeout(() => setUploadStatus(""), 3000);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const deleteDocument = async (id: string) => {
+    try {
+      await fetch(`/api/documents/${id}`, { method: "DELETE" });
+      setDocuments((prev) => prev.filter((d) => d.id !== id));
+    } catch {
+      // Silently fail — document may already be removed
     }
   };
 
@@ -839,6 +908,124 @@ export default function Home() {
               );
             })}
           </div>
+        </div>
+
+        {/* Documents section (collapsible) */}
+        <div className="mb-5">
+          <button
+            onClick={() => setDocsExpanded(!docsExpanded)}
+            className="flex items-center gap-2 font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3 cursor-pointer hover:text-white/60 transition-colors"
+          >
+            <span
+              className="transition-transform"
+              style={{ transform: docsExpanded ? "rotate(90deg)" : "none" }}
+            >
+              &#x25B8;
+            </span>
+            Documents
+            {documents.length > 0 && (
+              <span
+                className="font-mono text-[10px] px-1.5 py-0.5 rounded-full"
+                style={{
+                  background: "rgba(0,245,200,0.15)",
+                  color: "#00f5c8",
+                  fontSize: 9,
+                }}
+              >
+                {documents.length}
+              </span>
+            )}
+          </button>
+
+          {docsExpanded && (
+            <div
+              className="rounded-lg border px-4 py-4"
+              style={{
+                borderColor: "rgba(255,255,255,0.08)",
+                background: "rgba(255,255,255,0.02)",
+              }}
+            >
+              {/* Drop zone */}
+              <div
+                className="rounded-lg border-2 border-dashed px-4 py-6 text-center cursor-pointer mb-3 transition-colors"
+                style={{
+                  borderColor: "rgba(0,245,200,0.2)",
+                  background: "rgba(0,245,200,0.02)",
+                }}
+                onClick={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = ".pdf,.txt,.md";
+                  input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) uploadDocument(file);
+                  };
+                  input.click();
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.style.borderColor = "rgba(0,245,200,0.5)";
+                  e.currentTarget.style.background = "rgba(0,245,200,0.06)";
+                }}
+                onDragLeave={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(0,245,200,0.2)";
+                  e.currentTarget.style.background = "rgba(0,245,200,0.02)";
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.style.borderColor = "rgba(0,245,200,0.2)";
+                  e.currentTarget.style.background = "rgba(0,245,200,0.02)";
+                  const file = e.dataTransfer.files[0];
+                  if (file) uploadDocument(file);
+                }}
+              >
+                <div className="font-mono text-xs text-white/30">
+                  {uploading ? uploadStatus : "Drop PDF or text files here, or click to browse"}
+                </div>
+                <div className="font-mono text-[10px] text-white/15 mt-1">
+                  Max 10MB per file
+                </div>
+              </div>
+
+              {/* Upload status */}
+              {uploadStatus && !uploading && (
+                <div className="font-mono text-[10px] text-[#00f5c8]/70 mb-3">
+                  {uploadStatus}
+                </div>
+              )}
+
+              {/* Document list */}
+              {documents.length > 0 && (
+                <div className="space-y-1">
+                  {documents.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="flex items-center justify-between rounded px-3 py-2"
+                      style={{ background: "rgba(255,255,255,0.03)" }}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-white/20 text-xs shrink-0">
+                          &#x1F4C4;
+                        </span>
+                        <span className="font-mono text-xs text-white/50 truncate">
+                          {doc.name}
+                        </span>
+                        <span className="font-mono text-[9px] text-white/20 shrink-0">
+                          {doc.chunkCount} chunks
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => deleteDocument(doc.id)}
+                        className="text-white/20 hover:text-red-400 text-xs ml-2 cursor-pointer transition-colors shrink-0"
+                      >
+                        &#x2715;
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Scenario input */}
@@ -1009,6 +1196,19 @@ export default function Home() {
                     }}
                   >
                     &#x1F50D; Research-Enriched
+                  </span>
+                )}
+                {documentGrounded && documentChunksUsed && (
+                  <span
+                    className="font-mono text-[10px] uppercase px-2 py-0.5 rounded"
+                    style={{
+                      background: "rgba(167,139,250,0.12)",
+                      color: "#a78bfa",
+                      border: "1px solid rgba(167,139,250,0.3)",
+                    }}
+                  >
+                    &#x1F4D1; Document-Grounded &middot; {documentChunksUsed.chunks} chunks from{" "}
+                    {documentChunksUsed.documents} doc{documentChunksUsed.documents !== 1 ? "s" : ""}
                   </span>
                 )}
                 {activeMode && (

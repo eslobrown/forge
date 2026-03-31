@@ -1,0 +1,40 @@
+<h2>RAG Document Layer — Architecture Approaches</h2>
+<p class="subtitle">How should the document pipeline integrate with FORGE's existing flow?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Upload-Time Processing (Recommended)</h3>
+      <p>Process documents immediately on upload. Extract text, chunk, embed, and store in Upstash Vector — all in the upload API route. At analysis time, embed the scenario query and retrieve top-k relevant chunks to inject alongside Perplexity research.</p>
+      <div style="margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px; font-family: monospace; font-size: 11px; line-height: 1.8;">
+        <div style="color: #00f5c8;">Upload Flow:</div>
+        <div style="color: rgba(255,255,255,0.5);">Browser → POST /api/documents → extract text (pdf-parse) → chunk (~500 tokens each) → embed (OpenAI) → store in Upstash Vector + metadata in Vercel Blob</div>
+        <div style="margin-top: 8px; color: #a78bfa;">Analysis Flow:</div>
+        <div style="color: rgba(255,255,255,0.5);">Scenario text → embed query (OpenAI) → search Upstash Vector (top 10 chunks) → inject into Claude prompt alongside Perplexity research → bilingual analysis</div>
+      </div>
+      <div class="pros-cons" style="margin-top: 12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Analysis runs fast — chunks already embedded</li><li>Upload gives immediate feedback (doc processed)</li><li>Clear separation of concerns</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Upload takes a few seconds (embed all chunks)</li><li>Two API routes to build (upload + analysis modification)</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Analysis-Time Processing</h3>
+      <p>Store raw files in Vercel Blob on upload. When analysis runs, extract + chunk + embed + search all in the analysis API route. Simpler upload, but heavier analysis step.</p>
+      <div style="margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 6px; font-family: monospace; font-size: 11px; line-height: 1.8;">
+        <div style="color: #00f5c8;">Upload Flow:</div>
+        <div style="color: rgba(255,255,255,0.5);">Browser → POST /api/documents → store raw file in Vercel Blob → done</div>
+        <div style="margin-top: 8px; color: #a78bfa;">Analysis Flow:</div>
+        <div style="color: rgba(255,255,255,0.5);">Scenario text → fetch all docs from Blob → extract text → chunk → embed all chunks + query → cosine similarity → inject top chunks → Claude analysis</div>
+      </div>
+      <div class="pros-cons" style="margin-top: 12px;">
+        <div class="pros"><h4>Pros</h4><ul><li>Upload is instant (just file storage)</li><li>Single processing pipeline</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Every analysis re-processes all documents (slow, wasteful)</li><li>Embedding cost multiplied by every analysis run</li><li>Analysis latency increases significantly</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

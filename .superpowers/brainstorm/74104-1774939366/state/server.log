@@ -1,0 +1,5 @@
+{"type":"server-started","port":55304,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:55304","screen_dir":"/Users/nunoandrade/git-repos/forge/.superpowers/brainstorm/74104-1774939366/content","state_dir":"/Users/nunoandrade/git-repos/forge/.superpowers/brainstorm/74104-1774939366/state"}
+{"type":"screen-added","file":"/Users/nunoandrade/git-repos/forge/.superpowers/brainstorm/74104-1774939366/content/architecture-approaches.html"}
+{"type":"screen-added","file":"/Users/nunoandrade/git-repos/forge/.superpowers/brainstorm/74104-1774939366/content/ui-mockup.html"}
+{"type":"screen-added","file":"/Users/nunoandrade/git-repos/forge/.superpowers/brainstorm/74104-1774939366/content/waiting.html"}
+{"type":"server-stopped","reason":"idle timeout"}
