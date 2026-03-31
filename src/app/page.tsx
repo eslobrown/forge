@@ -541,8 +541,8 @@ function NarrativeResults({ data }: { data: NarrativeAnalysis }) {
 /* ── Shared UI components ── */
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div>
-      <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
+    <div className="print-section">
+      <div className="section-header font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
         {label}
       </div>
       {children}
@@ -923,8 +923,8 @@ export default function Home() {
             </div>
 
             {/* Summary */}
-            <div className="mb-8">
-              <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-2">
+            <div className="mb-8 print-section">
+              <div className="section-header font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-2">
                 Scenario Under Analysis
               </div>
               <p className="text-sm text-white/70 italic leading-relaxed">
@@ -969,66 +969,224 @@ export default function Home() {
         }
 
         @media print {
-          body {
-            background: white !important;
-            color: black !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+          /* ── Global reset to white/black ── */
+          * {
+            background: transparent !important;
+            color: #000 !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
           }
 
-          /* Hide everything except the report */
+          html, body {
+            background: #fff !important;
+          }
+
+          @page {
+            margin: 2cm 2.5cm;
+            size: A4 portrait;
+          }
+
+          /* ── Hide all UI controls ── */
           .fixed,
+          .min-h-screen > div:first-child,
           textarea,
-          button:not([data-print]),
-          .mb-7:has(button),
+          button,
+          .mb-7,
           .mb-6:has(button),
-          .mb-5:has(button) {
+          .mb-5:has(button),
+          .mb-5:has(textarea),
+          [class*="loading"],
+          [class*="error"] {
             display: none !important;
           }
 
-          /* Show only the report */
+          /* ── Show only the report ── */
+          .min-h-screen {
+            background: #fff !important;
+            min-height: auto !important;
+          }
+
           #forge-report {
+            display: block !important;
             max-width: 100% !important;
             padding: 0 !important;
           }
 
-          #forge-report * {
-            color: black !important;
-            border-color: #ddd !important;
-          }
-
-          #forge-report .font-mono {
-            color: #333 !important;
-          }
-
-          /* Hide the PDF button in print */
-          #forge-report button {
+          /* Hide the download button and badge bar in print */
+          #forge-report > div:first-child {
             display: none !important;
           }
 
-          /* Print header */
+          /* ── Report cover header ── */
           #forge-report::before {
-            content: "FORGE — Structural Decision Intelligence | by Augusto Bartolomeu";
+            content: "FORGE";
             display: block;
             font-family: monospace;
-            font-size: 10px;
-            color: #999 !important;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 12px;
-            margin-bottom: 24px;
+            font-size: 32px;
+            font-weight: 900;
+            color: #000 !important;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+          }
+
+          #forge-report::after {
+            content: "Structural Decision Intelligence — Multi-Simulation Thesis | by Augusto Bartolomeu";
+            display: block;
+            font-family: monospace;
+            font-size: 9px;
+            color: #666 !important;
             text-transform: uppercase;
             letter-spacing: 0.15em;
+            border-bottom: 2px solid #000;
+            padding-bottom: 16px;
+            margin-bottom: 32px;
           }
 
-          /* Keep badge colors in print */
-          #forge-report span[style*="background"] {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+          /* ── Section dividers ── */
+          .print-section {
+            margin-top: 28px !important;
+            padding-top: 20px !important;
+            border-top: 1px solid #ccc !important;
+            page-break-inside: avoid;
           }
 
-          /* Page margins */
-          @page {
-            margin: 1.5cm;
+          .print-section:first-of-type {
+            border-top: none !important;
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+          }
+
+          .section-header {
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #000 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+            margin-bottom: 12px !important;
+            padding-bottom: 6px !important;
+            border-bottom: 1px solid #eee !important;
+          }
+
+          /* ── Scenario summary ── */
+          #forge-report > div:nth-child(2) {
+            margin-bottom: 24px !important;
+          }
+
+          #forge-report > div:nth-child(2) > div:first-child {
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #000 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+            margin-bottom: 8px !important;
+          }
+
+          #forge-report > div:nth-child(2) p {
+            font-size: 12px !important;
+            color: #333 !important;
+            line-height: 1.6 !important;
+          }
+
+          /* ── Cards and containers ── */
+          [class*="rounded-lg"] {
+            border: 1px solid #ddd !important;
+            border-radius: 4px !important;
+            padding: 12px !important;
+            margin-bottom: 8px !important;
+            page-break-inside: avoid;
+          }
+
+          /* ── Text styling ── */
+          .text-sm, .text-xs, p, span, div {
+            color: #000 !important;
+          }
+
+          [class*="text-white"] {
+            color: #000 !important;
+          }
+
+          [class*="text-amber"] {
+            color: #b45309 !important;
+          }
+
+          /* ── Badges — keep colored but print-safe ── */
+          [class*="font-mono"][class*="uppercase"][class*="px-2"] {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            border: 1px solid #999 !important;
+            padding: 1px 6px !important;
+            font-size: 8px !important;
+          }
+
+          /* Severity badges */
+          [class*="px-2"][style*="rgb(239, 68, 68)"],
+          [class*="px-2"][style*="#ef4444"] {
+            color: #cc0000 !important;
+            border-color: #cc0000 !important;
+            background: #fff0f0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          [class*="px-2"][style*="rgb(245, 158, 11)"],
+          [class*="px-2"][style*="#f59e0b"] {
+            color: #b45309 !important;
+            border-color: #b45309 !important;
+            background: #fffbeb !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          [class*="px-2"][style*="rgb(34, 197, 94)"],
+          [class*="px-2"][style*="#22c55e"] {
+            color: #166534 !important;
+            border-color: #166534 !important;
+            background: #f0fdf4 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          [class*="px-2"][style*="rgb(59, 130, 246)"],
+          [class*="px-2"][style*="#3b82f6"] {
+            color: #1d4ed8 !important;
+            border-color: #1d4ed8 !important;
+            background: #eff6ff !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+
+          /* ── Sub-sections ── */
+          [class*="border-t"] {
+            border-color: #eee !important;
+          }
+
+          /* ── Footer ── */
+          #forge-report > div:last-child {
+            margin-top: 32px !important;
+            padding-top: 16px !important;
+            border-top: 2px solid #000 !important;
+            font-size: 9px !important;
+            color: #666 !important;
+            text-align: center;
+          }
+
+          /* ── Narrative mode: official vs structural columns ── */
+          .grid {
+            gap: 16px !important;
+          }
+
+          .grid > div {
+            border: 1px solid #ddd !important;
+          }
+
+          /* ── Warning and recommendation icons ── */
+          .flex.items-start.gap-2 {
+            margin-bottom: 6px !important;
+          }
+
+          /* ── Page breaks for long reports ── */
+          .space-y-8 > .print-section:nth-child(n+3) {
+            page-break-before: auto;
           }
         }
       `}</style>
