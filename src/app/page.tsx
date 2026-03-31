@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import featuredData from "./featured-analysis.json";
 
 /* ── Mode types ── */
@@ -592,6 +592,7 @@ function Badge({
 
 /* ── Main page ── */
 export default function Home() {
+  // Load featured analysis from localStorage or fall back to bundled data
   const [scenario, setScenario] = useState(EXAMPLE_SCENARIOS[0].text);
   const [purpose, setPurpose] = useState<PurposeId>("stress");
   const [analysisData, setAnalysisData] = useState<{
@@ -603,6 +604,23 @@ export default function Home() {
   const [activeMode, setActiveMode] = useState<PurposeId | null>(
     featuredData.mode as PurposeId
   );
+
+  // On mount, load cached featured analysis if it exists (has both languages)
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem("forge-featured");
+      if (cached) {
+        const data = JSON.parse(cached);
+        if (data.analysis?.en) {
+          setAnalysisData(data.analysis);
+          setActiveMode(data.mode);
+          if (data.scenario) setScenario(data.scenario);
+        }
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }, []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeStep, setActiveStep] = useState("");
@@ -656,14 +674,26 @@ export default function Home() {
 
       // data.analysis is { en: {...}, pt: {...} }
       const bilingualData = data.analysis;
-      if (bilingualData.en && bilingualData.pt) {
-        setAnalysisData({ en: bilingualData.en, pt: bilingualData.pt });
-      } else {
-        // Fallback: if the response isn't bilingual, treat it as English-only
-        setAnalysisData({ en: bilingualData });
-      }
+      const newAnalysis = bilingualData.en && bilingualData.pt
+        ? { en: bilingualData.en, pt: bilingualData.pt }
+        : { en: bilingualData };
+      setAnalysisData(newAnalysis);
       setActiveMode(data.mode);
       setResearchEnriched(data.research_enriched || false);
+
+      // Cache as featured analysis for page reload
+      try {
+        localStorage.setItem(
+          "forge-featured",
+          JSON.stringify({
+            analysis: newAnalysis,
+            mode: data.mode,
+            scenario: scenario.trim(),
+          })
+        );
+      } catch {
+        // ignore storage errors
+      }
     } catch (e: unknown) {
       const message =
         e instanceof Error ? e.message : "Failed to connect to analysis engine";

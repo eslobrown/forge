@@ -291,7 +291,7 @@ Return ONLY valid JSON. No preamble, no markdown.`;
     // Step 4: Run FORGE analysis via Claude
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 8000,
+      max_tokens: 12000,
       system: `${BASE_SYSTEM}\n\n${modePrompt}`,
       messages: [
         {
@@ -302,24 +302,65 @@ Return ONLY valid JSON. No preamble, no markdown.`;
     });
 
     const textBlock = message.content.find((block) => block.type === "text");
-    const raw = textBlock?.text || "";
+    let raw = textBlock?.text || "";
+
+    // Strip markdown code fences if present
+    raw = raw.replace(/^```(?:json)?\s*\n?/i, "").replace(/\n?```\s*$/i, "").trim();
 
     let parsed;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      const start = raw.indexOf("{");
-      const end = raw.lastIndexOf("}") + 1;
-      if (start !== -1 && end > 0) {
+      // Try to find the outermost JSON object by matching braces
+      let depth = 0;
+      let start = -1;
+      let end = -1;
+      for (let i = 0; i < raw.length; i++) {
+        if (raw[i] === "{") {
+          if (depth === 0) start = i;
+          depth++;
+        } else if (raw[i] === "}") {
+          depth--;
+          if (depth === 0) {
+            end = i + 1;
+            break;
+          }
+        }
+      }
+      if (start !== -1 && end > start) {
         try {
           parsed = JSON.parse(raw.slice(start, end));
         } catch {
           return NextResponse.json(
-            { error: "Failed to parse analysis", raw: raw.slice(0, 500) },
+            {
+              error: "Failed to parse analysis",
+              raw: raw.slice(0, 500),
+              stop_reason: message.stop_reason,
+            },
             { status: 500 }
           );
         }
+      } else {
+        return NextResponse.json(
+          {
+            error: "Failed to parse analysis — no JSON found",
+            raw: raw.slice(0, 500),
+            stop_reason: message.stop_reason,
+          },
+          { status: 500 }
+        );
       }
+    }
+
+    // Check if output was truncated
+    if (message.stop_reason === "max_tokens") {
+      return NextResponse.json(
+        {
+          error: "Analysis was too long and got truncated. Try a shorter scenario.",
+          stop_reason: "max_tokens",
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
