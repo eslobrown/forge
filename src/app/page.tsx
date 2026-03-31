@@ -134,16 +134,25 @@ type AnalysisResult =
 /* ── Constants ── */
 const EXAMPLE_SCENARIOS = [
   {
-    label: "Mobile Money Interoperability",
-    text: "Cabo Verde is designing a mobile money interoperability framework to connect multiple payment providers (banks, fintechs, telcos) through a shared settlement layer. The framework would require all licensed providers to connect to a central switch operated by the central bank, with real-time settlement and standardized APIs. The goal is financial inclusion for the ~30% unbanked population across 10 islands with varying connectivity.",
+    label: { en: "Mobile Money Interoperability", pt: "Interoperabilidade de Dinheiro M\u00F3vel" },
+    text: {
+      en: "Cabo Verde is designing a mobile money interoperability framework to connect multiple payment providers (banks, fintechs, telcos) through a shared settlement layer. The framework would require all licensed providers to connect to a central switch operated by the central bank, with real-time settlement and standardized APIs. The goal is financial inclusion for the ~30% unbanked population across 10 islands with varying connectivity.",
+      pt: "Cabo Verde est\u00E1 a conceber um quadro de interoperabilidade de dinheiro m\u00F3vel para conectar m\u00FAltiplos prestadores de servi\u00E7os de pagamento (bancos, fintechs, telecomunica\u00E7\u00F5es) atrav\u00E9s de uma camada de liquida\u00E7\u00E3o partilhada. O quadro exigiria que todos os prestadores licenciados se conectassem a um sistema central operado pelo banco central, com liquida\u00E7\u00E3o em tempo real e APIs padronizadas. O objetivo \u00E9 a inclus\u00E3o financeira dos ~30% da popula\u00E7\u00E3o n\u00E3o bancarizada distribu\u00EDda por 10 ilhas com conectividade vari\u00E1vel.",
+    },
   },
   {
-    label: "National Digital ID Rollout",
-    text: "A small island nation of 600,000 people is planning to roll out a national digital identity system. The system would replace physical ID cards with a mobile-first digital credential, used for government services, banking KYC, and potentially voting. The government wants to build on open-source standards (OpenID Connect) and host the infrastructure locally rather than depending on foreign cloud providers. Budget is limited to \u20AC2M for the first phase.",
+    label: { en: "National Digital ID Rollout", pt: "Implementa\u00E7\u00E3o de Identidade Digital Nacional" },
+    text: {
+      en: "A small island nation of 600,000 people is planning to roll out a national digital identity system. The system would replace physical ID cards with a mobile-first digital credential, used for government services, banking KYC, and potentially voting. The government wants to build on open-source standards (OpenID Connect) and host the infrastructure locally rather than depending on foreign cloud providers. Budget is limited to \u20AC2M for the first phase.",
+      pt: "Uma pequena na\u00E7\u00E3o insular de 600.000 habitantes est\u00E1 a planear implementar um sistema nacional de identidade digital. O sistema substituiria os cart\u00F5es de identidade f\u00EDsicos por uma credencial digital mobile-first, utilizada para servi\u00E7os governamentais, KYC banc\u00E1rio e potencialmente vota\u00E7\u00E3o. O governo pretende construir sobre normas de c\u00F3digo aberto (OpenID Connect) e alojar a infraestrutura localmente em vez de depender de fornecedores de cloud estrangeiros. O or\u00E7amento est\u00E1 limitado a 2M\u20AC para a primeira fase.",
+    },
   },
   {
-    label: "AI Governance Framework",
-    text: "A developing nation wants to create a national AI governance framework that positions it as a regional leader in responsible AI adoption. The framework would cover public sector AI use, private sector compliance, data protection, and AI skills development. The country has limited technical capacity (fewer than 200 AI practitioners), no existing data protection law, and wants to avoid simply copying EU or US frameworks.",
+    label: { en: "AI Governance Framework", pt: "Quadro de Governan\u00E7a de IA" },
+    text: {
+      en: "A developing nation wants to create a national AI governance framework that positions it as a regional leader in responsible AI adoption. The framework would cover public sector AI use, private sector compliance, data protection, and AI skills development. The country has limited technical capacity (fewer than 200 AI practitioners), no existing data protection law, and wants to avoid simply copying EU or US frameworks.",
+      pt: "Uma na\u00E7\u00E3o em desenvolvimento pretende criar um quadro nacional de governan\u00E7a de IA que a posicione como l\u00EDder regional na ado\u00E7\u00E3o respons\u00E1vel de IA. O quadro abrangeria a utiliza\u00E7\u00E3o de IA no setor p\u00FAblico, conformidade do setor privado, prote\u00E7\u00E3o de dados e desenvolvimento de compet\u00EAncias em IA. O pa\u00EDs tem capacidade t\u00E9cnica limitada (menos de 200 praticantes de IA), nenhuma lei de prote\u00E7\u00E3o de dados existente, e pretende evitar simplesmente copiar quadros da UE ou dos EUA.",
+    },
   },
 ];
 
@@ -593,7 +602,7 @@ function Badge({
 /* ── Main page ── */
 export default function Home() {
   // Load featured analysis from localStorage or fall back to bundled data
-  const [scenario, setScenario] = useState(EXAMPLE_SCENARIOS[0].text);
+  const [scenario, setScenario] = useState(EXAMPLE_SCENARIOS[0].text.en);
   const [purpose, setPurpose] = useState<PurposeId>("stress");
   const [analysisData, setAnalysisData] = useState<{
     en: AnalysisResult;
@@ -794,32 +803,33 @@ export default function Home() {
         {/* Example scenarios */}
         <div className="mb-6">
           <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
-            Example Scenarios
+            {lang === "pt" ? "Cen\u00E1rios de Exemplo" : "Example Scenarios"}
           </div>
           <div className="flex flex-wrap gap-2">
-            {EXAMPLE_SCENARIOS.map((ex) => (
-              <button
-                key={ex.label}
-                onClick={() => setScenario(ex.text)}
-                className="text-xs font-mono px-3 py-1.5 rounded-md border transition-all cursor-pointer"
-                style={{
-                  borderColor:
-                    scenario === ex.text
+            {EXAMPLE_SCENARIOS.map((ex) => {
+              const isSelected =
+                scenario === ex.text.en || scenario === ex.text.pt;
+              return (
+                <button
+                  key={ex.label.en}
+                  onClick={() => setScenario(ex.text[lang])}
+                  className="text-xs font-mono px-3 py-1.5 rounded-md border transition-all cursor-pointer"
+                  style={{
+                    borderColor: isSelected
                       ? "#00f5c8"
                       : "rgba(255,255,255,0.1)",
-                  background:
-                    scenario === ex.text
+                    background: isSelected
                       ? "rgba(0,245,200,0.08)"
                       : "rgba(255,255,255,0.02)",
-                  color:
-                    scenario === ex.text
+                    color: isSelected
                       ? "#00f5c8"
                       : "rgba(255,255,255,0.5)",
-                }}
-              >
-                {ex.label}
-              </button>
-            ))}
+                  }}
+                >
+                  {ex.label[lang]}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -883,7 +893,14 @@ export default function Home() {
           {/* Language toggle */}
           <div className="flex items-center gap-1 font-mono text-[11px]">
             <button
-              onClick={() => setLang("en")}
+              onClick={() => {
+                setLang("en");
+                // Switch scenario text if it matches an example
+                const match = EXAMPLE_SCENARIOS.find(
+                  (ex) => scenario === ex.text.pt || scenario === ex.text.en
+                );
+                if (match) setScenario(match.text.en);
+              }}
               className="px-2 py-1 rounded transition-all cursor-pointer"
               style={{
                 background: lang === "en" ? "rgba(0,245,200,0.12)" : "transparent",
@@ -894,7 +911,14 @@ export default function Home() {
               EN
             </button>
             <button
-              onClick={() => setLang("pt")}
+              onClick={() => {
+                setLang("pt");
+                // Switch scenario text if it matches an example
+                const match = EXAMPLE_SCENARIOS.find(
+                  (ex) => scenario === ex.text.en || scenario === ex.text.pt
+                );
+                if (match) setScenario(match.text.pt);
+              }}
               className="px-2 py-1 rounded transition-all cursor-pointer"
               style={{
                 background: lang === "pt" ? "rgba(167,139,250,0.12)" : "transparent",
@@ -992,16 +1016,37 @@ export default function Home() {
                   </span>
                 )}
               </div>
-              <button
-                onClick={() => window.print()}
-                className="font-mono text-[10px] uppercase px-3 py-1.5 rounded border transition-all cursor-pointer hover:bg-white/5"
-                style={{
-                  borderColor: "rgba(255,255,255,0.15)",
-                  color: "rgba(255,255,255,0.5)",
-                }}
-              >
-                &#x1F4C4; Download PDF
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (!analysisData || !activeMode) return;
+                    const json = JSON.stringify(
+                      { analysis: analysisData, mode: activeMode, research_enriched: researchEnriched },
+                      null,
+                      2
+                    );
+                    navigator.clipboard.writeText(json);
+                  }}
+                  className="font-mono text-[10px] px-2 py-1 rounded border transition-all cursor-pointer hover:bg-white/5"
+                  style={{
+                    borderColor: "rgba(255,255,255,0.08)",
+                    color: "rgba(255,255,255,0.2)",
+                  }}
+                  title="Copy featured JSON to clipboard"
+                >
+                  {}
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="font-mono text-[10px] uppercase px-3 py-1.5 rounded border transition-all cursor-pointer hover:bg-white/5"
+                  style={{
+                    borderColor: "rgba(255,255,255,0.15)",
+                    color: "rgba(255,255,255,0.5)",
+                  }}
+                >
+                  &#x1F4C4; Download PDF
+                </button>
+              </div>
             </div>
 
             {/* Summary */}
