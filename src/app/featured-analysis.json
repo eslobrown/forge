@@ -1,116 +1,279 @@
 {
   "analysis": {
-    "scenario_summary": "Cabo Verde is designing a central-bank-operated mobile money interoperability switch requiring all licensed payment providers to connect via standardized APIs with real-time settlement, targeting the ~30% unbanked population across 10 geographically dispersed islands.",
-    "constraints": [
-      {
-        "name": "Island Connectivity Fragmentation",
-        "type": "technical",
-        "description": "Cabo Verde's 10 islands have deeply unequal connectivity infrastructure. Outer islands (Brava, São Nicolau, Santo Antão) rely on satellite or microwave links with latency spikes and intermittent outages. Real-time gross settlement (RTGS) assumes sub-second message delivery; if the central switch mandates synchronous settlement, transactions on low-connectivity islands will either fail silently, time out, or be refused by the switch — structurally excluding the precise population the framework targets.",
-        "severity": "blocking"
-      },
-      {
-        "name": "Provider Substrate Asymmetry",
-        "type": "economic",
-        "description": "The licensed provider ecosystem includes entities with radically different technical and financial substrates: CV Telecom and Unitel T+ have existing mobile money rails and customer bases, while smaller fintechs or credit unions may lack API engineering capacity or capital to absorb integration costs. SWIFT-style central switch integration has historically cost smaller institutions $200K–$500K USD in integration and compliance overhead. Mandatory connection without tiered on-ramping creates a structural barrier that consolidates the market to 2–3 dominant players, not inclusion.",
-        "severity": "blocking"
-      },
-      {
-        "name": "BCV Operational Capacity as Switch Operator",
-        "type": "institutional",
-        "description": "The Banco de Cabo Verde (BCV) as of its most recent published Annual Reports operates a supervisory and monetary policy mandate with limited payments infrastructure operations staff. Operating a real-time central switch requires 24/7 NOC (Network Operations Center) capabilities, incident response, and API versioning governance — functions that are institutionally distinct from central banking. There is no public evidence BCV has acquired this operational capacity, making this a hard institutional wall unless outsourced.",
-        "severity": "blocking"
-      },
-      {
-        "name": "CVEscudo Float Liquidity Constraints",
-        "type": "economic",
-        "description": "Real-time settlement requires pre-funded liquidity positions at the switch layer. In Cabo Verde's small economy (GDP ~$2B USD), the aggregate float required across all providers simultaneously operating in real-time settlement may exceed the available short-term liquidity of smaller providers, forcing them into permanent overdraft positions or exit. The CVE's peg to the Euro via the Acordo de Cooperação Cambial constrains BCV's ability to inject emergency liquidity.",
-        "severity": "limiting"
-      },
-      {
-        "name": "Regulatory Framework Completeness",
-        "type": "regulatory",
-        "description": "Cabo Verde's Lei n.º 62/IX/2019 governs payment systems broadly, and BCV has issued mobile payment guidelines, but a specific interoperability mandate with binding API standards, dispute resolution timelines, and switch access rules does not yet exist as published enforceable regulation. Without this, 'mandatory connection' has no legal teeth — providers can delay indefinitely through legal challenge or regulatory ambiguity.",
-        "severity": "blocking"
-      },
-      {
-        "name": "Unbanked Population Device and Literacy Baseline",
-        "type": "cultural",
-        "description": "The ~30% unbanked population is disproportionately rural, older, and concentrated on less-connected islands. Feature phone penetration in these demographics remains significant. An interoperability framework that standardizes on smartphone app or internet-based APIs will reach the banked population first and the unbanked last, inverting the stated inclusion goal. USSD-layer interoperability is technically inferior but socially necessary.",
-        "severity": "shaping"
-      },
-      {
-        "name": "API Standardization Governance Gap",
-        "type": "technical",
-        "description": "Standardized APIs require a versioning authority, deprecation schedules, and a dispute resolution mechanism for interpretation conflicts. No existing Cabo Verdean institution is structured to perform this function. Without it, each provider will implement the 'standard' differently, and the switch will fragment into bilateral workarounds — replicating the pre-interoperability state under a nominally unified architecture.",
-        "severity": "limiting"
-      }
-    ],
-    "branches": [
-      {
-        "name": "Full Real-Time Synchronous Settlement Switch (as designed)",
-        "status": "dead",
-        "status_reason": "This branch requires simultaneous resolution of island connectivity, BCV operational capacity, provider liquidity, and regulatory mandate — all blocking constraints. The structural substrate (connectivity, institutional ops capacity) cannot support synchronous RTGS across all 10 islands at current infrastructure levels. No amount of execution quality resolves a missing fiber cable or a missing NOC.",
-        "stress_test": null,
-        "prerequisite": null
-      },
-      {
-        "name": "Deferred Net Settlement with Asynchronous Island Queuing",
-        "status": "live",
-        "status_reason": "Replacing real-time gross settlement with deferred net settlement (DNS) cycles — e.g., 4x daily — removes the synchronous connectivity requirement for outer islands. Transactions queue locally and settle at defined windows. This matches the actual substrate capacity of Cabo Verde's connectivity infrastructure and reduces provider liquidity requirements from continuous to batch. Ghana's GhIPSS and Tanzania's TIPS both used DNS as a viable intermediate architecture.",
-        "stress_test": "Under adversarial pressure, DNS creates a 6-hour settlement gap during which providers can manipulate float positions, double-spend against pending settlements, or exit the network before a net settlement cycle completes. A single large-volume provider insolvency during a settlement window creates cascade exposure for all counterparties in that cycle. Fraud detection must operate at the queue layer, not only at settlement.",
-        "prerequisite": "BCV must define and publish legally binding DNS cycle rules, intraday exposure limits per provider, and mandatory collateral/guarantee structures before any provider connects."
-      },
-      {
-        "name": "Outsourced Switch Operation to Regional Operator",
-        "status": "conditional",
-        "status_reason": "BCV's institutional capacity constraint is removed if switch operation is contracted to an experienced payments infrastructure operator — candidates include Montran, Temenos, or a regional body like BCEAO's GIM-UEMOA (though Cabo Verde is not ECOWAS). This is structurally viable but requires BCV to accept operational dependency on a third party for critical national infrastructure, which has sovereignty and procurement implications.",
-        "stress_test": "Under adversarial conditions, a sole-source outsource operator holds systemic leverage over Cabo Verde's entire payment infrastructure. Contract renegotiation, operator insolvency, or geopolitical pressure on the operator's home jurisdiction creates a single-point-of-failure with no domestic fallback. The 2012 SWIFT disconnection of Iranian banks is the extreme-case precedent.",
-        "prerequisite": "BCV must retain contractual override rights, maintain a domestic disaster recovery node with 72-hour autonomous operation capability, and the National Assembly must authorize the outsourcing of critical infrastructure operation via explicit legislation."
-      },
-      {
-        "name": "Tiered Access Model: Full API for Large Providers, USSD Gateway for Small Providers",
-        "status": "conditional",
-        "status_reason": "A two-tier architecture allows CV Telecom and banks to connect via full REST/ISO 20022 APIs while credit unions, cooperatives, and small fintechs access the switch through a USSD gateway layer managed by BCV or a delegated operator. This resolves both the provider substrate asymmetry and the unbanked population device constraint simultaneously.",
-        "stress_test": "USSD gateway becomes a bottleneck under volume load — USSD sessions are stateful, concurrent session limits are set by the telco (not BCV), and CV Telecom as the dominant telco has a structural conflict of interest in setting session pricing for competitors using the gateway. Under competitive pressure, CV Telecom can technically comply while commercially throttling the gateway.",
-        "prerequisite": "BCV must negotiate non-discriminatory USSD access terms with all licensed telcos under published tariff caps before the framework launches, with an arbitration mechanism that does not require court proceedings."
-      },
-      {
-        "name": "Voluntary Interoperability with Bilateral Agreements Pre-Mandate",
-        "status": "dead",
-        "status_reason": "Cabo Verde's provider market is too small and too asymmetric for voluntary bilateral interoperability to reach equilibrium. CV Telecom has no structural incentive to interoperate with smaller wallets — interoperability reduces lock-in and network effects that currently benefit the dominant provider. Tanzania's m-Pesa required regulatory mandate; Ghana required explicit GhIPSS compulsion. Voluntary regimes in sub-10 provider markets default to the dominant player's preferred non-interoperation.",
-        "stress_test": null,
-        "prerequisite": null
-      },
-      {
-        "name": "Phased Island-by-Island Rollout (Santiago First)",
-        "status": "live",
-        "status_reason": "Santiago (Praia) accounts for roughly 55% of Cabo Verde's population and has the most developed connectivity and provider infrastructure. Launching mandatory switch connection on Santiago first allows BCV to stress-test the operational model, build institutional capacity incrementally, and generate observable data on failure modes before extending to structurally weaker islands. This is not a workaround — it is a structurally necessary sequencing given substrate heterogeneity.",
-        "stress_test": "Under adversarial pressure, Santiago-only launch creates a two-tier national payment system that entrenches exclusion of outer islands for the duration of the rollout. Providers have rational incentive to concentrate transaction volume on Santiago indefinitely, lobbying for extension delays. The 'phased rollout' becomes a permanent state. Binding rollout milestones with regulatory consequences for delay must be embedded in the framework from inception.",
-        "prerequisite": "BCV must publish a legally binding island extension schedule with no-extension clauses and automatic license review triggers if milestones are missed."
-      }
-    ],
-    "early_warnings": [
-      "BCV posts a tender for switch technology procurement without first publishing the API standardization specification — indicates the technology is being selected before the standard exists, guaranteeing vendor-captured architecture.",
-      "Provider integration timelines extend beyond 18 months without a published explanation — indicates either technical complexity exceeding provider substrate or covert resistance by dominant providers.",
-      "CV Telecom's USSD session rejection rates for competitor wallet transactions rise above baseline without a corresponding rise in own-wallet rejections — indicates technical throttling of gateway access.",
-      "BCV's published DNS net settlement reports show one provider consistently at or near their intraday exposure limit — indicates imminent liquidity failure or intentional float manipulation.",
-      "Outer island transaction volumes remain below 5% of national mobile money volume 24 months post-launch — indicates the unbanked inclusion goal has already failed regardless of nominal switch uptime.",
-      "More than one small provider applies for license surrender or merger within 12 months of mandatory switch connection — indicates integration costs are consolidating the market, not expanding it.",
-      "BCV issues more than two API standard version updates in the first year without a deprecation schedule — indicates governance of the standard has collapsed into ad hoc patching.",
-      "A provider begins operating an informal bilateral settlement arrangement outside the switch for high-value transactions — indicates the switch's latency or cost structure has made it uncompetitive for exactly the transaction types that generate float."
-    ],
-    "recommendations": [
-      "Replace real-time gross settlement with legally codified deferred net settlement (minimum 4 daily cycles) as the baseline architecture, with RTGS reserved as an optional upgrade for providers who can structurally support it — this removes the connectivity wall without abandoning the settlement framework.",
-      "BCV must publish a binding, versioned API specification before any procurement tender is issued; the specification must include USSD fallback as a first-class interface, not an afterthought — failure to do this inverts the inclusion goal.",
-      "Establish an independent Payments Infrastructure Operations Unit — either within BCV under a separate budget line or as a state-owned special purpose vehicle — with a dedicated NOC, before the switch goes live; do not operate national critical infrastructure with supervisory-grade staffing.",
-      "Negotiate and publish non-discriminatory USSD access tariffs with all licensed telcos as a regulatory precondition to framework launch; include an automatic arbitration clause that resolves disputes within 30 days without court proceedings.",
-      "Embed legally binding island extension milestones in the framework regulation itself, with automatic license review consequences for dominant providers who fail to support outer-island coverage by specified dates — prevent phased rollout from becoming permanent exclusion.",
-      "Commission a provider-specific substrate assessment before setting mandatory connection timelines; any provider whose integration cost exceeds 15% of their annual revenue should receive a BCV-administered technical assistance grant to prevent market consolidation.",
-      "Conduct a formal DNS intraday exposure simulation using actual 12-month transaction data from existing providers before go-live, to set collateral requirements at empirically defensible levels rather than estimated ones.",
-      "Insert a contractual sovereignty clause in any outsourced switch operation agreement requiring the vendor to maintain a domestically hosted disaster recovery node capable of 72-hour autonomous operation, with BCV retaining cryptographic override keys."
-    ],
-    "conventional_analysis_sufficient": false,
-    "conventional_analysis_note": null
+    "en": {
+      "scenario_summary": "Cabo Verde's Banco de Cabo Verde (BCV) is designing a mandatory mobile money interoperability framework connecting banks, fintechs, and telcos through a centrally operated national switch with real-time settlement and standardized APIs, targeting the ~30% unbanked population across 10 islands with heterogeneous connectivity.",
+      "constraints": [
+        {
+          "name": "Island Connectivity Fragmentation",
+          "type": "technical",
+          "description": "Cabo Verde's 10 islands have demonstrably heterogeneous internet and mobile connectivity. Real-time settlement — the framework's core technical premise — is structurally impossible on islands where last-mile connectivity is intermittent or sub-threshold for low-latency API calls. A central switch requiring synchronous settlement will either exclude the lowest-connectivity islands (defeating the financial inclusion mandate) or require offline/deferred settlement logic that introduces reconciliation complexity and fraud exposure the current regulatory framework (Legislative Decrees 7/2018, 8/2018, 9/2018) does not explicitly address.",
+          "severity": "blocking"
+        },
+        {
+          "name": "Exclusivity Agreements in Remittance Payout Networks",
+          "type": "regulatory",
+          "description": "As documented in the research context, payout networks in Cabo Verde are frequently bound by exclusivity agreements with Western Union and MoneyGram, limiting agent network participation. These contractual obligations are not overridden by the existing SPCV legislative package, meaning a significant share of the physical distribution infrastructure cannot legally participate in the shared settlement layer without contract renegotiation or regulatory intervention. The BCV has not yet exercised explicit authority to void or compel renegotiation of these private contracts.",
+          "severity": "blocking"
+        },
+        {
+          "name": "BCV Operational Capacity as Switch Operator",
+          "type": "institutional",
+          "description": "BCV is simultaneously the regulator, switch operator, and supervisor under this framework. This triple role creates a structural conflict: as operator, BCV is a commercial participant with uptime and revenue dependencies; as regulator, it must adjudicate disputes among providers it also competes with for settlement fees and data. Comparable central bank-operated switches in Africa have required independent governance bodies to resolve this. Cabo Verde's institutional substrate — with a small civil service and ITU e-government rank of 111th — cannot absorb this operational complexity without significant capacity injection.",
+          "severity": "blocking"
+        },
+        {
+          "name": "ISO 20022 Harmonization Across Heterogeneous Providers",
+          "type": "technical",
+          "description": "Standardized API adoption (ISO 20022 or equivalent) requires all licensed providers — including small fintechs like Makeba and telcos with legacy USSD-based stacks — to undertake non-trivial technical migrations. The AfricaNenda proof-of-concept involved only three commercial banks, not telcos or fintechs. Banks have compliance teams; smaller players do not. Mandating a single standard without differentiated timelines creates a compliance cliff that will structurally exclude the smallest providers, reducing the diversity the framework is designed to create.",
+          "severity": "limiting"
+        },
+        {
+          "name": "AML/CFT Compliance at Unbanked Scale",
+          "type": "regulatory",
+          "description": "Extending financial access to the ~30% unbanked population will generate high volumes of low-value, high-frequency transactions from previously unmonitored individuals. BCV's AML/CFT framework, while present, has not been stress-tested at the transaction volumes that full interoperability adoption would generate. The research context explicitly flags the need for 'AML assessments' as a known challenge from comparable implementations. Tiered KYC (common in similar African frameworks) is not explicitly codified in Legislative Decrees 7/2018–9/2018, creating a legal gap between inclusion targets and compliance obligations.",
+          "severity": "limiting"
+        },
+        {
+          "name": "Operator Profitability Compression",
+          "type": "economic",
+          "description": "Empirical evidence from comparable African implementations confirms that interoperability lowers fees and compresses operator margins. For Cabo Verde's telcos, mobile money cross-subsidizes voice/data network investment in low-density island markets. Margin compression on mobile money reduces the economic incentive to maintain and expand network infrastructure on remote islands — directly undermining the connectivity prerequisite for real-time settlement. This creates a structural negative feedback loop: the framework's success degrades the infrastructure it depends on.",
+          "severity": "limiting"
+        },
+        {
+          "name": "Small Market Size and Liquidity Concentration",
+          "type": "economic",
+          "description": "Cabo Verde's total population is approximately 550,000 across 10 islands. The domestic transaction pool is structurally thin. A real-time gross settlement (RTGS) or near-RTGS system requires liquidity buffers that participants must pre-fund. Small fintechs and new entrants will face disproportionate prefunding burdens relative to their transaction volumes, creating a structural barrier to entry that contradicts the inclusion mandate and may result in de facto oligopoly consolidation around the largest banks.",
+          "severity": "shaping"
+        },
+        {
+          "name": "Cultural and Behavioral Adoption Lag",
+          "type": "cultural",
+          "description": "The research context notes that while 78% of adults have bank accounts, usage is lower than ownership — a classic indicator of trust deficits and habitual cash preference. The unbanked 30% are concentrated in populations with the least prior exposure to formal financial infrastructure. Technical interoperability does not translate to behavioral adoption. In the absence of demand-side interventions (agent density, language-appropriate UX, community trust-building), the switch infrastructure may operate at volumes too low to achieve the fee compression and network effects that justify its cost.",
+          "severity": "shaping"
+        }
+      ],
+      "branches": [
+        {
+          "name": "Full Mandatory Real-Time Settlement Across All Islands Simultaneously",
+          "status": "dead",
+          "status_reason": "The connectivity substrate on lower-infrastructure islands cannot support synchronous real-time settlement. Mandating this uniformly will either cause persistent transaction failures on underserved islands or force the system into unacknowledged deferred-settlement states that violate the regulatory design without any fallback protocol. The existing legislative framework does not provide for offline settlement modes, making this structurally non-compliant with its own goals from day one.",
+          "stress_test": null,
+          "prerequisite": null
+        },
+        {
+          "name": "Phased Island-by-Island Rollout with Tiered Settlement Modes",
+          "status": "conditional",
+          "status_reason": "A phased rollout — beginning with Santiago (Praia) and São Vicente (Mindelo), where connectivity and provider concentration are highest — mirrors the AfricaNenda-supported proof-of-concept trajectory and is structurally viable. Tiered settlement (real-time on high-connectivity islands, store-and-forward on low-connectivity islands) is technically achievable and precedented. However, it requires explicit regulatory authorization under the SPCV framework that does not currently exist, and BCV must build or procure the switch architecture capable of managing dual settlement modes.",
+          "stress_test": "Under adversarial pressure, the 'temporary' deferred-settlement tier for remote islands becomes permanent as capital investment in those islands' connectivity fails to materialize. This creates a two-tier financial system where the unbanked populations in the most remote locations — the primary target demographic — remain on the inferior settlement tier indefinitely. Political pressure to declare the framework 'complete' before parity is achieved is the critical failure mode.",
+          "prerequisite": "Explicit regulatory amendment to Legislative Decrees 7/2018–9/2018 authorizing tiered settlement modes; BCV switch architecture supporting both real-time and store-and-forward protocols; defined technical parity milestones with enforcement mechanisms."
+        },
+        {
+          "name": "BCV as Neutral Switch Operator with Independent Governance",
+          "status": "conditional",
+          "status_reason": "BCV operating the switch while regulating participants is a structural conflict that will eventually surface in disputed settlement outcomes, pricing complaints, or access denial claims. The branch where BCV operates the switch as a neutral, independently governed utility is viable only if a formal governance separation is established — either through an independent payment system operator (PSO) entity or a multi-stakeholder board with binding authority over switch operations. This is common in comparable African frameworks (e.g., Rwanda's governance model) but requires political will and institutional redesign.",
+          "stress_test": "Under adversarial pressure, a major commercial bank challenges BCV's settlement fee pricing as anti-competitive since BCV simultaneously sets the fee schedule and collects it. This triggers a regulatory arbitration process for which no independent adjudicator exists. The resulting legal paralysis stalls new provider onboarding and creates reputational risk for the entire framework.",
+          "prerequisite": "Establishment of an independent payment system governance body with operational authority over the switch, distinct from BCV's supervisory function; legal basis for this separation within Cabo Verde's payment system law."
+        },
+        {
+          "name": "Forced API Standardization with Uniform Compliance Timeline",
+          "status": "dead",
+          "status_reason": "Applying a single ISO 20022 compliance deadline uniformly across commercial banks, fintechs like Makeba, and telcos with USSD legacy infrastructure will structurally exclude the smaller and newer entrants before the framework launches. The AfricaNenda POC covered only three banks — the most technically capable participants. Extending the same timeline to the full ecosystem will result in non-compliance by the majority of non-bank providers, reducing the framework to an interbank system that does not achieve its inclusion mandate.",
+          "stress_test": null,
+          "prerequisite": null
+        },
+        {
+          "name": "Differentiated API Onboarding with Compliance Sandbox",
+          "status": "live",
+          "status_reason": "A differentiated onboarding pathway — where commercial banks comply immediately, fintechs and telcos have extended timelines, and a regulatory sandbox permits non-standard integrations during transition — is structurally viable and consistent with the BCV's stated approach to innovation and digital channel promotion under the SPCV framework. It preserves provider diversity while maintaining a clear convergence target. The AfricaNenda technical assistance relationship provides the capacity support needed for this approach.",
+          "stress_test": "Under adversarial pressure, telcos exploit the extended sandbox period to delay full compliance indefinitely, using proprietary API layers to maintain de facto walled gardens while nominally participating in the framework. Without hard enforcement triggers (e.g., mandatory compliance gates tied to license renewal), the sandbox becomes a permanent exemption mechanism.",
+          "prerequisite": "Hard compliance milestones with license-linked enforcement; sandbox rules that prevent indefinite extension; AfricaNenda or equivalent technical support for smaller providers during transition."
+        },
+        {
+          "name": "Full Remittance Network Integration Including MTO Exclusivity Break",
+          "status": "conditional",
+          "status_reason": "Cabo Verde's remittance flows are economically significant and the existing payout infrastructure is locked behind exclusivity agreements. Breaking these agreements to integrate MTO payout networks into the interoperability framework is legally possible through regulatory intervention but requires BCV to exercise authority it has not yet formally claimed over private MTO contracts. Without this, the interoperability framework will be structurally disconnected from the dominant formal cash flows into the island economy.",
+          "stress_test": "Under adversarial pressure, Western Union and MoneyGram challenge BCV's authority to void exclusivity clauses in private commercial contracts under Cabo Verde's civil and commercial law. Litigation stalls MTO integration for 3–5 years, during which the framework launches without remittance connectivity — removing one of its most compelling use cases for the unbanked and reducing adoption velocity.",
+          "prerequisite": "Explicit legislative authority for BCV to prohibit or override exclusivity clauses in payment agent contracts; or negotiated commercial resolution with MTOs offering competitive terms via the switch."
+        },
+        {
+          "name": "Demand-Side Activation Without Agent Network Expansion",
+          "status": "dead",
+          "status_reason": "The unbanked 30% in Cabo Verde are concentrated in low-density island locations with sparse formal agent presence. Technical interoperability at the switch level does not create the last-mile cash-in/cash-out points needed for unbanked populations to enter the system. Without explicit agent network expansion mandates or incentives — which the current framework design does not include — the inclusion mandate is structurally unachievable regardless of switch performance. Low account ownership also correlates with low digital literacy, making app-based access insufficient alone.",
+          "stress_test": null,
+          "prerequisite": null
+        },
+        {
+          "name": "G2P Payment Integration as Inclusion Catalyst",
+          "status": "live",
+          "status_reason": "Routing government-to-person (G2P) payments — social transfers, public sector wages, government subsidies — through the interoperability switch creates a supply-side demand pull that forces unbanked recipients to open accounts and adopt the system. This mirrors Rwanda's successful G2P integration via its interoperability platform and is consistent with the GOV.CV portal's payment standardization goals. It does not require voluntary adoption and directly addresses the behavioral adoption barrier.",
+          "stress_test": "Under adversarial pressure, G2P routing through the switch exposes the system to politically sensitive failures: if the switch experiences downtime during a social payment disbursement cycle, the reputational and political damage is disproportionately severe. A single high-profile payment failure becomes evidence that 'digitizing welfare is dangerous,' creating backlash that reverses policy support. BCV's switch must meet a 99.9%+ uptime SLA before G2P integration — a threshold not yet demonstrated.",
+          "prerequisite": "Switch uptime and resilience demonstrated at 99.9%+ over a minimum 12-month operational period before G2P routing; government digital payment policy mandate; social protection agency cooperation."
+        }
+      ],
+      "early_warnings": [
+        "AfricaNenda's POC with three banks fails to expand to telco or fintech participants within 18 months of launch — indicating API standardization barriers are structural, not transitional.",
+        "BCV switch uptime falls below 99.5% in the first operational year — a leading indicator of infrastructure under-capacity before the system reaches full load.",
+        "Transaction volumes on outer islands (Fogo, Brava, Santo Antão, São Nicolau) are less than 20% of per-capita volumes on Santiago after 24 months — indicating connectivity-driven exclusion is hardening into a permanent two-tier system.",
+        "Any licensed provider publicly announces delayed or cancelled API integration due to compliance cost — signals the uniform onboarding timeline is causing provider exit before inclusion gains materialize.",
+        "BCV receives a formal complaint from a commercial bank alleging anti-competitive switch pricing — the first observable signal that the regulator-operator conflict is activating.",
+        "Makeba or any small fintech ceases operations or is acquired within 24 months of framework launch — indicates liquidity prefunding burden or margin compression has eliminated the fintech tier.",
+        "G2P disbursement agencies decline to route payments through the switch, preferring existing cash channels — reveals that trust in switch reliability has not reached the threshold required for institutional adoption.",
+        "Exclusivity agreement renegotiations with Western Union or MoneyGram stall beyond 12 months — indicates the framework will launch without remittance integration, capping its financial inclusion impact.",
+        "Mobile network investment announcements by telcos decrease in the two years following framework launch — early signal that margin compression is triggering network investment withdrawal, degrading the connectivity substrate.",
+        "BCV issues no enforcement action against any provider that misses a sandbox compliance milestone — indicates the differentiated onboarding pathway has become a permanent exemption with no convergence trajectory."
+      ],
+      "recommendations": [
+        "Amend Legislative Decrees 7/2018–9/2018 immediately to explicitly authorize tiered settlement modes (real-time and store-and-forward), with defined technical parity milestones and timelines — this is the single highest-priority structural prerequisite without which the framework is internally inconsistent from launch.",
+        "Separate BCV's switch operational function from its regulatory function by establishing an independent payment system governance board with multi-stakeholder representation (banks, fintechs, telcos, consumer advocates) and binding authority over switch pricing and access rules — model this on Rwanda's governance structure, not an ad hoc internal BCV committee.",
+        "Sequence provider onboarding in three explicit tranches: Tranche 1 (0–12 months): commercial banks already in the POC; Tranche 2 (12–30 months): fintechs including Makeba, with AfricaNenda technical support; Tranche 3 (30–48 months): telcos with legacy USSD infrastructure — with hard license-renewal compliance gates at each tranche boundary.",
+        "Initiate formal legislative process to grant BCV explicit authority to prohibit exclusivity clauses in payment agent contracts before framework launch — this unblocks the remittance payout network and is a prerequisite for the framework's relevance to the unbanked.",
+        "Do not route G2P payments through the switch until it has demonstrated 99.9%+ uptime over a consecutive 12-month operational period with independent audit — reputational catastrophe from a G2P failure is worse than delayed adoption.",
+        "Mandate agent network expansion as a condition of provider licensing under the framework, with minimum island coverage ratios — without this, the switch has no last-mile distribution and the inclusion mandate fails structurally.",
+        "Negotiate a tiered prefunding model with the central bank as liquidity backstop for small providers during the first 36 months — this prevents the small market size from collapsing provider diversity into a bank oligopoly before network effects materialize.",
+        "Establish a published, time-bound connectivity investment roadmap for the outer islands (Fogo, Brava, Santo Antão, São Nicolau) coordinated between BCV, the government, and telcos before framework launch — without this, the deferred-settlement tier for remote islands will harden into permanent exclusion.",
+        "Codify tiered KYC requirements explicitly in the regulatory framework to close the gap between inclusion targets and AML/CFT obligations — this is a known gap identified in comparable African implementations and must be resolved before the unbanked population can legally onboard at scale.",
+        "Commission an independent stress test of the switch architecture under simulated peak load (assume 10× current transaction volumes within 36 months based on comparable country trajectories) before mandatory provider onboarding begins — the AfricaNenda POC with three banks is insufficient evidence of production-grade resilience."
+      ],
+      "conventional_analysis_sufficient": false,
+      "conventional_analysis_note": null
+    },
+    "pt": {
+      "scenario_summary": "O Banco de Cabo Verde (BCV) está a conceber um enquadramento obrigatório de interoperabilidade de dinheiro móvel que liga bancos, fintechs e operadores de telecomunicações através de um switch nacional operado centralmente, com liquidação em tempo real e APIs normalizadas, visando os ~30% da população não bancarizada distribuída por 10 ilhas com conectividade heterogénea.",
+      "constraints": [
+        {
+          "name": "Fragmentação da Conectividade entre Ilhas",
+          "type": "technical",
+          "description": "As 10 ilhas de Cabo Verde apresentam conectividade de internet e rede móvel comprovadamente heterogénea. A liquidação em tempo real — premissa técnica central do enquadramento — é estruturalmente impossível nas ilhas com infraestrutura mais deficiente, onde a conectividade de última milha é intermitente ou insuficiente para chamadas de API com baixa latência. Um switch central que exija liquidação síncrona irá ou excluir as ilhas com menor conectividade (contrariando o mandato de inclusão financeira) ou requerer lógica de liquidação diferida/offline que introduz complexidade de reconciliação e exposição a fraude que os Decretos-Lei 7/2018, 8/2018 e 9/2018 não cobrem explicitamente.",
+          "severity": "blocking"
+        },
+        {
+          "name": "Acordos de Exclusividade nas Redes de Pagamento de Remessas",
+          "type": "regulatory",
+          "description": "Conforme documentado no contexto de investigação, as redes de pagamento em Cabo Verde estão frequentemente vinculadas por acordos de exclusividade com a Western Union e a MoneyGram, limitando a participação da rede de agentes. Estas obrigações contratuais não são anuladas pelo pacote legislativo SPCV existente, o que significa que uma parte significativa da infraestrutura de distribuição física não pode legalmente participar na camada de liquidação partilhada sem renegociação contratual ou intervenção regulatória. O BCV ainda não exerceu autoridade explícita para anular ou compelir a renegociação destes contratos privados.",
+          "severity": "blocking"
+        },
+        {
+          "name": "Capacidade Operacional do BCV como Operador do Switch",
+          "type": "institutional",
+          "description": "O BCV é simultaneamente regulador, operador do switch e supervisor no âmbito deste enquadramento. Este triplo papel cria um conflito estrutural: como operador, o BCV é um participante comercial com dependências de tempo de funcionamento e receitas; como regulador, deve arbitrar disputas entre prestadores com quem também compete em termos de comissões de liquidação e dados. Switches operados por bancos centrais comparáveis em África exigiram organismos de governação independentes para resolver este conflito. O substrato institucional de Cabo Verde — com uma função pública reduzida e classificação de e-governação da UIT no lugar 111 — não consegue absorver esta complexidade operacional sem uma injeção significativa de capacidade.",
+          "severity": "blocking"
+        },
+        {
+          "name": "Harmonização ISO 20022 entre Prestadores Heterogéneos",
+          "type": "technical",
+          "description": "A adoção de APIs normalizadas (ISO 20022 ou equivalente) exige que todos os prestadores licenciados — incluindo pequenas fintechs como a Makeba e operadores de telecomunicações com infraestruturas USSD legadas — realizem migrações técnicas não triviais. O projeto piloto da AfricaNenda envolveu apenas três bancos comerciais, não operadores de telecomunicações nem fintechs. Os bancos têm equipas de conformidade; os players de menor dimensão não as têm. Impor uma norma única sem prazos diferenciados cria um abismo de conformidade que excluirá estruturalmente os menores prestadores, reduzindo a diversidade que o enquadramento pretende criar.",
+          "severity": "limiting"
+        },
+        {
+          "name": "Conformidade AML/CFT à Escala da População Não Bancarizada",
+          "type": "regulatory",
+          "description": "Alargar o acesso financeiro aos ~30% da população não bancarizada irá gerar volumes elevados de transações de baixo valor e alta frequência de indivíduos previamente não monitorizados. O enquadramento AML/CFT do BCV, embora existente, não foi testado sob pressão nos volumes de transação que a adoção plena da interoperabilidade geraria. O contexto de investigação assinala explicitamente a necessidade de 'avaliações AML' como desafio conhecido em implementações comparáveis. O KYC por níveis (comum em enquadramentos africanos similares) não está explicitamente codificado nos Decretos-Lei 7/2018–9/2018, criando uma lacuna legal entre os objetivos de inclusão e as obrigações de conformidade.",
+          "severity": "limiting"
+        },
+        {
+          "name": "Compressão da Rentabilidade dos Operadores",
+          "type": "economic",
+          "description": "A evidência empírica de implementações africanas comparáveis confirma que a interoperabilidade reduz comissões e comprime margens dos operadores. Para as operadoras de telecomunicações de Cabo Verde, o dinheiro móvel subsidia o investimento em redes de voz/dados em mercados insulares de baixa densidade. A compressão de margens no dinheiro móvel reduz o incentivo económico para manter e expandir a infraestrutura de rede nas ilhas mais remotas — comprometendo diretamente o requisito de conectividade para a liquidação em tempo real. Isto cria um ciclo de retroação negativo estrutural: o sucesso do enquadramento degrada a infraestrutura de que depende.",
+          "severity": "limiting"
+        },
+        {
+          "name": "Reduzida Dimensão do Mercado e Concentração de Liquidez",
+          "type": "economic",
+          "description": "A população total de Cabo Verde é de aproximadamente 550.000 habitantes distribuídos por 10 ilhas. O volume de transações domésticas é estruturalmente reduzido. Um sistema de liquidação bruta em tempo real (RTGS) ou próximo de RTGS exige reservas de liquidez que os participantes devem pré-financiar. As pequenas fintechs e novos entrantes enfrentarão encargos de pré-financiamento desproporcionados face aos seus volumes de transação, criando uma barreira estrutural à entrada que contradiz o mandato de inclusão e pode resultar numa consolidação oligopolista de facto em torno dos maiores bancos.",
+          "severity": "shaping"
+        },
+        {
+          "name": "Desfasamento Cultural e Comportamental na Adoção",
+          "type": "cultural",
+          "description": "O contexto de investigação refere que, apesar de 78% dos adultos possuírem contas bancárias, a utilização é inferior à titularidade — indicador clássico de défices de confiança e preferência habitual pelo numerário. Os 30% não bancarizados concentram-se nas populações com menor exposição prévia à infraestrutura financeira formal. A interoperabilidade técnica não se traduz automaticamente em adoção comportamental. Na ausência de intervenções do lado da procura (densidade de agentes, UX adaptada ao idioma, construção de confiança comunitária), a infraestrutura do switch poderá operar com volumes demasiado baixos para alcançar a compressão de comissões e os efeitos de rede que justificam o seu custo.",
+          "severity": "shaping"
+        }
+      ],
+      "branches": [
+        {
+          "name": "Liquidação em Tempo Real Obrigatória e Simultânea em Todas as Ilhas",
+          "status": "dead",
+          "status_reason": "O substrato de conectividade nas ilhas com infraestrutura mais deficiente não suporta a liquidação síncrona em tempo real. Impô-la de forma uniforme resultará em falhas persistentes de transação nas ilhas menos servidas ou forçará o sistema a estados de liquidação diferida não reconhecidos que violam o design regulatório sem qualquer protocolo de contingência. O enquadramento legislativo existente não prevê modos de liquidação offline, tornando este cenário estruturalmente não conforme com os seus próprios objetivos desde o primeiro dia.",
+          "stress_test": null,
+          "prerequisite": null
+        },
+        {
+          "name": "Implementação Faseada por Ilha com Modos de Liquidação por Níveis",
+          "status": "conditional",
+          "status_reason": "Uma implementação faseada — começando por Santiago (Praia) e São Vicente (Mindelo), onde a conectividade e a concentração de prestadores são mais elevadas — espelha a trajetória do projeto piloto apoiado pela AfricaNenda e é estruturalmente viável. A liquidação por níveis (tempo real nas ilhas com maior conectividade, armazenar-e-reencaminhar nas ilhas com menor conectividade) é tecnicamente alcançável e conta com precedentes. No entanto, exige autorização regulatória explícita ao abrigo do enquadramento SPCV que atualmente não existe, e o BCV deve construir ou adquirir a arquitetura do switch capaz de gerir modos de liquidação duplos.",
+          "stress_test": "Sob pressão adversarial, o nível de liquidação diferida 'temporário' para as ilhas remotas torna-se permanente à medida que o investimento em conectividade nessas ilhas não se materializa. Isto cria um sistema financeiro a dois velocidades em que as populações não bancarizadas nas localizações mais remotas — o principal grupo-alvo — permanecem indefinidamente no nível de liquidação inferior. A pressão política para declarar o enquadramento 'concluído' antes de ser alcançada a paridade é o modo de falha crítico.",
+          "prerequisite": "Alteração regulatória explícita aos Decretos-Lei 7/2018–9/2018 autorizando modos de liquidação por níveis; arquitetura do switch do BCV que suporte protocolos de tempo real e de armazenar-e-reencaminhar; marcos de paridade técnica definidos com mecanismos de aplicação."
+        },
+        {
+          "name": "BCV como Operador Neutro do Switch com Governação Independente",
+          "status": "conditional",
+          "status_reason": "O BCV operar o switch enquanto regula os participantes é um conflito estrutural que eventualmente se manifestará em resultados de liquidação disputados, reclamações de preços ou pedidos de negação de acesso. O cenário em que o BCV opera o switch como uma infraestrutura neutral e com governação independente é viável apenas se for estabelecida uma separação formal de governação — seja através de uma entidade operadora de sistema de pagamentos (OSP) independente ou de um conselho com múltiplos intervenientes com autoridade vinculativa sobre as operações do switch. Isto é comum em enquadramentos africanos comparáveis (por exemplo, o modelo de governação do Ruanda), mas requer vontade política e redesenho institucional.",
+          "stress_test": "Sob pressão adversarial, um grande banco comercial contesta o preçário de liquidação do BCV como anticoncorrencial, uma vez que o BCV define simultaneamente o tarifário e o cobra. Isto desencadeia um processo de arbitragem regulatória para o qual não existe árbitro independente. O consequente bloqueio jurídico paralisa a integração de novos prestadores e cria risco reputacional para todo o enquadramento.",
+          "prerequisite": "Criação de um organismo independente de governação do sistema de pagamentos com autoridade operacional sobre o switch, distinto da função supervisora do BCV; base legal para esta separação no âmbito da legislação do sistema de pagamentos de Cabo Verde."
+        },
+        {
+          "name": "Normalização Forçada de APIs com Prazo de Conformidade Uniforme",
+          "status": "dead",
+          "status_reason": "Aplicar um único prazo de conformidade ISO 20022 uniformemente a bancos comerciais, fintechs como a Makeba e operadoras de telecomunicações com infraestrutura USSD legada excluirá estruturalmente os participantes de menor dimensão e mais recentes antes mesmo do lançamento do enquadramento. O projeto piloto da AfricaNenda abrangeu apenas três bancos — os participantes tecnicamente mais capazes. Estender o mesmo prazo a todo o ecossistema resultará em incumprimento pela maioria dos prestadores não bancários, reduzindo o enquadramento a um sistema interbancário que não alcança o seu mandato de inclusão.",
+          "stress_test": null,
+          "prerequisite": null
+        },
+        {
+          "name": "Integração Diferenciada de APIs com Sandbox de Conformidade",
+          "status": "live",
+          "status_reason": "Uma via de integração diferenciada — em que os bancos comerciais cumprem imediatamente, as fintechs e operadoras de telecomunicações têm prazos alargados, e uma sandbox regulatória permite integrações não normalizadas durante a transição — é estruturalmente viável e coerente com a abordagem declarada do BCV à inovação e promoção de canais digitais ao abrigo do enquadramento SPCV. Preserva a diversidade de prestadores mantendo um objetivo de convergência claro. A relação de assistência técnica da AfricaNenda proporciona o apoio de capacidade necessário para esta abordagem.",
+          "stress_test": "Sob pressão adversarial, as operadoras de telecomunicações exploram o período alargado da sandbox para adiar indefinidamente a conformidade plena, utilizando camadas de API proprietárias para manter jardins fechados de facto enquanto participam nominalmente no enquadramento. Sem mecanismos de aplicação rígidos (por exemplo, metas de conformidade obrigatórias vinculadas à renovação de licença), a sandbox torna-se um mecanismo de isenção permanente.",
+          "prerequisite": "Marcos de conformidade rígidos com aplicação vinculada à licença; regras de sandbox que impeçam extensões indefinidas; suporte técnico da AfricaNenda ou equivalente para prestadores de menor dimensão durante a transição."
+        },
+        {
+          "name": "Integração Plena da Rede de Remessas Incluindo Quebra da Exclusividade dos OTM",
+          "status": "conditional",
+          "status_reason": "Os fluxos de remessas de Cabo Verde são economicamente significativos e a infraestrutura de pagamentos existente está bloqueada por acordos de exclusividade. Quebrar estes acordos para integrar as redes de pagamento dos OTM no enquadramento de interoperabilidade é legalmente possível através de intervenção regulatória, mas exige que o BCV exerça uma autoridade sobre contratos privados de OTM que ainda não reivindicou formalmente. Sem isto, o enquadramento de interoperabilidade ficará estruturalmente desconectado dos fluxos financeiros formais dominantes para a economia insular.",
+          "stress_test": "Sob pressão adversarial, a Western Union e a MoneyGram contestam a autoridade do BCV para anular cláusulas de exclusividade em contratos comerciais privados ao abrigo do direito civil e comercial de Cabo Verde. O litígio bloqueia a integração dos OTM por 3 a 5 anos, durante os quais o enquadramento é lançado sem conectividade de remessas — eliminando um dos seus casos de uso mais relevantes para os não bancarizados e reduzindo a velocidade de adoção.",
+          "prerequisite": "Autoridade legislativa explícita para o BCV proibir ou anular cláusulas de exclusividade em contratos de agentes de pagamento; ou resolução comercial negociada com os OTM que ofereça condições competitivas através do switch."
+        },
+        {
+          "name": "Ativação do Lado da Procura sem Expansão da Rede de Agentes",
+          "status": "dead",
+          "status_reason": "Os 30% não bancarizados em Cabo Verde estão concentrados em localizações insulares de baixa densidade com escassa presença formal de agentes. A interoperabilidade técnica ao nível do switch não cria os pontos de depósito/levantamento de numerário de última milha necessários para que as populações não bancarizadas entrem no sistema. Sem mandatos ou incentivos explícitos de expansão da rede de agentes — que o design atual do enquadramento não inclui — o mandato de inclusão é estruturalmente inalcançável independentemente do desempenho do switch. A baixa titularidade de contas também se correlaciona com baixa literacia digital, tornando o acesso exclusivamente por aplicação insuficiente.",
+          "stress_test": null,
+          "prerequisite": null
+        },
+        {
+          "name": "Integração de Pagamentos G2P como Catalisador de Inclusão",
+          "status": "live",
+          "status_reason": "Encaminhar pagamentos do governo para pessoas (G2P) — transferências sociais, salários do setor público, subsídios governamentais — através do switch de interoperabilidade cria uma pressão de procura do lado da oferta que obriga os beneficiários não bancarizados a abrir contas e adotar o sistema. Isto espelha a integração G2P bem-sucedida do Ruanda através da sua plataforma de interoperabilidade e é coerente com os objetivos de normalização de pagamentos do portal GOV.CV. Não requer adoção voluntária e aborda diretamente a barreira de adoção comportamental.",
+          "stress_test": "Sob pressão adversarial, o encaminhamento G2P através do switch expõe o sistema a falhas politicamente sensíveis: se o switch sofrer uma interrupção durante um ciclo de pagamento de transferências sociais, os danos reputacionais e políticos são desproporcionalmente graves. Uma única falha de pagamento de alto perfil torna-se evidência de que 'digitalizar o apoio social é perigoso', criando um retrocesso que reverte o apoio político. O switch do BCV deve cumprir um SLA de disponibilidade de 99,9%+ antes da integração G2P — um limiar ainda não demonstrado.",
+          "prerequisite": "Disponibilidade e resiliência do switch demonstradas a 99,9%+ ao longo de um período operacional mínimo de 12 meses antes do encaminhamento G2P; mandato de política de pagamentos digitais do governo; cooperação das agências de proteção social."
+        }
+      ],
+      "early_warnings": [
+        "O projeto piloto da AfricaNenda com três bancos não se expande a participantes de telecomunicações ou fintechs nos primeiros 18 meses após o lançamento — indica que as barreiras de normalização de API são estruturais, não transitórias.",
+        "O tempo de funcionamento do switch do BCV cai abaixo de 99,5% no primeiro ano operacional — indicador avançado de subcapacidade de infraestrutura antes de o sistema atingir a carga plena.",
+        "Os volumes de transação nas ilhas periféricas (Fogo, Brava, Santo Antão, São Nicolau) são inferiores a 20% dos volumes per capita em Santiago após 24 meses — indica que a exclusão motivada pela conectividade está a cristalizar-se num sistema permanente a dois velocidades.",
+        "Qualquer prestador licenciado anuncia publicamente atraso ou cancelamento da integração de API devido a custos de conformidade — sinaliza que o prazo de integração uniforme está a provocar a saída de prestadores antes de os ganhos de inclusão se materializarem.",
+        "O BCV recebe uma reclamação formal de um banco comercial alegando preços anticoncorrenciais do switch — primeiro sinal observável de que o conflito regulador-operador está a ativar-se.",
+        "A Makeba ou qualquer pequena fintech cessa operações ou é adquirida nos primeiros 24 meses após o lançamento do enquadramento — indica que o encargo de pré-financiamento de liquidez ou a compressão de margens eliminou o nível fintech.",
+        "As agências de pagamentos G2P recusam encaminhar pagamentos através do switch, preferindo os canais de numerário existentes — revela que a confiança na fiabilidade do switch ainda não atingiu o limiar exigido para a adoção institucional.",
+        "As renegociações dos acordos de exclusividade com a Western Union ou a MoneyGram ficam bloqueadas além de 12 meses — indica que o enquadramento será lançado sem integração de remessas, limitando o seu impacto na inclusão financeira.",
+        "Os anúncios de investimento em redes móveis por parte das operadoras de telecomunicações diminuem nos dois anos seguintes ao lançamento do enquadramento — sinal precoce de que a compressão de margens está a desencadear a retirada de investimento em redes, degradando o substrato de conectividade.",
+        "O BCV não emite qualquer medida de aplicação contra prestadores que não cumpram marcos de conformidade da sandbox — indica que a via de integração diferenciada se tornou uma isenção permanente sem trajetória de convergência."
+      ],
+      "recommendations": [
+        "Alterar imediatamente os Decretos-Lei 7/2018–9/2018 para autorizar explicitamente modos de liquidação por níveis (tempo real e armazenar-e-reencaminhar), com marcos e prazos de paridade técnica definidos — este é o requisito estrutural de maior prioridade, sem o qual o enquadramento é internamente inconsistente desde o lançamento.",
+        "Separar a função operacional do switch do BCV da sua função regulatória, criando um conselho de governação independente do sistema de pagamentos com representação de múltiplos intervenientes (bancos, fintechs, telecomunicações, defesa do consumidor) e autoridade vinculativa sobre o preçário e as regras de acesso ao switch — modelar esta solução na estrutura de governação do Ruanda, não numa comissão interna ad hoc do BCV.",
+        "Sequenciar a integração de prestadores em três tranches explícitas: Tranche 1 (0–12 meses): bancos comerciais já no projeto piloto; Tranche 2 (12–30 meses): fintechs incluindo a Makeba, com apoio técnico da AfricaNenda; Tranche 3 (30–48 meses): operadoras de telecomunicações com infraestrutura USSD legada — com metas de conformidade rígidas vinculadas à renovação de licença em cada fronteira de tranche.",
+        "Iniciar processo legislativo formal para conferir ao BCV autoridade explícita para proibir cláusulas de exclusividade em contratos de agentes de pagamento antes do lançamento do enquadramento — isto desbloqueia a rede de pagamentos de remessas e é um requisito prévio para a relevância do enquadramento para os não bancarizados.",
+        "Não encaminhar pagamentos G2P através do switch até este ter demonstrado uma disponibilidade de 99,9%+ durante um período operacional consecutivo de 12 meses com auditoria independente — uma catástrofe reputacional decorrente de uma falha G2P é pior do que uma adoção mais lenta.",
+        "Impor a expansão da rede de agentes como condição de licenciamento de prestadores ao abrigo do enquadramento, com rácios mínimos de cobertura por ilha — sem isto, o switch não tem distribuição de última milha e o mandato de inclusão falha estruturalmente.",
+        "Negociar um modelo de pré-financiamento por níveis com o banco central como garante de liquidez para os pequenos prestadores durante os primeiros 36 meses — isto impede que a reduzida dimensão do mercado colapse a diversidade de prestadores num oligopólio bancário antes de os efeitos de rede se materializarem.",
+        "Estabelecer um roteiro publicado e com prazo definido para o investimento em conectividade nas ilhas periféricas (Fogo, Brava, Santo Antão, São Nicolau) coordenado entre o BCV, o governo e as operadoras de telecomunicações antes do lançamento do enquadramento — sem isto, o nível de liquidação diferida para as ilhas remotas cristalizará em exclusão permanente.",
+        "Codificar requisitos de KYC por níveis explicitamente no enquadramento regulatório para colmatar a lacuna entre os objetivos de inclusão e as obrigações AML/CFT — esta é uma lacuna conhecida identificada em implementações africanas comparáveis e deve ser resolvida antes de a população não bancarizada poder integrar o sistema em escala legal.",
+        "Encomissar um teste de stress independente da arquitetura do switch sob carga de pico simulada (assumindo volumes de transação 10 vezes superiores aos atuais nos 36 meses seguintes, com base em trajetórias de países comparáveis) antes do início da integração obrigatória de prestadores — o projeto piloto da AfricaNenda com três bancos é insuficiente como evidência de resiliência de produção."
+      ],
+      "conventional_analysis_sufficient": false,
+      "conventional_analysis_note": null
+    }
   },
   "mode": "stress",
   "research_enriched": false
