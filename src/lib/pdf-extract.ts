@@ -63,8 +63,12 @@ async function extractPdf(buffer: Buffer): Promise<ExtractionResult> {
   // Dynamic import to avoid bundling issues in serverless
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
-  // Disable worker — run in main thread for serverless compatibility
-  pdfjs.GlobalWorkerOptions.workerSrc = "";
+  // Point worker to the actual file via require.resolve so Node.js can find it
+  const { createRequire } = await import("module");
+  const req = createRequire(import.meta.url);
+  pdfjs.GlobalWorkerOptions.workerSrc = req.resolve(
+    "pdfjs-dist/legacy/build/pdf.worker.mjs"
+  );
 
   const doc = await pdfjs.getDocument({
     data: new Uint8Array(buffer),
