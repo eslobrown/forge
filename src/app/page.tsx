@@ -607,8 +607,16 @@ export default function Home() {
   const [analysisData, setAnalysisData] = useState<{
     en: AnalysisResult;
     pt?: AnalysisResult;
-  } | null>({
-    en: featuredData.analysis as unknown as AnalysisResult,
+  } | null>(() => {
+    // Handle both bilingual { en: {...}, pt: {...} } and legacy single-language format
+    const a = featuredData.analysis as Record<string, unknown>;
+    if (a.en) {
+      return {
+        en: a.en as unknown as AnalysisResult,
+        pt: a.pt as unknown as AnalysisResult | undefined,
+      };
+    }
+    return { en: a as unknown as AnalysisResult };
   });
   const [activeMode, setActiveMode] = useState<PurposeId | null>(
     featuredData.mode as PurposeId
