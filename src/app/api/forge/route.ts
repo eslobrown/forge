@@ -243,7 +243,7 @@ Return ONLY valid JSON.`,
 
 export async function POST(request: NextRequest) {
   try {
-    const { scenario, mode, research = true, lang = "en" } = await request.json();
+    const { scenario, mode, research = true } = await request.json();
 
     if (!scenario || typeof scenario !== "string" || !scenario.trim()) {
       return NextResponse.json(
@@ -269,19 +269,30 @@ export async function POST(request: NextRequest) {
       userMessage += `\n\n--- RESEARCH CONTEXT (real-world data gathered before analysis) ---\n\n${researchData}\n\n--- END RESEARCH CONTEXT ---\n\nUse the research context above to ground your analysis in real-world facts, regulations, and precedents. Reference specific data points, laws, and comparable cases where relevant.`;
     }
 
-    userMessage += `\n\n${outputSchema}`;
+    // Step 3: Wrap output schema for bilingual output
+    const bilingualSchema = `You must return a JSON object with TWO keys: "en" and "pt".
 
-    // Step 3: Build language instruction
-    const langInstruction =
-      lang === "pt"
-        ? "\n\nCRITICAL: Write ALL text content in Portuguese (European Portuguese, not Brazilian). All field values — descriptions, summaries, recommendations, narratives — must be in Portuguese. JSON keys remain in English."
-        : "";
+Under "en", provide the full analysis in English.
+Under "pt", provide the SAME analysis translated into European Portuguese (not Brazilian Portuguese). All JSON keys remain in English — only the text values are translated.
+
+The structure under each key follows this schema:
+${outputSchema}
+
+So your final output looks like:
+{
+  "en": { ...full analysis in English... },
+  "pt": { ...same analysis in Portuguese... }
+}
+
+Return ONLY valid JSON. No preamble, no markdown.`;
+
+    userMessage += `\n\n${bilingualSchema}`;
 
     // Step 4: Run FORGE analysis via Claude
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 4000,
-      system: `${BASE_SYSTEM}\n\n${modePrompt}${langInstruction}`,
+      max_tokens: 8000,
+      system: `${BASE_SYSTEM}\n\n${modePrompt}`,
       messages: [
         {
           role: "user",

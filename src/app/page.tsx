@@ -594,9 +594,12 @@ function Badge({
 export default function Home() {
   const [scenario, setScenario] = useState(EXAMPLE_SCENARIOS[0].text);
   const [purpose, setPurpose] = useState<PurposeId>("stress");
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(
-    featuredData.analysis as unknown as AnalysisResult
-  );
+  const [analysisData, setAnalysisData] = useState<{
+    en: AnalysisResult;
+    pt?: AnalysisResult;
+  } | null>({
+    en: featuredData.analysis as unknown as AnalysisResult,
+  });
   const [activeMode, setActiveMode] = useState<PurposeId | null>(
     featuredData.mode as PurposeId
   );
@@ -607,11 +610,16 @@ export default function Home() {
   const [researchEnriched, setResearchEnriched] = useState(false);
   const [lang, setLang] = useState<"en" | "pt">("en");
 
+  // Derived: pick the analysis for the active language
+  const analysis = analysisData
+    ? (analysisData[lang] || analysisData.en)
+    : null;
+
   const forge = async () => {
     if (!scenario.trim() || loading) return;
     setLoading(true);
     setError("");
-    setAnalysis(null);
+    setAnalysisData(null);
     setActiveMode(null);
     setResearchEnriched(false);
 
@@ -636,7 +644,6 @@ export default function Home() {
           scenario: scenario.trim(),
           mode: purpose,
           research: researchEnabled,
-          lang,
         }),
       });
 
@@ -647,7 +654,14 @@ export default function Home() {
         return;
       }
 
-      setAnalysis(data.analysis);
+      // data.analysis is { en: {...}, pt: {...} }
+      const bilingualData = data.analysis;
+      if (bilingualData.en && bilingualData.pt) {
+        setAnalysisData({ en: bilingualData.en, pt: bilingualData.pt });
+      } else {
+        // Fallback: if the response isn't bilingual, treat it as English-only
+        setAnalysisData({ en: bilingualData });
+      }
       setActiveMode(data.mode);
       setResearchEnriched(data.research_enriched || false);
     } catch (e: unknown) {
