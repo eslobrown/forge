@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import featuredData from "./featured-analysis.json";
+import featuredAnalyses from "./featured-analyses.json";
+
+// Legacy fallback — load old single-mode file if new multi-mode file is empty
+let featuredData: Record<string, unknown> | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  featuredData = require("./featured-analysis.json");
+} catch {
+  // old file doesn't exist, that's fine
+}
 
 /* ── Mode types ── */
 const PURPOSES = [
@@ -601,25 +610,37 @@ function Badge({
 
 /* ── Main page ── */
 export default function Home() {
-  // Load featured analysis from localStorage or fall back to bundled data
+  // Load featured analysis — prefer per-mode file, fall back to legacy single-mode
+  const allFeatured = featuredAnalyses as Record<string, { analysis: Record<string, unknown>; mode: string }>;
   const [scenario, setScenario] = useState(EXAMPLE_SCENARIOS[0].text.en);
   const [purpose, setPurpose] = useState<PurposeId>("stress");
+
+  function getFeaturedForMode(mode: PurposeId) {
+    // Try per-mode featured analyses first
+    const entry = allFeatured[mode];
+    if (entry?.analysis) {
+      const a = entry.analysis;
+      if (a.en) {
+        return { en: a.en as unknown as AnalysisResult, pt: a.pt as unknown as AnalysisResult | undefined };
+      }
+      return { en: a as unknown as AnalysisResult };
+    }
+    // Fall back to legacy single-mode file
+    if (featuredData) {
+      const a = (featuredData as { analysis: Record<string, unknown> }).analysis;
+      if (a?.en) {
+        return { en: a.en as unknown as AnalysisResult, pt: a.pt as unknown as AnalysisResult | undefined };
+      }
+    }
+    return null;
+  }
+
   const [analysisData, setAnalysisData] = useState<{
     en: AnalysisResult;
     pt?: AnalysisResult;
-  } | null>(() => {
-    // Handle both bilingual { en: {...}, pt: {...} } and legacy single-language format
-    const a = featuredData.analysis as Record<string, unknown>;
-    if (a.en) {
-      return {
-        en: a.en as unknown as AnalysisResult,
-        pt: a.pt as unknown as AnalysisResult | undefined,
-      };
-    }
-    return { en: a as unknown as AnalysisResult };
-  });
+  } | null>(() => getFeaturedForMode("stress"));
   const [activeMode, setActiveMode] = useState<PurposeId | null>(
-    featuredData.mode as PurposeId
+    allFeatured.stress ? "stress" : (featuredData as { mode?: string } | null)?.mode as PurposeId || null
   );
 
   // On mount, load cached featured analysis if it exists (has both languages)
@@ -842,7 +863,17 @@ export default function Home() {
             {PURPOSES.map((p) => (
               <button
                 key={p.id}
-                onClick={() => setPurpose(p.id)}
+                onClick={() => {
+                  setPurpose(p.id);
+                  // Load featured analysis for this mode if no user analysis is active
+                  if (!loading) {
+                    const featured = getFeaturedForMode(p.id);
+                    if (featured) {
+                      setAnalysisData(featured);
+                      setActiveMode(p.id);
+                    }
+                  }
+                }}
                 className="text-left rounded-lg border px-4 py-3 transition-all cursor-pointer flex items-center gap-3"
                 style={{
                   borderColor:

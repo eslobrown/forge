@@ -1,0 +1,984 @@
+{
+  "stress": {
+    "analysis": {
+      "en": {
+        "scenario_summary": "Cabo Verde is designing a central bank-operated mobile money interoperability switch requiring all licensed payment providers to connect via standardized APIs and real-time settlement, targeting financial inclusion for approximately 30% unbanked population across 10 geographically dispersed islands.",
+        "constraints": [
+          {
+            "name": "Island Connectivity Fragmentation",
+            "type": "technical",
+            "description": "Real-time settlement requires persistent, low-latency connectivity. The RSP 2020 document explicitly acknowledges 'geographic discontinuity' as a structural challenge, and research context confirms varying island coverage. Real-time gross settlement (the SGDL system noted in the document, operational since 2008) was built for interbank, not edge-node mobile transactions. Outer islands with degraded connectivity cannot participate in synchronous settlement without offline fallback logic — which the proposed framework does not mention. This is not a risk of failure; it is a guaranteed partial exclusion of the very population the framework targets.",
+            "severity": "blocking"
+          },
+          {
+            "name": "Telco Vertical Integration Barrier",
+            "type": "economic",
+            "description": "The three MNO-operated mobile money platforms (CV Móvel Money, Unitel T+ Money, CVTelecom Money) have structural incentives to resist interoperability. Their mobile money float, customer lock-in, and cross-sell opportunities are monetized through walled gardens. Research context confirms 'vertical MNO integration historically barriers exchange.' Legislative Decree No. 9/2018 governs access for payment institutions but does not mandate commercial terms for interoperability — it enables licensing, not compelled interconnection on acceptable fee structures. BCV cannot force commercially viable interconnection through existing legal instruments without new subordinate regulation specifying interchange fees and access pricing.",
+            "severity": "blocking"
+          },
+          {
+            "name": "Single-Operator Central Switch Concentration Risk",
+            "type": "institutional",
+            "description": "A central switch operated by BCV creates a single point of failure for the entire national payment system. The RSP 2020 document references SICIL and SGDL as BCV-managed systems with no documented redundancy tier visible in public reporting. Concentrating all licensed provider settlement through one switch means any BCV infrastructure failure, cyberattack, or capacity overflow halts all digital payments nationally. For a tourism-dependent economy across 10 islands, this is a systemic risk that exceeds the fragmentation risk it was designed to solve.",
+            "severity": "blocking"
+          },
+          {
+            "name": "AML/CFT Digital Identity Gap",
+            "type": "regulatory",
+            "description": "The unbanked 30% — the explicit target population — are unbanked in part because they lack formal identification that meets KYC requirements. The RSP 2020 document acknowledges measures around eKYC and digital onboarding as emerging responses to COVID-19, describing them as 'first trends' still emerging in Cabo Verde. Without a national digital identity infrastructure that can serve remote island populations, onboarding the unbanked onto the interoperability switch is structurally blocked. AML/CFT obligations under BCV oversight (referenced in Legislative Decrees 7, 8, and 9/2018) cannot be waived; tiered KYC would require explicit regulatory amendment.",
+            "severity": "blocking"
+          },
+          {
+            "name": "BCV Operational Capacity Ceiling",
+            "type": "institutional",
+            "description": "BCV is simultaneously the regulator, supervisor, switch operator, and settlement system manager. The RSP 2020 document describes BCV's current role in overseeing SICIL and SGDL while also pursuing new regulatory frameworks. Adding real-time API governance, switch operations, and multi-provider dispute resolution to an institution with demonstrated limited fintech-specific technical capacity (evidenced by needing AfricaNenda technical assistance for the proof-of-concept) creates an institutional coherence overflow. The substrate — BCV's operational staff and technical infrastructure — has hard resolution limits that are not addressed in the current framework design.",
+            "severity": "limiting"
+          },
+          {
+            "name": "Remittance Exclusive Partnership Lock-In",
+            "type": "economic",
+            "description": "Research context confirms exclusive Western Union/MoneyGram agent partnerships at banks and the post office (CCV). The RSP 2020 document confirms CCV operates 34 branches and provides remittance services via these international platforms. Remittances are a primary financial inclusion on-ramp for diaspora-connected households — a population segment the RSP 2020 explicitly identifies as a digital inclusion opportunity. These exclusivity contracts create a structural barrier to routing remittances through the new interoperability framework, directly limiting the most commercially viable financial inclusion pathway.",
+            "severity": "limiting"
+          },
+          {
+            "name": "Informal Economy Preference Persistence",
+            "type": "cultural",
+            "description": "The RSP 2020 document explicitly names 'financial anonymity' and 'reduced costs associated with cash transactions and the use of informal providers' as reasons populations resist formal digital payments. It also notes that informal systems 'promote economic empowerment, allowing for the accumulation of assets, particularly for women.' This is not ignorance of digital tools — mobile penetration exceeds 100% — it is a rational preference. The interoperability framework does not address the cost-benefit calculus of switching from informal to formal systems, meaning adoption by the unbanked target population is not structurally guaranteed by technical connectivity alone.",
+            "severity": "shaping"
+          },
+          {
+            "name": "Standardized API Governance Vacuum",
+            "type": "regulatory",
+            "description": "The existing legislative framework (Decrees 7, 8, 9/2018 and Notice 8/2020) establishes principles and licensing conditions but does not specify technical API standards, versioning governance, or mandatory upgrade timelines. The RSP 2020 document describes BCV's role as one of regulation and supervision but does not evidence a technical standards body or API governance committee. Without binding technical specifications enforceable through BCV's supervisory powers, 'standardized APIs' remain aspirational rather than operational.",
+            "severity": "shaping"
+          }
+        ],
+        "branches": [
+          {
+            "name": "Full Real-Time Interoperability Across All 10 Islands at Launch",
+            "status": "dead",
+            "status_reason": "Structural connectivity gaps on outer islands make synchronous real-time settlement technically impossible without infrastructure investment that precedes framework deployment. The 30% unbanked population is disproportionately concentrated on smaller, less-connected islands — the exact nodes where real-time settlement fails. No amount of execution quality resolves physics.",
+            "stress_test": null,
+            "prerequisite": null
+          },
+          {
+            "name": "Voluntary Commercial Interoperability by MNOs Without Mandated Terms",
+            "status": "dead",
+            "status_reason": "All three MNO-operated platforms have structural economic incentives to delay or minimally comply with interoperability mandates. The existing legislative framework enables licensing but does not compel commercially viable interconnection pricing. African precedents (WATRA, Rwanda, Burkina Faso) confirm that market-led MNO interoperability does not materialize without either regulatory mandates on interchange fees or competitive pressure from a dominant interoperable alternative — neither of which currently exists in Cabo Verde.",
+            "stress_test": null,
+            "prerequisite": null
+          },
+          {
+            "name": "Phased Rollout: Urban Islands First, Connectivity-Dependent Expansion",
+            "status": "live",
+            "status_reason": "Santiago (Praia), São Vicente (Mindelo), and Sal have superior connectivity and concentrate the majority of economic activity, banked population, and telco infrastructure. The AfricaNenda proof-of-concept already validated P2P across banks and MNOs in a limited context. BCV's existing SGDL and SICIL infrastructure provides a tested settlement backbone. A phased rollout respects substrate limits and matches coherence budgets to available capacity.",
+            "stress_test": "Under adversarial pressure, MNOs on urban islands comply minimally — connecting to the switch but setting interchange fees at levels that make cross-platform transactions economically unattractive to end users, achieving technical compliance while preserving competitive moats. BCV lacks the regulatory instrument to challenge fee structures under current law.",
+            "prerequisite": "Binding subordinate regulation specifying maximum interchange fees and mandatory API compliance timelines must be enacted before provider onboarding. Without this, the switch becomes a compliance theater with no functional interoperability."
+          },
+          {
+            "name": "Tiered KYC Enabling Unbanked Onboarding",
+            "status": "conditional",
+            "status_reason": "The RSP 2020 document references eKYC and digital onboarding as emerging possibilities in Cabo Verde, and international precedents (Kenya M-Pesa, per the RSP 2020 reference) demonstrate that simplified KYC unlocks mass adoption. BCV has the regulatory authority to issue a tiered KYC notice under its existing supervisory powers. However, this has not been done, and the current AML/CFT framework inherited from the 2018 legislative package does not permit wallet-level simplified due diligence without explicit amendment.",
+            "stress_test": "If tiered KYC is implemented at low value thresholds, adversarial actors create networks of low-value accounts for layering. BCV's current AML monitoring infrastructure, still maturing as of the RSP 2020 report, lacks the transaction analytics capacity to detect distributed micro-layering at scale.",
+            "prerequisite": "BCV must issue a formal notice establishing tiered KYC with hard transaction and balance limits, coupled with a transaction monitoring upgrade at the central switch level. Neither condition currently exists."
+          },
+          {
+            "name": "Remittance Integration via Diaspora On-Ramp",
+            "status": "conditional",
+            "status_reason": "The RSP 2020 document explicitly identifies diaspora remittances as a primary digital inclusion vector, and research context confirms this is a high-value use case. However, exclusive Western Union/MoneyGram contracts at CCV and commercial banks structurally block this pathway. Renegotiation or regulatory override of exclusivity terms is legally complex and commercially adversarial.",
+            "stress_test": "If exclusivity contracts are broken by regulatory mandate, international remittance operators withdraw from Cabo Verde entirely, reducing remittance access for the diaspora-dependent population rather than improving it. This is not a theoretical risk — it is the documented response of international money transfer operators to forced unbundling in small markets.",
+            "prerequisite": "A negotiated transition framework with international remittance operators, combined with interoperability-compliant API standards that make the national switch commercially attractive to international operators, must precede any exclusivity override."
+          },
+          {
+            "name": "BCV as Switch Operator, Regulator, and Settlement Manager Simultaneously",
+            "status": "conditional",
+            "status_reason": "BCV currently operates SICIL and SGDL while regulating the payment system — a role the RSP 2020 document describes as established practice. Extending this to real-time multi-provider API governance is a coherence budget expansion that may exceed BCV's operational substrate. AfricaNenda's technical assistance confirms BCV lacks in-house capacity for this at scale.",
+            "stress_test": "A cyberattack or technical failure at the central switch simultaneously disables BCV's regulatory oversight capability, settlement finality, and dispute resolution — three functions that should be operationally independent. A single compromise event collapses the entire payment system with no fallback operator.",
+            "prerequisite": "Governance separation — operational switch management contracted to a regulated third party (as SISP manages Vinti4) while BCV retains regulatory oversight — is required to prevent single-point institutional failure."
+          },
+          {
+            "name": "G2P Payment Integration via GOV.CV Portal",
+            "status": "live",
+            "status_reason": "Research context confirms the GOV.CV portal is standardizing public payments, and the RSP 2020 document identifies government-aligned digital transformation through PEDS 2030. G2P payments (social transfers, government salaries) are a proven adoption driver in comparable African contexts (Rwanda). BCV has existing relationships with government payment systems. This pathway does not depend on unbanked onboarding or MNO cooperation — it leverages already-banked government employees and beneficiaries.",
+            "stress_test": "Government salary and transfer payments routed through the switch increase transaction volume predictably but create a politically sensitive dependency: any switch outage directly interrupts government payments, generating political pressure to override BCV's operational independence to resolve outages faster than technical processes allow.",
+            "prerequisite": "Switch SLA guarantees at sovereign payment processing standards (99.99% uptime or higher) must be contractually established before G2P integration, or the political dependency amplifies institutional risk."
+          }
+        ],
+        "early_warnings": [
+          "MNO technical connection to the switch within 6 months of mandate, but cross-platform transaction volumes remain below 5% of total MNO transaction volume 12 months post-launch — indicating technical compliance masking commercial non-cooperation on fee structures.",
+          "BCV issues more than 2 regulatory clarifications or amendments to API standards within the first 18 months — indicating the technical specification was published before it was operationally stable, forcing mid-stream renegotiation with providers.",
+          "Unbanked population adoption rate on outer islands remains below 10% of target after 24 months despite urban rollout success — confirming the connectivity and KYC constraints are not being resolved by the phased approach.",
+          "A single provider connects to the switch but routes only a subset of transaction types (e.g., P2P but not bill payment or merchant payment) — early signal of deliberate scope limitation to comply minimally while protecting high-margin services.",
+          "AfricaNenda technical assistance engagement extends beyond 36 months without BCV establishing independent operational capacity — indicating institutional coherence overflow and switch dependency on external substrate that cannot be sustained long-term.",
+          "Informal mobile payment platforms (WhatsApp-based transfers, unregistered agent networks) show growth acceleration concurrent with formal switch rollout — indicating the framework is failing to compete with informal system cost-benefit ratios for the target population.",
+          "Consumer complaints to BCV about failed or delayed cross-platform transactions exceed 1% of total switch transactions within 6 months — indicating real-time settlement is failing under actual load conditions not captured in the proof-of-concept.",
+          "International remittance operators publicly announce review of Cabo Verde market presence following regulatory changes to exclusivity structures — early signal of market exit that would devastate diaspora-dependent household inclusion."
+        ],
+        "recommendations": [
+          "Before onboarding any provider to the switch, BCV must issue a binding subordinate regulation under Legislative Decree 7/2018 specifying maximum interchange fees, mandatory transaction type coverage, and API versioning governance with enforcement penalties. Without this, technical connectivity will not produce functional interoperability.",
+          "Separate the operational management of the central switch from BCV's regulatory function. Contract switch operations to a regulated entity modeled on SISP's governance of Vinti4 (referenced in RSP 2020), with BCV retaining supervisory and settlement oversight only. This eliminates the single-point institutional failure risk.",
+          "Implement offline-capable transaction queuing at the switch protocol level before any outer-island rollout. Real-time settlement must degrade gracefully to deferred settlement with cryptographic integrity when connectivity drops — not fail entirely. This is a technical prerequisite, not an enhancement.",
+          "Issue a tiered KYC notice as a standalone regulatory action prior to or concurrent with switch launch, establishing wallet tiers with hard balance limits (e.g., CVE 50,000 maximum) and simplified identification requirements for the lowest tier. Couple this with transaction monitoring analytics at the switch level from day one.",
+          "Conduct a contractual audit of all exclusivity agreements between commercial banks, CCV, and international remittance operators before designing the remittance integration pathway. Do not mandate exclusivity override; instead, use the switch's API to offer international operators a more cost-effective routing option, making voluntary migration commercially rational.",
+          "Establish a cross-institution working group with ARME (broadband regulator) to map island-level connectivity against switch rollout phases. The rollout sequencing must be driven by verified connectivity data, not administrative convenience or provider lobbying. Do not commit to outer-island timelines until ARME confirms minimum latency thresholds.",
+          "Design the G2P integration pathway as the first production use case, not a follow-on phase. Government salary and social transfer payments provide guaranteed transaction volume, create institutional stakeholder commitment, and demonstrate switch reliability before high-risk unbanked onboarding. This is the lowest-risk coherence-building sequence.",
+          "Commission an independent penetration test and disaster recovery simulation of the central switch before it processes live transactions. The RSP 2020 document references BCV's oversight of SICIL and SGDL without documenting redundancy architecture. This gap must be closed before the switch becomes systemically critical."
+        ],
+        "conventional_analysis_sufficient": false,
+        "conventional_analysis_note": null
+      },
+      "pt": {
+        "scenario_summary": "Cabo Verde está a conceber um sistema de interoperabilidade de dinheiro móvel operado pelo banco central, exigindo que todos os prestadores de serviços de pagamento licenciados se liguem através de APIs padronizadas e liquidação em tempo real, com o objetivo de promover a inclusão financeira de cerca de 30% da população não bancarizada, distribuída por 10 ilhas geograficamente dispersas.",
+        "constraints": [
+          {
+            "name": "Fragmentação da Conectividade entre Ilhas",
+            "type": "technical",
+            "description": "A liquidação em tempo real exige conectividade persistente e de baixa latência. O documento RSP 2020 reconhece explicitamente a 'descontinuidade geográfica' como um desafio estrutural, e o contexto de investigação confirma variações na cobertura entre ilhas. O sistema de liquidação bruta em tempo real (SGDL, operacional desde 2008, conforme referenciado no documento) foi concebido para transações interbancárias, não para transações móveis em nós periféricos. As ilhas exteriores com conectividade degradada não podem participar em liquidações síncronas em tempo real sem lógica de operação offline — funcionalidade que o quadro proposto não contempla. Não se trata de um risco de falha; é uma exclusão parcial garantida da própria população que o quadro visa servir.",
+            "severity": "blocking"
+          },
+          {
+            "name": "Barreira da Integração Vertical dos Operadores de Telecomunicações",
+            "type": "economic",
+            "description": "As três plataformas de dinheiro móvel operadas por operadores de rede móvel (CV Móvel Money, Unitel T+ Money, CVTelecom Money) têm incentivos económicos estruturais para resistir à interoperabilidade. O float de dinheiro móvel, a fidelização de clientes e as oportunidades de venda cruzada são monetizados através de ecossistemas fechados. O contexto de investigação confirma que 'a integração vertical dos operadores de rede móvel tem historicamente constituído uma barreira à interligação'. O Decreto Legislativo n.º 9/2018 regula o acesso para instituições de pagamento, mas não impõe condições comerciais para a interoperabilidade — viabiliza o licenciamento, mas não a interligação compelida a preços aceitáveis. O BCV não pode impor interligação comercialmente viável através dos instrumentos legais existentes sem nova regulamentação subordinada que especifique taxas de intercâmbio e preços de acesso.",
+            "severity": "blocking"
+          },
+          {
+            "name": "Risco de Concentração no Sistema Central de Comutação com Único Operador",
+            "type": "institutional",
+            "description": "Um sistema central de comutação operado pelo BCV cria um único ponto de falha para todo o sistema nacional de pagamentos. O documento RSP 2020 referencia o SICIL e o SGDL como sistemas geridos pelo BCV, sem que a documentação pública evidencie um nível de redundância. Concentrar a liquidação de todos os prestadores licenciados num único sistema significa que qualquer falha de infraestrutura do BCV, ciberataque ou sobrecarga de capacidade paralisa todos os pagamentos digitais a nível nacional. Para uma economia dependente do turismo, distribuída por 10 ilhas, este é um risco sistémico que supera o risco de fragmentação que o sistema foi concebido para resolver.",
+            "severity": "blocking"
+          },
+          {
+            "name": "Lacuna na Identidade Digital para AML/CFT",
+            "type": "regulatory",
+            "description": "Os 30% não bancarizados — a população-alvo explícita — estão sem conta bancária em parte por não possuírem identificação formal que satisfaça os requisitos de KYC. O documento RSP 2020 reconhece as medidas de eKYC e integração digital como respostas emergentes à COVID-19, descrevendo-as como 'primeiras tendências' ainda em desenvolvimento em Cabo Verde. Sem uma infraestrutura nacional de identidade digital que sirva populações em ilhas remotas, a integração dos não bancarizados no sistema de interoperabilidade está estruturalmente bloqueada. As obrigações de AML/CFT sob a supervisão do BCV (referenciadas nos Decretos Legislativos 7, 8 e 9/2018) não podem ser dispensadas; o KYC por níveis exigiria uma alteração regulatória explícita.",
+            "severity": "blocking"
+          },
+          {
+            "name": "Limite da Capacidade Operacional do BCV",
+            "type": "institutional",
+            "description": "O BCV é simultaneamente regulador, supervisor, operador do sistema de comutação e gestor do sistema de liquidação. O documento RSP 2020 descreve o papel atual do BCV na supervisão do SICIL e do SGDL, paralelamente ao desenvolvimento de novos quadros regulatórios. Acrescentar a governação de APIs em tempo real, a operação do sistema de comutação e a resolução de litígios entre múltiplos prestadores a uma instituição com capacidade técnica comprovadamente limitada em fintech — evidenciada pela necessidade de assistência técnica da AfricaNenda para o prova de conceito — cria uma sobrecarga institucional. O substrato — pessoal operacional e infraestrutura técnica do BCV — tem limites de resolução fixos que não são abordados no desenho atual do quadro.",
+            "severity": "limiting"
+          },
+          {
+            "name": "Bloqueio por Parcerias Exclusivas de Remessas",
+            "type": "economic",
+            "description": "O contexto de investigação confirma parcerias exclusivas com a Western Union/MoneyGram nos bancos comerciais e nos serviços postais (CCV). O documento RSP 2020 confirma que a CCV opera 34 agências e presta serviços de remessas através dessas plataformas internacionais. As remessas constituem a principal porta de entrada para a inclusão financeira das famílias ligadas à diáspora — um segmento que o RSP 2020 identifica explicitamente como uma oportunidade de inclusão digital. Estes contratos de exclusividade criam uma barreira estrutural ao encaminhamento de remessas através do novo quadro de interoperabilidade, limitando diretamente o percurso de inclusão financeira mais viável comercialmente.",
+            "severity": "limiting"
+          },
+          {
+            "name": "Persistência da Preferência pela Economia Informal",
+            "type": "cultural",
+            "description": "O documento RSP 2020 menciona explicitamente o 'anonimato financeiro' e os 'custos reduzidos associados às transações em dinheiro e à utilização de prestadores informais' como razões pelas quais as populações resistem aos pagamentos digitais formais. Refere igualmente que os sistemas informais 'promovem o empoderamento económico, permitindo a acumulação de ativos, particularmente para as mulheres'. Não se trata de desconhecimento das ferramentas digitais — a penetração móvel supera os 100% — mas de uma preferência racional. O quadro de interoperabilidade não aborda a análise custo-benefício da transição do sistema informal para o formal, pelo que a adoção pela população-alvo não bancarizada não está estruturalmente garantida apenas pela conectividade técnica.",
+            "severity": "shaping"
+          },
+          {
+            "name": "Vazio na Governação das APIs Padronizadas",
+            "type": "regulatory",
+            "description": "O quadro legislativo existente (Decretos 7, 8, 9/2018 e Aviso 8/2020) estabelece princípios e condições de licenciamento, mas não especifica normas técnicas de API, governação de versões ou prazos obrigatórios de atualização. O documento RSP 2020 descreve o papel do BCV como regulação e supervisão, mas não evidencia um organismo de normas técnicas ou uma comissão de governação de APIs. Sem especificações técnicas vinculativas, executáveis através dos poderes de supervisão do BCV, as 'APIs padronizadas' permanecem aspiracionais e não operacionais.",
+            "severity": "shaping"
+          }
+        ],
+        "branches": [
+          {
+            "name": "Interoperabilidade Total em Tempo Real nas 10 Ilhas no Lançamento",
+            "status": "dead",
+            "status_reason": "As lacunas de conectividade estruturais nas ilhas exteriores tornam a liquidação síncrona em tempo real tecnicamente impossível sem investimento em infraestrutura anterior à implementação do quadro. Os 30% não bancarizados estão desproporcionalmente concentrados nas ilhas menores e com menor conectividade — precisamente os nós onde a liquidação em tempo real falha. Nenhuma qualidade de execução resolve as limitações físicas.",
+            "stress_test": null,
+            "prerequisite": null
+          },
+          {
+            "name": "Interoperabilidade Comercial Voluntária pelos Operadores Sem Condições Impostas",
+            "status": "dead",
+            "status_reason": "As três plataformas de dinheiro móvel operadas por operadores de rede móvel têm incentivos económicos estruturais para atrasar ou cumprir minimamente os mandatos de interoperabilidade. O quadro legislativo existente viabiliza o licenciamento, mas não impõe preços de interligação comercialmente viáveis. Os precedentes africanos (WATRA, Ruanda, Burkina Faso) confirmam que a interoperabilidade de operadores liderada pelo mercado não se concretiza sem mandatos regulatórios sobre taxas de intercâmbio ou pressão competitiva de uma alternativa interoperável dominante — nenhuma das quais existe atualmente em Cabo Verde.",
+            "stress_test": null,
+            "prerequisite": null
+          },
+          {
+            "name": "Implementação Faseada: Ilhas Urbanas Primeiro, Expansão Dependente da Conectividade",
+            "status": "live",
+            "status_reason": "Santiago (Praia), São Vicente (Mindelo) e Sal possuem melhor conectividade e concentram a maioria da atividade económica, da população bancarizada e da infraestrutura de telecomunicações. O prova de conceito da AfricaNenda já validou transferências P2P entre bancos e operadores num contexto limitado. A infraestrutura existente do SGDL e do SICIL do BCV fornece uma base de liquidação testada. Uma implementação faseada respeita os limites do substrato e adequa os orçamentos de coerência à capacidade disponível.",
+            "stress_test": "Sob pressão adversarial, os operadores nas ilhas urbanas cumprem minimamente — ligando-se ao sistema mas fixando taxas de intercâmbio a níveis que tornam as transações entre plataformas economicamente pouco atrativas para os utilizadores finais, alcançando conformidade técnica enquanto preservam as posições competitivas. O BCV carece do instrumento regulatório para contestar estruturas de taxas ao abrigo do direito atual.",
+            "prerequisite": "Regulamentação subordinada vinculativa especificando taxas de intercâmbio máximas e prazos obrigatórios de conformidade com as APIs deve ser aprovada antes da integração dos prestadores. Sem isto, o sistema torna-se uma conformidade de fachada sem interoperabilidade funcional."
+          },
+          {
+            "name": "KYC por Níveis que Permita a Integração dos Não Bancarizados",
+            "status": "conditional",
+            "status_reason": "O documento RSP 2020 referencia o eKYC e a integração digital como possibilidades emergentes em Cabo Verde, e precedentes internacionais (M-Pesa do Quénia, referenciado no RSP 2020) demonstram que o KYC simplificado desbloqueia a adoção em massa. O BCV tem autoridade regulatória para emitir um aviso de KYC por níveis ao abrigo dos seus poderes de supervisão existentes. Contudo, tal não foi feito, e o quadro atual de AML/CFT herdado do pacote legislativo de 2018 não permite diligência devida simplificada ao nível de carteira sem alteração explícita.",
+            "stress_test": "Se o KYC por níveis for implementado com limiares de valor baixos, agentes adversariais criam redes de contas de baixo valor para estratificação. A infraestrutura de monitorização AML do BCV, ainda em maturação conforme o relatório RSP 2020, carece da capacidade de análise de transações para detetar micro-estratificação distribuída em escala.",
+            "prerequisite": "O BCV deve emitir um aviso formal que estabeleça KYC por níveis com limites fixos de transação e saldo, associado a uma atualização da monitorização de transações ao nível do sistema de comutação central desde o primeiro dia. Nenhuma das condições existe atualmente."
+          },
+          {
+            "name": "Integração de Remessas via Canal de Entrada da Diáspora",
+            "status": "conditional",
+            "status_reason": "O documento RSP 2020 identifica explicitamente as remessas da diáspora como principal vetor de inclusão digital, e o contexto de investigação confirma tratar-se de um caso de utilização de elevado valor. Contudo, os contratos exclusivos da Western Union/MoneyGram na CCV e nos bancos comerciais bloqueiam estruturalmente este percurso. A renegociação ou anulação regulatória de cláusulas de exclusividade é juridicamente complexa e comercialmente conflituosa.",
+            "stress_test": "Se os contratos de exclusividade forem quebrados por mandato regulatório, os operadores internacionais de remessas retiram-se de Cabo Verde, reduzindo o acesso a remessas para a população dependente da diáspora em vez de o melhorar. Não se trata de um risco teórico — é a resposta documentada dos operadores internacionais de transferência de dinheiro à desagregação forçada em mercados pequenos.",
+            "prerequisite": "Um quadro de transição negociado com operadores internacionais de remessas, combinado com normas de API compatíveis com interoperabilidade que tornem o sistema nacional de comutação comercialmente atrativo para operadores internacionais, deve preceder qualquer anulação de exclusividade."
+          },
+          {
+            "name": "BCV como Operador do Sistema, Regulador e Gestor de Liquidação em Simultâneo",
+            "status": "conditional",
+            "status_reason": "O BCV opera atualmente o SICIL e o SGDL enquanto regula o sistema de pagamentos — um papel que o documento RSP 2020 descreve como prática estabelecida. Estender isto à governação de APIs em tempo real com múltiplos prestadores representa uma expansão do orçamento de coerência que pode exceder o substrato operacional do BCV. A assistência técnica da AfricaNenda confirma que o BCV não possui capacidade interna para isto em escala.",
+            "stress_test": "Um ciberataque ou falha técnica no sistema central desabilita simultaneamente a capacidade de supervisão regulatória do BCV, a finalidade da liquidação e a resolução de litígios — três funções que deveriam ser operacionalmente independentes. Um único evento de comprometimento colapsa todo o sistema de pagamentos sem operador alternativo.",
+            "prerequisite": "É necessária separação de governação — gestão operacional do sistema contratada a uma entidade regulada, seguindo o modelo de governação da SISP sobre a Vinti4 (referenciada no RSP 2020) — enquanto o BCV retém apenas a supervisão regulatória e de liquidação. Isto é necessário para prevenir a falha institucional de ponto único."
+          },
+          {
+            "name": "Integração de Pagamentos G2P via Portal GOV.CV",
+            "status": "live",
+            "status_reason": "O contexto de investigação confirma que o portal GOV.CV está a padronizar os pagamentos públicos, e o documento RSP 2020 identifica a transformação digital alinhada com o governo através do PEDS 2030. Os pagamentos G2P (transferências sociais, salários do Estado) são um motor de adoção comprovado em contextos africanos comparáveis (Ruanda). O BCV tem relações existentes com os sistemas de pagamento governamentais. Este percurso não depende da integração dos não bancarizados nem da cooperação dos operadores de telecomunicações — aproveita funcionários públicos e beneficiários já bancarizados.",
+            "stress_test": "Os salários e transferências governamentais encaminhados através do sistema criam uma dependência politicamente sensível: qualquer interrupção do sistema perturba diretamente os pagamentos do Estado, gerando pressão política para contornar a independência operacional do BCV na resolução de falhas de forma mais rápida do que os processos técnicos permitem.",
+            "prerequisite": "As garantias de SLA do sistema ao nível dos padrões de processamento de pagamentos soberanos (disponibilidade de 99,99% ou superior) devem ser estabelecidas contratualmente antes da integração G2P, ou a dependência política amplifica o risco institucional."
+          }
+        ],
+        "early_warnings": [
+          "Os operadores de telecomunicações estabelecem ligação técnica ao sistema nos primeiros 6 meses após o mandato, mas os volumes de transações entre plataformas permanecem abaixo de 5% do volume total de transações dos operadores 12 meses após o lançamento — indicando conformidade técnica que mascara não cooperação comercial nas estruturas de taxas.",
+          "O BCV emite mais de 2 clarificações regulatórias ou alterações às normas de API nos primeiros 18 meses — indicando que a especificação técnica foi publicada antes de estar operacionalmente estável, forçando renegociações a meio percurso com os prestadores.",
+          "A taxa de adoção pela população não bancarizada nas ilhas exteriores permanece abaixo de 10% do objetivo após 24 meses, apesar do sucesso da implementação urbana — confirmando que as restrições de conectividade e KYC não estão a ser resolvidas pela abordagem faseada.",
+          "Um único prestador liga-se ao sistema mas encaminha apenas um subconjunto de tipos de transação (por exemplo, P2P mas não pagamento de faturas ou pagamento a comerciantes) — sinal precoce de limitação deliberada do âmbito para cumprir minimamente enquanto protege serviços de elevada margem.",
+          "O envolvimento de assistência técnica da AfricaNenda estende-se além de 36 meses sem que o BCV estabeleça capacidade operacional independente — indicando sobrecarga de coerência institucional e dependência do sistema num substrato externo que não pode ser sustentado a longo prazo.",
+          "Plataformas de pagamento móvel informais (transferências via WhatsApp, redes de agentes não registados) mostram aceleração do crescimento concurrent com o lançamento formal do sistema — indicando que o quadro está a falhar na competição com a relação custo-benefício dos sistemas informais para a população-alvo.",
+          "As reclamações de consumidores ao BCV sobre transações entre plataformas falhadas ou atrasadas excedem 1% do total de transações do sistema nos primeiros 6 meses — indicando que a liquidação em tempo real está a falhar sob condições reais de carga não capturadas no prova de conceito.",
+          "Operadores internacionais de remessas anunciam publicamente a revisão da sua presença no mercado de Cabo Verde na sequência de alterações regulatórias às estruturas de exclusividade — sinal precoce de saída do mercado que prejudicaria gravemente a inclusão de famílias dependentes da diáspora."
+        ],
+        "recommendations": [
+          "Antes de integrar qualquer prestador no sistema, o BCV deve emitir regulamentação subordinada vinculativa ao abrigo do Decreto Legislativo 7/2018, especificando taxas de intercâmbio máximas, cobertura obrigatória de tipos de transação e governação de versões de API com penalidades de execução. Sem isto, a conectividade técnica não produzirá interoperabilidade funcional.",
+          "Separar a gestão operacional do sistema central de comutação da função regulatória do BCV. Contratar as operações do sistema a uma entidade regulada seguindo o modelo de governação da SISP sobre a Vinti4 (referenciada no RSP 2020), retendo o BCV apenas a supervisão regulatória e de liquidação. Isto elimina o risco de falha institucional de ponto único.",
+          "Implementar enfileiramento de transações com capacidade offline ao nível do protocolo do sistema antes de qualquer implementação nas ilhas exteriores. A liquidação em tempo real deve degradar graciosamente para liquidação diferida com integridade criptográfica quando a conectividade falha — não falhar totalmente. Trata-se de um pré-requisito técnico, não de uma melhoria opcional.",
+          "Emitir um aviso de KYC por níveis como ação regulatória autónoma, antes ou em simultâneo com o lançamento do sistema, estabelecendo níveis de carteira com limites fixos de saldo (por exemplo, máximo de 50.000 CVE) e requisitos de identificação simplificados para o nível mais baixo. Associar isto a análises de monitorização de transações ao nível do sistema central desde o primeiro dia.",
+          "Realizar uma auditoria contratual de todos os acordos de exclusividade entre bancos comerciais, CCV e operadores internacionais de remessas antes de definir o percurso de integração de remessas. Não impor anulação de exclusividade; em alternativa, utilizar a API do sistema para oferecer aos operadores internacionais uma opção de encaminhamento mais eficiente em termos de custos, tornando a migração voluntária comercialmente racional.",
+          "Estabelecer um grupo de trabalho interinstitucional com a ARME (regulador de banda larga) para mapear a conectividade a nível de ilha em relação às fases de implementação do sistema. O sequenciamento da implementação deve ser orientado por dados de conectividade verificados, não por conveniência administrativa ou pressão dos prestadores. Não assumir compromissos de prazos para ilhas exteriores até que a ARME confirme os limiares mínimos de latência.",
+          "Desenhar o percurso de integração G2P como o primeiro caso de utilização em produção, não como uma fase subsequente. Os salários do Estado e as transferências sociais proporcionam volume de transações garantido, criam compromisso institucional das partes interessadas e demonstram a fiabilidade do sistema antes da integração de alto risco dos não bancarizados. Esta é a sequência de construção de coerência de menor risco.",
+          "Encomendar um teste de penetração independente e uma simulação de recuperação de desastres do sistema central antes de processar transações reais. O documento RSP 2020 referencia a supervisão do BCV sobre o SICIL e o SGDL sem documentar a arquitetura de redundância. Esta lacuna deve ser colmatada antes de o sistema se tornar sistemicamente crítico."
+        ],
+        "conventional_analysis_sufficient": false,
+        "conventional_analysis_note": null
+      }
+    },
+    "mode": "stress",
+    "research_enriched": true,
+    "document_grounded": true
+  },
+  "ancestor": {
+    "analysis": {
+      "en": {
+        "scenario_summary": "Cabo Verde is designing a mobile money interoperability framework connecting all licensed payment providers through a central bank-operated switch with real-time settlement and standardized APIs, targeting the ~30% unbanked population across 10 geographically dispersed islands.",
+        "lineage": [
+          {
+            "event": "Establishment of SISP (Interbank and Payment System Company) and the Vinti4 network",
+            "period": "Late 1990s",
+            "consequence": "Created the foundational interbank infrastructure and established BCV's leadership role in payment system architecture. The Vinti4 brand became the dominant card network, creating a path dependency where card-based, bank-centric thinking dominated payment system design for two decades. The RSP 2020 document describes Vinti4 as 'the biggest brand' in this evolution, signaling deep institutional attachment to this model.",
+            "visibility": "visible"
+          },
+          {
+            "event": "Creation of SICIL (Interbank Clearing and Settlement System) and SGDL (Deposit Management and Settlement System)",
+            "period": "2001 (SICIL); 2008 (SGDL)",
+            "consequence": "Established BCV-operated, centralized settlement infrastructure as the default architectural pattern for Cabo Verde's payment system. SGDL became 'the only financial settlement system in the country' (RSP 2020), making BCV the monopoly settlement operator. This embedded the assumption that a single central operator is the correct model and created the institutional template that the current interoperability switch proposal now inherits.",
+            "visibility": "visible"
+          },
+          {
+            "event": "Publication of the SPCV Legislative Package (Decrees 7, 8, 9 of 2018)",
+            "period": "November 28, 2018",
+            "consequence": "Formalized the regulatory framework for payment institutions and electronic money institutions, including non-bank players. Legislative Decree No. 9/2018 legally classified the Cabo Verde Postal Service (CCV) as a de jure payment and electronic money institution. This created the legal foundation for the current interoperability mandate but also locked in a supervisory architecture centered on BCV authority, meaning the switch's governance structure was pre-determined before any market consultation on alternatives.",
+            "visibility": "visible"
+          },
+          {
+            "event": "Emergence of siloed mobile money platforms (CV Móvel Money, Unitel T+ Money, CVMultimédia Money, CVTelecom Money) and early digital wallets (Makeba, EcobankPay)",
+            "period": "2015–2022 (approximate)",
+            "consequence": "Mobile money grew in Cabo Verde as proprietary, closed-loop systems operated by MNOs and fintechs without interoperability requirements. The RSP 2020 report notes these platforms as 'a great opportunity for financial inclusion' but does not record any regulatory intervention to require interoperability at this stage. The result is that by the time the interoperability framework is being designed, each operator has built its own customer base, AML/KYC stack, and revenue model around closed-loop assumptions — creating the very fragmentation problem the framework now must solve.",
+            "visibility": "hidden"
+          },
+          {
+            "event": "BCV's COVID-19 pandemic response communications (March–May 2020)",
+            "period": "2020",
+            "consequence": "BCV issued guidance favoring digital channels but stopped short of mandating interoperability or fee reductions, unlike Kenya's Central Bank which actively reduced costs and increased transaction limits (noted in RSP 2020). This non-intervention during a moment of peak digital adoption pressure foreclosed a window where behavioral change could have been paired with structural reform, delaying the interoperability agenda by an estimated 3–5 years.",
+            "visibility": "hidden"
+          },
+          {
+            "event": "AfricaNenda partnership and proof-of-concept switch deployment with three commercial banks",
+            "period": "2023–2025 (approximate, based on research context)",
+            "consequence": "Introduced external DPI design expertise and demonstrated technical feasibility for P2P payments across banks. However, the proof of concept involved only banks — not MNOs or fintechs — meaning the most structurally complex integrations (MNO vertical integration issues, closed-loop wallet conversion) have not yet been stress-tested in the Cabo Verde substrate. The success with banks may create false confidence about replicability with non-bank operators.",
+            "visibility": "hidden"
+          },
+          {
+            "event": "Launch of GOV.CV unified digital public services portal",
+            "period": "February 2026",
+            "consequence": "Demonstrated state capacity for multi-stakeholder digital infrastructure coordination and signaled political commitment to interoperability as a governing philosophy. This creates a favorable institutional environment for the payment switch but also creates pressure to integrate G2P and P2G flows into the switch architecture before the settlement and AML layers are fully mature.",
+            "visibility": "visible"
+          }
+        ],
+        "hidden_forks": [
+          {
+            "fork_point": "When SISP was established in the late 1990s, BCV chose centralized, operator-owned infrastructure rather than a standards-only interoperability model",
+            "path_taken": "A single company (SISP) was created to own and operate the shared network, with BCV as the governance anchor",
+            "path_foreclosed": "A federated model where BCV mandated technical standards but allowed competing networks to interoperate without a central operator — the approach used in some European card network histories — was not pursued. This would have kept more commercial innovation pressure in the market.",
+            "recoverable": false
+          },
+          {
+            "fork_point": "During the drafting of Legislative Decrees 7, 8, and 9 in 2018, the regulatory framework could have included mandatory interoperability timelines for licensed mobile money operators",
+            "path_taken": "The decrees established licensing frameworks and prudential requirements but did not mandate interoperability between licensed providers, leaving this to future regulatory instruments",
+            "path_foreclosed": "Operators who received licenses in 2019–2021 built closed-loop systems in full regulatory compliance. Had interoperability been required from licensing, the fragmentation problem would not have compounded. The cost of retrofitting is now carried by the switch design rather than by operators at point of market entry.",
+            "recoverable": false
+          },
+          {
+            "fork_point": "In 2020, during peak COVID-19 digital adoption, BCV could have introduced emergency measures reducing mobile money fees and mandating wallet-to-wallet interoperability as Kenya did",
+            "path_taken": "BCV issued advisory communications encouraging digital channel use but did not mandate structural changes (RSP 2020 explicitly contrasts this with Kenya's more interventionist approach)",
+            "path_foreclosed": "A critical behavioral adoption window passed without being anchored to structural reform. Users who moved to digital payments in 2020 adopted specific closed-loop platforms, deepening operator lock-in precisely when friction against switching was lowest.",
+            "recoverable": false
+          },
+          {
+            "fork_point": "The AfricaNenda proof of concept could have been designed to include at least one MNO from the outset",
+            "path_taken": "The PoC was limited to three commercial banks, producing a technically valid but institutionally incomplete test of the switch",
+            "path_foreclosed": "Demonstrated resolution of the MNO vertical integration problem before the full framework was designed. The MNO-bank asymmetry in technical integration complexity, compliance architecture, and commercial incentive structure is now a first-order unknown in the framework design.",
+            "recoverable": true
+          },
+          {
+            "fork_point": "CCV (Cabo Verde Postal Service), classified as a de jure payment institution under Decree 9/2018 with 34 branches across the islands, could have been designated as the primary agent network for last-mile financial inclusion",
+            "path_taken": "CCV continues to operate primarily as an international remittance agent (Western Union, MoneyGram, RIA) and as a banking agent for CECV on some islands, without being integrated into the mobile money interoperability design",
+            "path_foreclosed": "A postal-led agent banking model would have provided physical-digital hybrid coverage for the unbanked population on islands with low connectivity — the exact problem the framework identifies but proposes to solve purely through digital channels",
+            "recoverable": true
+          }
+        ],
+        "path_dependencies": [
+          "The SGDL's status as the sole financial settlement system, built and operated by BCV since 2008, means the new switch's settlement layer must integrate with or replace SGDL architecture — an institutional constraint that limits the choice of settlement mechanism regardless of current technical preferences.",
+          "SISP's ownership of the Vinti4 card infrastructure means any interoperability framework that extends to card-based instruments must negotiate with an existing commercial operator whose revenue model depends on transaction fees the framework may compress — a structural conflict of interest baked in since the 1990s.",
+          "The four existing mobile money platforms (CV Móvel Money, Unitel T+ Money, CVMultimédia Money, CVTelecom Money) were each built under closed-loop regulatory assumptions, meaning their KYC/AML architectures, fee structures, and customer databases are not natively designed for interoperability. Integration will require each operator to modify core system components, not just add an API layer.",
+          "The 2018 legislative package's structure — three separate decrees covering system governance, payment services, and payment institutions — creates a fragmented legal substrate for the switch. Any governance dispute between a fintech, MNO, and bank operating on the switch will require interpretation across multiple legal instruments, each with its own liability framework.",
+          "BCV's institutional role as both regulator and operator of the settlement infrastructure (SGDL) creates a structural conflict of interest that has been carried forward from 2008. The new switch, if operated by BCV, deepens rather than resolves this tension — a path dependency that has never been formally examined in any documented regulatory review.",
+          "Geographic infrastructure investment across 10 islands was historically justified by requiring physical branch presence (RSP 2020 explicitly notes PSPs raised prices to cover fixed costs of multi-island physical presence). The digital switch assumes this cost structure no longer applies, but the underlying connectivity infrastructure — mobile and internet — was built by the same MNOs who are now required to open their platforms to competitors on the switch."
+        ],
+        "inherited_assumptions": [
+          {
+            "assumption": "Centralized BCV operation of payment infrastructure is neutral and does not distort competition",
+            "still_valid": false,
+            "risk_if_unexamined": "BCV simultaneously regulates, supervises, and operates the settlement layer. When a dispute arises between a fintech and a bank over switch access terms, transaction fees, or AML flagging, BCV sits on both sides of the table. This is not a governance gap — it is a governance collision inherited directly from the SGDL model. Left unexamined, it will produce regulatory capture or selective enforcement that undermines the credibility of the framework."
+          },
+          {
+            "assumption": "Mobile phone penetration above 100% and 72% internet penetration means the digital substrate is adequate for real-time mobile money interoperability across all islands",
+            "still_valid": false,
+            "risk_if_unexamined": "The RSP 2020 report cites aggregate penetration figures but does not disaggregate by island. Cabo Verde's 10 islands have highly variable infrastructure — Santiago and São Vicente are economically dominant while smaller islands have significantly lower connectivity. Designing a real-time settlement system against national averages will produce a framework that functions reliably on major islands and intermittently or not at all on smaller ones, excluding the very population segments the framework targets."
+          },
+          {
+            "assumption": "Standardized APIs and ISO 20022 messaging are sufficient to produce effective interoperability between banks, MNOs, and fintechs",
+            "still_valid": false,
+            "risk_if_unexamined": "Technical interoperability and commercial interoperability are different problems. The Singapore-India UPI/PayNow linkage (870,000 transfers in 2024 cited in research context) works because both systems had already achieved domestic scale and commercial stability before linking. In Cabo Verde, the mobile money platforms have not achieved commercial maturity or standardized internal architectures. API standardization resolves the message format problem but does not resolve pricing disputes, dispute resolution protocols, AML liability allocation between operators, or the trust deficit between competing operators who are also competitors in the MNO market."
+          },
+          {
+            "assumption": "Financial inclusion for the unbanked can be achieved primarily through digital channels without significant physical infrastructure investment",
+            "still_valid": false,
+            "risk_if_unexamined": "The RSP 2020 explicitly identifies that PSPs previously had to open physical structures on all islands at high cost. The digital framework assumes this barrier is eliminated. However, the unbanked population — particularly in remote island communities — faces barriers beyond channel access: digital literacy, device ownership, trust in digital financial systems, and the absence of physical cash-in/cash-out points. If the framework is built purely as a digital channel solution, it will achieve inclusion for populations that are already digitally adjacent, not for the structurally excluded 30%."
+          },
+          {
+            "assumption": "The CCV postal network's role as a payment actor is secondary and supplementary",
+            "still_valid": false,
+            "risk_if_unexamined": "CCV has 34 branches, is legally classified as a payment institution under Decree 9/2018, and is one of the few physical networks reaching smaller islands. If the interoperability framework is designed without integrating CCV as a primary agent banking partner, a ready-made last-mile distribution infrastructure will remain underutilized. The RSP 2020 notes CCV acts as a banking agent for CECV in some parts of the country — expanding this model to the switch would cost less than building new agent networks from scratch."
+          },
+          {
+            "assumption": "Success of the three-bank proof of concept validates the switch model for the full multi-operator environment",
+            "still_valid": false,
+            "risk_if_unexamined": "Banks in Cabo Verde operate under a single regulatory framework, have established BCV relationships, share the SGDL settlement infrastructure, and face similar compliance requirements. The PoC tested a homogeneous operator environment. Adding MNOs introduces vertical integration concerns (an MNO both provides the bearer network and competes on the payments layer), different AML/KYC compliance architectures, and commercial incentive structures oriented toward subscriber retention rather than interoperability. Treating the PoC as proof of concept for the full system underestimates the complexity difference by at least one order of magnitude."
+          }
+        ],
+        "synthesis": "Cabo Verde's mobile money interoperability framework is not being designed on a blank slate. It is being layered onto a payment system architecture whose fundamental structure was determined in the late 1990s: centralized, BCV-led, built around the Vinti4 card network, and later formalized through the 2018 legislative package that established licensing without mandating interoperability. Every subsequent decision — the SGDL as sole settlement system, the non-intervention during COVID-19, the bank-only proof of concept — has compounded the distance between where the system is and where the framework assumes it to be. The most dangerous inherited constraint is not technical but institutional: BCV's dual role as regulator and operator of settlement infrastructure has never been structurally resolved, and the new switch deepens rather than addresses this. When commercial disputes emerge on the switch — and they will — the regulator and the infrastructure operator will be the same entity.\n\nTwo path dependencies are particularly acute for the financial inclusion objective. First, the existing mobile money platforms were built under closed-loop regulatory assumptions, meaning their internal architectures are not interoperability-ready. API mandates will add a translation layer, not transform the underlying systems — operators will comply minimally, and the switch will route transactions that work on paper but generate high dispute rates in practice. Second, the framework's assumption that above-100% mobile penetration equals adequate substrate is a national average that disguises island-level infrastructure gaps. Real-time settlement requires real-time connectivity, and the 30% unbanked population is disproportionately located where connectivity is least reliable.\n\nWhat remains recoverable is significant. The CCV postal network — legally a payment institution since 2018, with 34 branches on islands that commercial PSPs have historically underserved — has never been integrated into the interoperability design. This is a recoverable fork: a physical-digital hybrid agent model using CCV as the cash-in/cash-out backbone would extend the framework's reach to structurally excluded populations at lower cost than any purely digital solution. Similarly, the AfricaNenda PoC can still be extended to include at least one MNO before the framework is finalized, producing empirical data on the most complex integration category rather than inheriting assumptions from the bank-only test. Neither of these recoveries requires redesigning the framework — they require acknowledging what the historical lineage left out."
+      },
+      "pt": {
+        "scenario_summary": "Cabo Verde está a desenhar um quadro de interoperabilidade de mobile money que liga todos os prestadores de serviços de pagamento licenciados através de um switch operado pelo banco central com liquidação em tempo real e APIs normalizadas, visando os cerca de 30% da população não bancarizada em 10 ilhas geograficamente dispersas.",
+        "lineage": [
+          {
+            "event": "Criação da SISP (Sociedade Interbancária e Sistemas de Pagamento) e da rede Vinti4",
+            "period": "Final dos anos 1990",
+            "consequence": "Criou a infraestrutura interbancária de base e estabeleceu o papel de liderança do BCV na arquitetura dos sistemas de pagamento. A marca Vinti4 tornou-se a rede de cartões dominante, gerando uma dependência de percurso em que o pensamento centrado em cartões e em bancos dominou o desenho dos sistemas de pagamento durante duas décadas. O relatório RSP 2020 descreve a Vinti4 como 'a maior marca' nesta evolução, sinalizando um profundo apego institucional a este modelo.",
+            "visibility": "visible"
+          },
+          {
+            "event": "Criação do SICIL (Sistema Integrado de Compensação e Liquidação Interbancária) e do SGDL (Sistema de Gestão de Depósitos e Liquidação)",
+            "period": "2001 (SICIL); 2008 (SGDL)",
+            "consequence": "Estabeleceu a infraestrutura de liquidação centralizada, operada pelo BCV, como o padrão arquitetónico por defeito para o sistema de pagamentos de Cabo Verde. O SGDL tornou-se 'o único sistema de liquidação financeira do país' (RSP 2020), tornando o BCV o operador monopolista de liquidação. Isto incorporou o pressuposto de que um único operador central é o modelo correto e criou o modelo institucional que a atual proposta de switch de interoperabilidade agora herda.",
+            "visibility": "visible"
+          },
+          {
+            "event": "Publicação do Pacote Legislativo SPCV (Decretos-Lei n.º 7, 8 e 9/2018)",
+            "period": "28 de novembro de 2018",
+            "consequence": "Formalizou o quadro regulatório para instituições de pagamento e de moeda eletrónica, incluindo operadores não bancários. O Decreto-Lei n.º 9/2018 classificou legalmente os Correios de Cabo Verde (CCV) como instituição de pagamento e de emissão de moeda eletrónica de jure. Isto criou a base legal para o mandato de interoperabilidade atual, mas também consolidou uma arquitetura de supervisão centrada na autoridade do BCV, o que significa que a estrutura de governação do switch foi predeterminada antes de qualquer consulta ao mercado sobre alternativas.",
+            "visibility": "visible"
+          },
+          {
+            "event": "Emergência de plataformas de mobile money silosadas (CV Móvel Money, Unitel T+ Money, CVMultimédia Money, CVTelecom Money) e carteiras digitais iniciais (Makeba, EcobankPay)",
+            "period": "2015–2022 (aproximado)",
+            "consequence": "O mobile money cresceu em Cabo Verde como sistemas proprietários de circuito fechado operados por operadoras de redes móveis e fintechs, sem requisitos de interoperabilidade. O relatório RSP 2020 assinala estas plataformas como 'uma grande oportunidade para a inclusão financeira', mas não regista qualquer intervenção regulatória para exigir interoperabilidade nesta fase. O resultado é que, quando o quadro de interoperabilidade está a ser desenhado, cada operador construiu a sua própria base de clientes, arquitetura AML/KYC e modelo de receita em torno de pressupostos de circuito fechado — criando o próprio problema de fragmentação que o quadro agora tem de resolver.",
+            "visibility": "hidden"
+          },
+          {
+            "event": "Resposta do BCV à pandemia de COVID-19 (comunicados de março a maio de 2020)",
+            "period": "2020",
+            "consequence": "O BCV emitiu orientações favorecendo os canais digitais, mas não chegou a impor a interoperabilidade nem a redução de taxas, ao contrário do Banco Central do Quénia, que reduziu ativamente os custos e aumentou os limites de transação (conforme referido no RSP 2020). Esta não intervenção, durante um momento de pico de adoção digital, fechou uma janela em que a mudança comportamental poderia ter sido associada à reforma estrutural, atrasando a agenda de interoperabilidade em aproximadamente 3 a 5 anos.",
+            "visibility": "hidden"
+          },
+          {
+            "event": "Parceria AfricaNenda e implementação de prova de conceito do switch com três bancos comerciais",
+            "period": "2023–2025 (aproximado, com base no contexto de investigação)",
+            "consequence": "Introduziu competências externas de desenho de Infraestrutura Pública Digital (DPI) e demonstrou viabilidade técnica para pagamentos P2P entre bancos. No entanto, a prova de conceito envolveu apenas bancos — não operadoras de redes móveis nem fintechs — o que significa que as integrações estruturalmente mais complexas (problemas de integração vertical das operadoras, conversão de carteiras de circuito fechado) ainda não foram testadas sob pressão no substrato de Cabo Verde. O sucesso com os bancos pode gerar uma falsa confiança quanto à replicabilidade com operadores não bancários.",
+            "visibility": "hidden"
+          },
+          {
+            "event": "Lançamento do portal unificado de serviços públicos digitais GOV.CV",
+            "period": "Fevereiro de 2026",
+            "consequence": "Demonstrou capacidade do Estado para coordenar infraestrutura digital multipartidária complexa e sinalizou compromisso político com a interoperabilidade como filosofia de governação. Isto cria um ambiente institucional favorável para o switch de pagamentos, mas também gera pressão para integrar fluxos G2P e P2G na arquitetura do switch antes que as camadas de liquidação e AML estejam plenamente maduras.",
+            "visibility": "visible"
+          }
+        ],
+        "hidden_forks": [
+          {
+            "fork_point": "Quando a SISP foi criada no final dos anos 1990, o BCV optou por uma infraestrutura centralizada detida por um operador, em vez de um modelo de interoperabilidade baseado apenas em normas",
+            "path_taken": "Foi criada uma única empresa (SISP) para deter e operar a rede partilhada, com o BCV como âncora de governação",
+            "path_foreclosed": "Um modelo federado em que o BCV mandatasse normas técnicas mas permitisse a interoperabilidade de redes concorrentes sem um operador central — abordagem seguida nalgumas histórias de redes de cartões europeias — não foi seguido. Isso teria mantido mais pressão de inovação comercial no mercado.",
+            "recoverable": false
+          },
+          {
+            "fork_point": "Durante a elaboração dos Decretos-Lei n.º 7, 8 e 9/2018, o quadro regulatório poderia ter incluído prazos obrigatórios de interoperabilidade para operadores de mobile money licenciados",
+            "path_taken": "Os decretos estabeleceram quadros de licenciamento e requisitos prudenciais, mas não impuseram a interoperabilidade entre prestadores licenciados, deixando isso para futuros instrumentos regulatórios",
+            "path_foreclosed": "Os operadores que receberam licenças entre 2019 e 2021 construíram sistemas de circuito fechado em plena conformidade regulatória. Se a interoperabilidade tivesse sido exigida desde o licenciamento, o problema da fragmentação não teria aumentado. O custo de retrofitting é agora suportado pelo desenho do switch em vez de ser suportado pelos operadores no momento da entrada no mercado.",
+            "recoverable": false
+          },
+          {
+            "fork_point": "Em 2020, durante o pico de adoção digital associado à COVID-19, o BCV poderia ter introduzido medidas de emergência para reduzir taxas de mobile money e impor a interoperabilidade carteira a carteira, como fez o Quénia",
+            "path_taken": "O BCV emitiu comunicações consultivas encorajando o uso de canais digitais, mas não impôs alterações estruturais (o RSP 2020 contrasta explicitamente esta posição com a abordagem mais interventiva do Quénia)",
+            "path_foreclosed": "Uma janela crítica de adoção comportamental passou sem ser ancorada à reforma estrutural. Os utilizadores que migraram para os pagamentos digitais em 2020 adotaram plataformas específicas de circuito fechado, aprofundando o lock-in dos operadores precisamente quando a fricção à mudança era mínima.",
+            "recoverable": false
+          },
+          {
+            "fork_point": "A prova de conceito da AfricaNenda poderia ter sido desenhada para incluir pelo menos uma operadora de redes móveis desde o início",
+            "path_taken": "A PoC ficou limitada a três bancos comerciais, produzindo um teste tecnicamente válido mas institucionalmente incompleto do switch",
+            "path_foreclosed": "A resolução demonstrada do problema de integração vertical das operadoras antes de o quadro completo ser desenhado. A assimetria entre operadoras e bancos em termos de complexidade de integração técnica, arquitetura de conformidade e estrutura de incentivos comerciais é agora uma incógnita de primeira ordem no desenho do quadro.",
+            "recoverable": true
+          },
+          {
+            "fork_point": "Os CCV (Correios de Cabo Verde), classificados como instituição de pagamento de jure pelo Decreto-Lei n.º 9/2018, com 34 balcões nas ilhas, poderiam ter sido designados como a rede de agentes primária para a inclusão financeira de último quilómetro",
+            "path_taken": "Os CCV continuam a operar principalmente como agente de remessas internacionais (Western Union, MoneyGram, RIA) e como agente bancário da CECV em algumas ilhas, sem serem integrados no desenho da interoperabilidade do mobile money",
+            "path_foreclosed": "Um modelo de banca de agentes liderado pelos correios teria proporcionado cobertura híbrida físico-digital para a população não bancarizada em ilhas com baixa conectividade — exatamente o problema que o quadro identifica mas propõe resolver exclusivamente através de canais digitais",
+            "recoverable": true
+          }
+        ],
+        "path_dependencies": [
+          "O estatuto do SGDL como único sistema de liquidação financeira, construído e operado pelo BCV desde 2008, significa que a camada de liquidação do novo switch tem de se integrar ou substituir a arquitetura do SGDL — uma restrição institucional que limita a escolha do mecanismo de liquidação independentemente das preferências técnicas atuais.",
+          "A propriedade da SISP sobre a infraestrutura de cartões Vinti4 significa que qualquer quadro de interoperabilidade que se estenda aos instrumentos baseados em cartões tem de negociar com um operador comercial existente cujo modelo de receita depende de taxas de transação que o quadro pode comprimir — um conflito de interesses estrutural incorporado desde os anos 1990.",
+          "As quatro plataformas de mobile money existentes (CV Móvel Money, Unitel T+ Money, CVMultimédia Money, CVTelecom Money) foram construídas sob pressupostos regulatórios de circuito fechado, o que significa que as suas arquiteturas KYC/AML, estruturas de taxas e bases de dados de clientes não foram concebidas nativamente para a interoperabilidade. A integração exigirá que cada operador modifique componentes centrais dos seus sistemas, não apenas adicione uma camada de API.",
+          "A estrutura do pacote legislativo de 2018 — três decretos separados cobrindo a governação do sistema, os serviços de pagamento e as instituições de pagamento — cria um substrato jurídico fragmentado para o switch. Qualquer litígio de governação entre uma fintech, uma operadora de redes móveis e um banco a operar no switch exigirá interpretação em múltiplos instrumentos legais, cada um com o seu próprio quadro de responsabilidade.",
+          "O papel institucional do BCV como regulador e operador da infraestrutura de liquidação (SGDL) cria um conflito de interesses estrutural que foi transportado desde 2008. O novo switch, se operado pelo BCV, aprofunda em vez de resolver esta tensão — uma dependência de percurso que nunca foi formalmente examinada em nenhuma revisão regulatória documentada.",
+          "O investimento em infraestrutura geográfica nas 10 ilhas foi historicamente justificado pela exigência de presença física de balcões (o RSP 2020 refere explicitamente que os PSPs aumentavam os preços para cobrir os custos fixos da presença física em múltiplas ilhas). O quadro digital pressupõe que esta estrutura de custos já não se aplica, mas a infraestrutura de conectividade subjacente — móvel e internet — foi construída pelas mesmas operadoras que agora são obrigadas a abrir as suas plataformas a concorrentes no switch."
+        ],
+        "inherited_assumptions": [
+          {
+            "assumption": "A operação centralizada pelo BCV da infraestrutura de pagamentos é neutra e não distorce a concorrência",
+            "still_valid": false,
+            "risk_if_unexamined": "O BCV regula, supervisiona e opera simultaneamente a camada de liquidação. Quando surgir um litígio entre uma fintech e um banco sobre os termos de acesso ao switch, taxas de transação ou sinalização AML, o BCV estará dos dois lados da mesa. Isto não é uma lacuna de governação — é uma colisão de governação herdada diretamente do modelo SGDL. Não examinada, produzirá captura regulatória ou aplicação seletiva que compromete a credibilidade do quadro."
+          },
+          {
+            "assumption": "A penetração de telemóveis acima de 100% e a penetração de internet de 72% significam que o substrato digital é adequado para a interoperabilidade de mobile money em tempo real em todas as ilhas",
+            "still_valid": false,
+            "risk_if_unexamined": "O relatório RSP 2020 cita valores de penetração agregados, mas não os desagrega por ilha. As 10 ilhas de Cabo Verde têm infraestruturas muito variáveis — Santiago e São Vicente são economicamente dominantes, enquanto as ilhas menores têm conectividade significativamente inferior. Desenhar um sistema de liquidação em tempo real com base em médias nacionais produzirá um quadro que funciona de forma fiável nas ilhas principais e de forma intermitente ou nula nas mais pequenas, excluindo precisamente os segmentos populacionais que o quadro visa."
+          },
+          {
+            "assumption": "APIs normalizadas e mensagens ISO 20022 são suficientes para produzir interoperabilidade efetiva entre bancos, operadoras de redes móveis e fintechs",
+            "still_valid": false,
+            "risk_if_unexamined": "A interoperabilidade técnica e a interoperabilidade comercial são problemas distintos. A ligação UPI/PayNow Singapura-Índia (870.000 transferências em 2024, referidas no contexto de investigação) funciona porque ambos os sistemas tinham já alcançado escala doméstica e estabilidade comercial antes de se interligarem. Em Cabo Verde, as plataformas de mobile money não atingiram ainda maturidade comercial nem arquiteturas internas normalizadas. A normalização de APIs resolve o problema do formato de mensagem, mas não resolve os litígios de preços, os protocolos de resolução de disputas, a alocação de responsabilidade AML entre operadores nem o défice de confiança entre operadores concorrentes que competem também no mercado de redes móveis."
+          },
+          {
+            "assumption": "A inclusão financeira para a população não bancarizada pode ser alcançada principalmente através de canais digitais sem investimento significativo em infraestrutura física",
+            "still_valid": false,
+            "risk_if_unexamined": "O RSP 2020 identifica explicitamente que os PSPs anteriormente tinham de abrir estruturas físicas em todas as ilhas a elevado custo. O quadro digital pressupõe que esta barreira foi eliminada. No entanto, a população não bancarizada — particularmente nas comunidades insulares mais remotas — enfrenta barreiras que vão além do acesso ao canal: literacia digital, posse de dispositivos, confiança nos sistemas financeiros digitais e ausência de pontos físicos de entrada e saída de dinheiro. Se o quadro for construído exclusivamente como uma solução de canal digital, alcançará a inclusão para populações já digitalmente adjacentes, e não para os 30% estruturalmente excluídos."
+          },
+          {
+            "assumption": "O papel da rede postal dos CCV como agente de pagamento é secundário e complementar",
+            "still_valid": false,
+            "risk_if_unexamined": "Os CCV têm 34 balcões, são legalmente classificados como instituição de pagamento desde 2018 e constituem uma das poucas redes físicas que alcançam as ilhas mais pequenas. Se o quadro de interoperabilidade for desenhado sem integrar os CCV como parceiro primário de banca de agentes, uma infraestrutura de distribuição de último quilómetro já pronta ficará subaproveitada. O RSP 2020 refere que os CCV atuam como agente bancário da CECV em algumas partes do país — alargar este modelo ao switch custaria menos do que construir novas redes de agentes de raiz."
+          },
+          {
+            "assumption": "O sucesso da prova de conceito com três bancos valida o modelo de switch para o ambiente multioperador completo",
+            "still_valid": false,
+            "risk_if_unexamined": "Os bancos em Cabo Verde operam sob um único quadro regulatório, têm relações estabelecidas com o BCV, partilham a infraestrutura de liquidação SGDL e enfrentam requisitos de conformidade semelhantes. A PoC testou um ambiente de operadores homogéneos. Acrescentar operadoras de redes móveis introduz preocupações de integração vertical (uma operadora fornece simultaneamente a rede portadora e compete na camada de pagamentos), diferentes arquiteturas de conformidade AML/KYC e estruturas de incentivos comerciais orientadas para a retenção de assinantes em vez da interoperabilidade. Tratar a PoC como prova de conceito para o sistema completo subestima a diferença de complexidade por pelo menos uma ordem de grandeza."
+          }
+        ],
+        "synthesis": "O quadro de interoperabilidade de mobile money de Cabo Verde não está a ser desenhado numa folha em branco. Está a ser sobreposto a uma arquitetura de sistema de pagamentos cuja estrutura fundamental foi determinada no final dos anos 1990: centralizada, liderada pelo BCV, construída em torno da rede de cartões Vinti4, e posteriormente formalizada pelo pacote legislativo de 2018 que estabeleceu licenciamento sem impor interoperabilidade. Cada decisão subsequente — o SGDL como único sistema de liquidação, a não intervenção durante a COVID-19, a prova de conceito apenas com bancos — agravou a distância entre o estado atual do sistema e o estado que o quadro pressupõe. A restrição herdada mais perigosa não é técnica, mas institucional: o duplo papel do BCV como regulador e operador da infraestrutura de liquidação nunca foi estruturalmente resolvido, e o novo switch aprofunda, em vez de abordar, esta tensão. Quando surgirem litígios comerciais no switch — e surgirão —, o regulador e o operador da infraestrutura serão a mesma entidade.\n\nDuas dependências de percurso são particularmente críticas para o objetivo de inclusão financeira. Em primeiro lugar, as plataformas de mobile money existentes foram construídas sob pressupostos regulatórios de circuito fechado, o que significa que as suas arquiteturas internas não estão preparadas para a interoperabilidade. Os mandatos de API acrescentarão uma camada de tradução, não transformarão os sistemas subjacentes — os operadores cumprirão minimamente, e o switch encaminhará transações que funcionam no papel mas geram taxas elevadas de disputas na prática. Em segundo lugar, o pressuposto do quadro de que uma penetração móvel acima de 100% equivale a um substrato adequado é uma média nacional que dissimula lacunas de infraestrutura ao nível das ilhas. A liquidação em tempo real exige conectividade em tempo real, e os 30% de população não bancarizada estão desproporcionalmente localizados onde a conectividade é menos fiável.\n\nO que permanece recuperável é significativo. A rede postal dos CCV — legalmente uma instituição de pagamento desde 2018, com 34 balcões em ilhas que os PSPs comerciais historicamente sub-serviram — nunca foi integrada no desenho da interoperabilidade. Esta é uma bifurcação recuperável: um modelo de agente híbrido físico-digital utilizando os CCV como espinha dorsal de entrada e saída de dinheiro alargaria o alcance do quadro às populações estruturalmente excluídas a um custo inferior ao de qualquer solução puramente digital. Da mesma forma, a PoC da AfricaNenda pode ainda ser alargada para incluir pelo menos uma operadora de redes móveis antes de o quadro ser finalizado, produzindo dados empíricos sobre a categoria de integração mais complexa em vez de herdar pressupostos do teste exclusivamente bancário. Nenhuma destas recuperações exige o redesenho do quadro — exige o reconhecimento do que a linhagem histórica deixou de fora."
+      }
+    },
+    "mode": "ancestor",
+    "research_enriched": true,
+    "document_grounded": true
+  },
+  "narrative": {
+    "analysis": {
+      "en": {
+        "scenario_summary": "Cabo Verde's central bank (BCV) is designing a mandatory mobile money interoperability framework connecting all licensed payment providers through a central switch to achieve real-time settlement and financial inclusion for the ~30% unbanked population across 10 islands.",
+        "official_narrative": {
+          "story": "The Banco de Cabo Verde, guided by its 2018 legislative package (Legislative Decrees 7, 8, and 9) and its 2030 PEDS alignment, is building digital infrastructure to bridge the geographic and economic gaps that leave 30% of Cabo Verdeans financially excluded. With mobile penetration above 100% and internet access at 72%, the central switch will unlock the latent potential of existing technology to serve farmers, fishermen, diaspora recipients, and island communities currently stranded in informality. The AfricaNenda proof-of-concept across three commercial banks demonstrates this is not aspirational — it is already working.",
+          "promised_outcome": "A unified, interoperable payment ecosystem where any Cabo Verdean on any island can transact with any provider in real time, at lower cost, driving financial inclusion, reducing the informal economy, and deepening diaspora remittance flows.",
+          "protagonist": "The unbanked Cabo Verdean citizen — the farmer on a remote island, the fisherman selling across waters, the diaspora family receiving remittances — finally brought into the formal financial system."
+        },
+        "structural_narrative": {
+          "story": "The actual design creates a mandatory dependency architecture: all licensed providers must route transactions through a BCV-operated central switch, making the central bank simultaneously the regulator, the rule-setter, and the infrastructure monopolist. The RSP 2020 document acknowledges that Cabo Verde's 'first trends in the digitization of financial services are still emerging,' meaning this framework is being imposed on a market that has not yet developed the operational maturity, redundancy capacity, or competitive equilibrium to absorb mandatory centralization without distortion. The structural outcome is not inclusion — it is formalization on the state's terms, with the switch becoming the single point of failure, control, and rent extraction.",
+          "probable_outcome": "A functioning but brittle central switch that works well on the main islands (Santiago, São Vicente, Sal) where infrastructure is solid, while the outer islands remain underserved due to connectivity gaps that the switch itself cannot resolve. Smaller fintechs and MNOs face disproportionate compliance costs to connect to standardized APIs, consolidating the market around the two or three players with enough capital to absorb integration costs. The 30% unbanked population gets access to the system in name, but actual usage remains low in connectivity-poor areas.",
+          "actual_beneficiary": "BCV gains unprecedented visibility and control over all domestic payment flows. Incumbent commercial banks — already participants in the AfricaNenda POC — gain a legitimized architecture that raises barriers to entry for new competitors. The formal fiscal state gains transaction data that feeds directly into tax and AML surveillance."
+        },
+        "narrative_gaps": [
+          {
+            "gap": "The official narrative credits mobile penetration (>100%) and internet access (72%) as proof of technological readiness, but these are national averages masking severe inter-island disparity.",
+            "what_is_obscured": "The RSP 2020 document notes that CCV's branch network covers only the main islands, and that connectivity varies significantly. A central switch with real-time settlement requirements will simply fail to resolve transactions in low-connectivity zones — creating a two-tier system where inclusion is declared nationally but practically denied on the outer islands.",
+            "consequence": "When the gap is exposed, the framework will be defended as 'nationally successful' using aggregate data, while the originally targeted unbanked population on remote islands remains excluded. The narrative of inclusion becomes a statistical artifact."
+          },
+          {
+            "gap": "The official narrative frames mandatory connection to the central switch as enabling competition and lowering fees, consistent with NBER findings on African interoperability. The structural design, however, gives BCV monopoly control over the settlement layer.",
+            "what_is_obscured": "The NBER finding that interoperability lowers fees applies to competitive multi-switch environments or voluntary interconnection regimes — not necessarily to mandatory single-operator central switch models where the central bank sets both the rules and the infrastructure pricing. The fee reduction mechanism assumes market pressure, which a BCV monopoly switch structurally eliminates.",
+            "consequence": "Settlement fees and API compliance costs become regulatory rents. Providers cannot exit the switch or negotiate terms. The 'lower fees for users' promise depends entirely on BCV's willingness to self-regulate its own pricing — a governance conflict the framework does not resolve."
+          },
+          {
+            "gap": "The AfricaNenda proof-of-concept is cited as validation of the framework's feasibility, but it involved only three commercial banks under controlled conditions.",
+            "what_is_obscured": "Scaling from a three-bank POC to mandatory connection for all licensed providers — including MNOs like CV Móvel, Unitel T+, and CVTelecom Money, which the research context identifies as currently facing regulatory barriers and lacking interoperability — represents an order-of-magnitude increase in integration complexity, stakeholder negotiation, and legacy system reconciliation. The RSP 2020 notes that BCV is still completing the 2018 legislative package regulation; the underlying rule-writing is not finished.",
+            "consequence": "Mandatory connection deadlines will be missed or watered down, creating a prolonged transition period where the switch exists but is sparsely connected — delivering neither the inclusion benefits nor the competitive disruption promised, while still imposing compliance costs on all participants."
+          },
+          {
+            "gap": "The narrative treats the unbanked population as passive beneficiaries of infrastructure, not as agents with specific reasons for remaining outside the formal system.",
+            "what_is_obscured": "The RSP 2020 document explicitly acknowledges that cash provides 'financial anonymity' and that 'reduced costs associated with cash transactions and informal providers can promote economic empowerment, particularly for women.' The interoperability framework does not address the structural reasons people opt out — it simply makes opting out harder by formalizing the infrastructure. There is no accompanying policy for fee subsidies, simplified KYC, or agent network density on outer islands.",
+            "consequence": "Adoption rates among the target population will remain low. The system will be used intensively by the already-banked urban middle class — who benefit from interoperability — while the unbanked rural population continues using cash and informal channels. Inclusion metrics will be measured at account opening, not at active usage."
+          }
+        ],
+        "stakeholder_stories": [
+          {
+            "group": "Banco de Cabo Verde (BCV)",
+            "their_story": "BCV is the architect of a historic modernization — fulfilling its mandate under the 2018 SPCV legislative package, positioning Cabo Verde as a regional digital finance leader, and operationalizing the PEDS 2030 vision. The AfricaNenda partnership gives this institutional legitimacy and technical credibility. BCV becomes the infrastructure layer of the national economy.",
+            "role_assigned": "protagonist"
+          },
+          {
+            "group": "Incumbent commercial banks (POC participants)",
+            "their_story": "Banks were already at the table for the AfricaNenda POC. They have the compliance infrastructure, legal teams, and technical capacity to connect to standardized APIs. Mandatory interoperability, paradoxically, benefits them: it raises the compliance bar for smaller competitors, legitimizes their existing digital channels, and gives them access to a shared settlement layer they didn't have to build alone.",
+            "role_assigned": "protagonist"
+          },
+          {
+            "group": "MNOs and smaller fintechs (CV Móvel, Unitel T+, CVTelecom Money)",
+            "their_story": "MNOs built mobile money platforms independently — CV Móvel Money, Unitel T+ Money — and now face mandatory connection to a switch they did not design, operated by their regulator, with API standards set externally. Integration costs are non-trivial; the regulatory barriers the research context identifies are not resolved by the switch, only restructured. They are told this is inclusion; they experience it as regulated absorption.",
+            "role_assigned": "antagonist"
+          },
+          {
+            "group": "Unbanked population on outer islands",
+            "their_story": "They are the stated reason this framework exists. But the framework is not designed around their specific constraints: intermittent connectivity, preference for cash's anonymity and low cost (acknowledged in RSP 2020), distance from agent networks, and lack of digital identity infrastructure. They appear in the narrative as the problem to be solved, not as participants in designing the solution.",
+            "role_assigned": "invisible"
+          },
+          {
+            "group": "Diaspora and remittance senders",
+            "their_story": "Diaspora Cabo Verdeans currently route remittances through Western Union, MoneyGram, and RIA via CCV's 34 branches (noted in RSP 2020). The interoperability framework promises cheaper, faster digital remittance channels. This stakeholder group has the clearest, most immediate benefit — and the political weight to drive adoption. They are the framework's most credible success story.",
+            "role_assigned": "protagonist"
+          },
+          {
+            "group": "Cabo Verde Postal Service (CCV)",
+            "their_story": "CCV operates 34 branches and acts as both a payment institution and a banking agent for CECV. The interoperability framework, by enabling digital PSPs to reach all islands without physical infrastructure, directly threatens CCV's agent banking role. CCV is legally classified as a payment and electronic money institution under Legislative Decree 9/2018 — meaning it must also connect to the switch — while the switch simultaneously undermines the geographic monopoly that justified its branch network.",
+            "role_assigned": "displaced"
+          }
+        ],
+        "future_narrative": "Historians will record that Cabo Verde's mobile money interoperability framework was one of the more technically coherent digital finance projects in small island developing states — and one of the more instructive examples of the gap between infrastructure and adoption. The BCV, working with AfricaNenda, successfully built a central switch that connected the country's major banks and, eventually, its MNOs. Transaction volumes on the main islands — Santiago, São Vicente, Sal — grew substantially. The diaspora remittance corridor digitized faster than anyone projected. The aggregate financial inclusion statistics improved. These were real achievements, and they were real for the people they reached.\n\nBut the historians will also note what the metrics obscured. The 30% unbanked population that justified the entire framework was not, in fact, evenly distributed across the archipelago — it was concentrated precisely on the outer islands where connectivity remained unreliable, where CCV's branch network had already been hollowing out, and where the informal cash economy continued to function because the formal system's transaction costs and digital identity requirements made it inaccessible in practice. The switch was real-time. The settlement was sound. The APIs were standardized. None of these properties solved the last-mile problem, because the last-mile problem was never technical — it was economic and geographic.\n\nThe lesson historians will draw is not that central bank-led interoperability was wrong — the fee reductions were real, the competitive effects were real, the remittance benefits were real — but that the official narrative confused necessary conditions with sufficient ones. A central switch is necessary for interoperability. Interoperability is necessary for inclusion. But neither is sufficient. The framework was designed to solve the infrastructure problem of a fragmented payment system, and it succeeded at exactly that. It was not designed to solve the adoption problem of a population that had rational reasons to remain outside the formal system. When those two problems were conflated — when 'connected to the switch' was treated as equivalent to 'financially included' — the framework began telling a story about itself that its own architecture could not support.",
+        "synthesis": "The real story no one is saying out loud is this: Cabo Verde's interoperability framework is not primarily a financial inclusion project — it is a state formalization project dressed in inclusion language. The BCV, working within a legitimate regulatory mandate and genuine developmental intent, is building infrastructure that will make all domestic payment flows visible, taxable, and controllable. The unbanked population is the moral justification; the diaspora remittance corridor is the economic engine; but the structural beneficiary is the state's capacity to see, regulate, and extract value from transactions that currently happen in the informal cash economy that the RSP 2020 itself acknowledges provides real economic empowerment — particularly for women — precisely because of its anonymity. The framework is not malicious. It may even be net positive. But the people it will most reliably serve are those who were already partially served: the urban banked class gaining convenience, the banks gaining legitimacy, BCV gaining control, and the diaspora gaining speed. The farmer on Brava island with intermittent connectivity, preferring cash because it costs nothing and asks nothing — that person is the narrative protagonist and the structural afterthought."
+      },
+      "pt": {
+        "scenario_summary": "O Banco de Cabo Verde (BCV) está a conceber um quadro obrigatório de interoperabilidade de dinheiro móvel que liga todos os prestadores de serviços de pagamento licenciados através de um interruptor central, com o objetivo de alcançar a liquidação em tempo real e a inclusão financeira dos cerca de 30% da população sem conta bancária distribuída por 10 ilhas.",
+        "official_narrative": {
+          "story": "O Banco de Cabo Verde, orientado pelo pacote legislativo de 2018 (Decretos-Lei n.º 7, 8 e 9) e pelo alinhamento com o PEDS 2030, está a construir infraestrutura digital para colmatar as lacunas geográficas e económicas que excluem financeiramente 30% dos cabo-verdianos. Com uma penetração móvel superior a 100% e acesso à internet de 72%, o interruptor central desbloqueará o potencial latente da tecnologia existente para servir agricultores, pescadores, beneficiários da diáspora e comunidades insulares atualmente presas na informalidade. A prova de conceito da AfricaNenda em três bancos comerciais demonstra que isto não é apenas aspiracional — já está a funcionar.",
+          "promised_outcome": "Um ecossistema de pagamentos unificado e interoperável onde qualquer cabo-verdiano em qualquer ilha possa transacionar com qualquer prestador em tempo real, a menor custo, impulsionando a inclusão financeira, reduzindo a economia informal e aprofundando os fluxos de remessas da diáspora.",
+          "protagonist": "O cidadão cabo-verdiano sem conta bancária — o agricultor numa ilha remota, o pescador que vende através dos mares, a família da diáspora que recebe remessas — finalmente integrado no sistema financeiro formal."
+        },
+        "structural_narrative": {
+          "story": "O design real cria uma arquitetura de dependência obrigatória: todos os prestadores licenciados têm de encaminhar transações através de um interruptor central operado pelo BCV, tornando o banco central simultaneamente regulador, definidor de regras e monopolista de infraestrutura. O documento RSP 2020 reconhece que as 'primeiras tendências na digitalização dos serviços financeiros estão ainda a emergir' em Cabo Verde, o que significa que este quadro está a ser imposto a um mercado que ainda não desenvolveu a maturidade operacional, a capacidade de redundância ou o equilíbrio competitivo necessários para absorver a centralização obrigatória sem distorção. O resultado estrutural não é a inclusão — é a formalização nos termos do Estado, com o interruptor a tornar-se o único ponto de falha, controlo e extração de renda.",
+          "probable_outcome": "Um interruptor central funcional mas frágil que funciona bem nas ilhas principais (Santiago, São Vicente, Sal) onde a infraestrutura é sólida, enquanto as ilhas periféricas permanecem subservidas devido a lacunas de conectividade que o próprio interruptor não consegue resolver. As fintechs e operadores de redes móveis (ORM) de menor dimensão enfrentam custos de conformidade desproporcionais para se ligarem a APIs normalizadas, consolidando o mercado em torno dos dois ou três operadores com capital suficiente para absorver os custos de integração. Os 30% sem conta bancária ficam com acesso nominal ao sistema, mas a utilização efetiva permanece baixa nas áreas com fraca conectividade.",
+          "actual_beneficiary": "O BCV ganha visibilidade e controlo sem precedentes sobre todos os fluxos de pagamento domésticos. Os bancos comerciais incumbentes — já participantes na prova de conceito da AfricaNenda — ganham uma arquitetura legitimada que eleva as barreiras à entrada de novos concorrentes. O Estado fiscal formal ganha dados de transações que alimentam diretamente a vigilância fiscal e de combate ao branqueamento de capitais."
+        },
+        "narrative_gaps": [
+          {
+            "gap": "A narrativa oficial credita a penetração móvel (>100%) e o acesso à internet (72%) como prova de prontidão tecnológica, mas estas são médias nacionais que mascaram disparidades inter-ilhas severas.",
+            "what_is_obscured": "O documento RSP 2020 nota que a rede de balcões da CCV cobre apenas as ilhas principais e que a conectividade varia significativamente. Um interruptor central com requisitos de liquidação em tempo real simplesmente não resolverá transações em zonas de baixa conectividade — criando um sistema a dois níveis onde a inclusão é declarada a nível nacional mas praticamente negada nas ilhas periféricas.",
+            "consequence": "Quando a lacuna for exposta, o quadro será defendido como 'bem-sucedido a nível nacional' usando dados agregados, enquanto a população sem conta bancária originalmente visada nas ilhas remotas permanece excluída. A narrativa de inclusão torna-se um artefacto estatístico."
+          },
+          {
+            "gap": "A narrativa oficial enquadra a ligação obrigatória ao interruptor central como facilitadora de concorrência e redução de taxas, em consonância com as conclusões do NBER sobre interoperabilidade em África. O design estrutural, porém, confere ao BCV o controlo monopolístico sobre a camada de liquidação.",
+            "what_is_obscured": "A conclusão do NBER de que a interoperabilidade reduz taxas aplica-se a ambientes multi-interruptor competitivos ou a regimes de interligação voluntária — não necessariamente a modelos de interruptor central único obrigatório onde o banco central define tanto as regras como o preço da infraestrutura. O mecanismo de redução de taxas pressupõe pressão de mercado, que um monopólio de interruptor do BCV elimina estruturalmente.",
+            "consequence": "As taxas de liquidação e os custos de conformidade das APIs tornam-se rendas regulatórias. Os prestadores não podem sair do interruptor nem negociar condições. A promessa de 'taxas mais baixas para os utilizadores' depende inteiramente da vontade do BCV de autorregular os seus próprios preços — um conflito de governação que o quadro não resolve."
+          },
+          {
+            "gap": "A prova de conceito da AfricaNenda é citada como validação da viabilidade do quadro, mas envolveu apenas três bancos comerciais em condições controladas.",
+            "what_is_obscured": "Passar de uma prova de conceito com três bancos para uma ligação obrigatória de todos os prestadores licenciados — incluindo ORMs como a CV Móvel, Unitel T+ e CVTelecom Money, que o contexto de investigação identifica como enfrentando atualmente barreiras regulatórias e falta de interoperabilidade — representa um aumento de complexidade de integração, negociação entre partes interessadas e reconciliação de sistemas legados de uma ordem de grandeza. O RSP 2020 nota que o BCV ainda está a completar a regulamentação do pacote legislativo de 2018; a redação das regras subjacentes não está concluída.",
+            "consequence": "Os prazos de ligação obrigatória serão incumpridos ou atenuados, criando um período de transição prolongado em que o interruptor existe mas está esparsamente ligado — não proporcionando nem os benefícios de inclusão nem a disrupção competitiva prometidos, enquanto continua a impor custos de conformidade a todos os participantes."
+          },
+          {
+            "gap": "A narrativa trata a população sem conta bancária como beneficiária passiva de infraestrutura, não como agentes com razões específicas para permanecerem fora do sistema formal.",
+            "what_is_obscured": "O documento RSP 2020 reconhece explicitamente que o numerário proporciona 'anonimato financeiro' e que os 'custos reduzidos associados às transações em numerário e ao uso de prestadores informais podem promover o empoderamento económico, particularmente das mulheres.' O quadro de interoperabilidade não aborda as razões estruturais pelas quais as pessoas ficam fora do sistema — simplesmente torna mais difícil ficar fora, formalizando a infraestrutura. Não existe nenhuma política de acompanhamento para subsídios de taxas, KYC simplificado ou densidade de redes de agentes nas ilhas periféricas.",
+            "consequence": "As taxas de adoção entre a população-alvo permanecerão baixas. O sistema será utilizado intensivamente pela classe média urbana já bancarizada — que beneficia da interoperabilidade — enquanto a população rural sem conta bancária continua a usar numerário e canais informais. As métricas de inclusão serão medidas na abertura de conta, não na utilização ativa."
+          }
+        ],
+        "stakeholder_stories": [
+          {
+            "group": "Banco de Cabo Verde (BCV)",
+            "their_story": "O BCV é o arquiteto de uma modernização histórica — cumprindo o seu mandato ao abrigo do pacote legislativo SPCV de 2018, posicionando Cabo Verde como líder regional em finanças digitais e operacionalizando a visão do PEDS 2030. A parceria com a AfricaNenda confere legitimidade institucional e credibilidade técnica. O BCV torna-se a camada de infraestrutura da economia nacional.",
+            "role_assigned": "protagonist"
+          },
+          {
+            "group": "Bancos comerciais incumbentes (participantes na prova de conceito)",
+            "their_story": "Os bancos já estavam na mesa para a prova de conceito da AfricaNenda. Têm a infraestrutura de conformidade, as equipas jurídicas e a capacidade técnica para se ligarem a APIs normalizadas. A interoperabilidade obrigatória beneficia-os paradoxalmente: eleva o limiar de conformidade para concorrentes mais pequenos, legitima os seus canais digitais existentes e dá-lhes acesso a uma camada de liquidação partilhada que não tiveram de construir sozinhos.",
+            "role_assigned": "protagonist"
+          },
+          {
+            "group": "ORMs e fintechs de menor dimensão (CV Móvel, Unitel T+, CVTelecom Money)",
+            "their_story": "Os ORMs construíram plataformas de dinheiro móvel de forma independente — CV Móvel Money, Unitel T+ Money — e agora enfrentam a ligação obrigatória a um interruptor que não conceberam, operado pelo seu regulador, com normas de API definidas externamente. Os custos de integração são consideráveis; as barreiras regulatórias que o contexto de investigação identifica não são resolvidas pelo interruptor, apenas reestruturadas. É-lhes dito que isto é inclusão; vivenciam-no como absorção regulada.",
+            "role_assigned": "antagonist"
+          },
+          {
+            "group": "População sem conta bancária nas ilhas periféricas",
+            "their_story": "São a razão declarada pela qual este quadro existe. Mas o quadro não foi concebido em torno das suas restrições específicas: conectividade intermitente, preferência pelo anonimato e baixo custo do numerário (reconhecidos no RSP 2020), distância das redes de agentes e falta de infraestrutura de identidade digital. Aparecem na narrativa como o problema a resolver, não como participantes no design da solução.",
+            "role_assigned": "invisible"
+          },
+          {
+            "group": "Diáspora e remetentes de remessas",
+            "their_story": "Os cabo-verdianos da diáspora encaminham atualmente as remessas através da Western Union, MoneyGram e RIA via os 34 balcões da CCV (referidos no RSP 2020). O quadro de interoperabilidade promete canais de remessas digitais mais baratos e rápidos. Este grupo de partes interessadas tem o benefício mais claro e imediato — e o peso político para impulsionar a adoção. São a história de sucesso mais credível do quadro.",
+            "role_assigned": "protagonist"
+          },
+          {
+            "group": "Correios de Cabo Verde (CCV)",
+            "their_story": "A CCV opera 34 balcões e funciona tanto como instituição de pagamento como agente bancário da CECV. O quadro de interoperabilidade, ao permitir que os PSP digitais alcancem todas as ilhas sem infraestrutura física, ameaça diretamente o papel de agente bancário da CCV. A CCV está legalmente classificada como instituição de pagamento e de emissão de moeda eletrónica ao abrigo do Decreto-Lei n.º 9/2018 — o que significa que também deve ligar-se ao interruptor — enquanto o interruptor simultaneamente corrói o monopólio geográfico que justificava a sua rede de balcões.",
+            "role_assigned": "displaced"
+          }
+        ],
+        "future_narrative": "Os historiadores registarão que o quadro de interoperabilidade de dinheiro móvel de Cabo Verde foi um dos projetos de finanças digitais tecnicamente mais coerentes nos pequenos estados insulares em desenvolvimento — e um dos exemplos mais instrutivos do fosso entre infraestrutura e adoção. O BCV, trabalhando com a AfricaNenda, construiu com sucesso um interruptor central que ligou os principais bancos do país e, eventualmente, os seus ORMs. Os volumes de transações nas ilhas principais — Santiago, São Vicente, Sal — cresceram substancialmente. O corredor de remessas da diáspora digitalizou-se mais rapidamente do que qualquer previsão. As estatísticas agregadas de inclusão financeira melhoraram. Estes foram progressos reais, e foram reais para as pessoas que alcançaram.\n\nMas os historiadores também notarão o que as métricas obscureceram. Os 30% sem conta bancária que justificaram todo o quadro não estavam, de facto, uniformemente distribuídos pelo arquipélago — estavam concentrados precisamente nas ilhas periféricas onde a conectividade permaneceu pouco fiável, onde a rede de balcões da CCV já se estava a esvaziar, e onde a economia informal de numerário continuou a funcionar porque os custos de transação do sistema formal e os requisitos de identidade digital o tornavam inacessível na prática. O interruptor era em tempo real. A liquidação era sólida. As APIs estavam normalizadas. Nenhuma destas propriedades resolveu o problema da última milha, porque o problema da última milha nunca foi técnico — era económico e geográfico.\n\nA lição que os historiadores retirarão não é que a interoperabilidade liderada pelo banco central estava errada — as reduções de taxas foram reais, os efeitos competitivos foram reais, os benefícios das remessas foram reais — mas que a narrativa oficial confundiu condições necessárias com condições suficientes. Um interruptor central é necessário para a interoperabilidade. A interoperabilidade é necessária para a inclusão. Mas nenhuma é suficiente. O quadro foi concebido para resolver o problema de infraestrutura de um sistema de pagamentos fragmentado, e conseguiu exatamente isso. Não foi concebido para resolver o problema de adoção de uma população que tinha razões racionais para permanecer fora do sistema formal. Quando esses dois problemas foram conflacionados — quando 'ligado ao interruptor' foi tratado como equivalente a 'financeiramente incluído' — o quadro começou a contar uma história sobre si próprio que a sua própria arquitetura não conseguia sustentar.",
+        "synthesis": "A história real que ninguém está a dizer em voz alta é esta: o quadro de interoperabilidade de Cabo Verde não é primariamente um projeto de inclusão financeira — é um projeto de formalização estatal vestido com linguagem de inclusão. O BCV, trabalhando dentro de um mandato regulatório legítimo e com intenção de desenvolvimento genuína, está a construir infraestrutura que tornará todos os fluxos de pagamento domésticos visíveis, tributáveis e controláveis. A população sem conta bancária é a justificação moral; o corredor de remessas da diáspora é o motor económico; mas o beneficiário estrutural é a capacidade do Estado de ver, regular e extrair valor de transações que atualmente ocorrem na economia informal de numerário que o próprio RSP 2020 reconhece proporcionar empoderamento económico real — particularmente para as mulheres — precisamente por causa do seu anonimato. O quadro não é malicioso. Pode até ser positivo em termos líquidos. Mas as pessoas que mais fiável e consistentemente servirá são aquelas que já eram parcialmente servidas: a classe média urbana já bancarizada que ganha conveniência, os bancos que ganham legitimidade, o BCV que ganha controlo, e a diáspora que ganha velocidade. O agricultor na ilha do Brava com conectividade intermitente, que prefere numerário porque não custa nada e não exige nada — essa pessoa é o protagonista da narrativa e o dado adicionado estrutural."
+      }
+    },
+    "mode": "narrative",
+    "research_enriched": true,
+    "document_grounded": true
+  },
+  "consciousness": {
+    "analysis": {
+      "en": {
+        "scenario_summary": "Cabo Verde is designing a central bank-operated mobile money interoperability framework connecting banks, fintechs, and telcos through a mandatory shared settlement switch with real-time settlement and standardized APIs, targeting the ~30% unbanked population across 10 islands.",
+        "observers": [
+          {
+            "group": "Banco de Cabo Verde (BCV)",
+            "perspective": "BCV sees this as the logical culmination of two decades of payment system modernization, building on SICIL (2001), SGDL (2008), the 2018 legislative package (Legislative Decrees 7, 8, 9/2018), and the AfricaNenda proof-of-concept. From their position, the framework is a regulatory mandate execution — they already operate the settlement infrastructure, hold the legal authority under Legislative Decree 7/2018, and have demonstrated technical feasibility. The proposal is an extension of existing sovereign competency, not an experiment.",
+            "blind_spots": "BCV structurally cannot see the commercial survival logic of private operators. Their coherence budget is denominated in systemic stability and regulatory compliance, not revenue margins. They are also partially blind to the island-level infrastructure heterogeneity: the RSP 2020 report notes 72% internet penetration nationally, but that aggregate conceals severe inter-island disparities that will create asymmetric participation costs for smaller providers on remote islands like Santo Antão or Brava.",
+            "emotional_reality": "Confidence bordering on institutional impatience. BCV has built the legal and technical scaffolding for years; this feels like finally being allowed to complete a structure that should already exist. There is latent frustration with market fragmentation that persists despite enabling legislation."
+          },
+          {
+            "group": "Telcos / MNOs (CV Móvel, Unitel T+, CVMultimédia, CVTelecom)",
+            "perspective": "The four MNOs see a mandatory switch as the forced commoditization of their most strategically valuable asset: the exclusive customer relationship built through mobile money wallets. CV Móvel and Unitel T+ in particular have invested in proprietary mobile money infrastructure (referenced in the RSP 2020 as Makeba and EcobankPay digital solutions) with network effects that took years to build. Interoperability dissolves those moats by design.",
+            "blind_spots": "MNOs cannot easily see the volume upside that African precedents demonstrate. NBER data cited in research context shows fee reductions paired with increased transaction volumes post-interoperability — but this requires a trust in future equilibrium that feels abstract against present margin pressure. They also cannot see how their refusal to cooperate would accelerate regulatory action, given BCV's explicit mandate under Legislative Decree 7/2018.",
+            "emotional_reality": "Threat response. The proposal feels like expropriation without compensation — years of customer acquisition investment being opened to competitors by regulatory fiat. There is genuine fear that standardized APIs will allow banks and fintechs to poach mobile money customers with cheaper or better-integrated products."
+          },
+          {
+            "group": "Commercial Banks and Fintechs (including Makeba)",
+            "perspective": "Banks see a level playing field being created, but read it with suspicion about who actually levels it. The shared switch means bank accounts become interoperable with MNO wallets — which they frame as either an acquisition opportunity (reach unbanked customers through the switch) or a disintermediation threat (MNOs use the switch to offer near-banking services without a banking license). Fintechs like Makeba, Cabo Verde's first mobile money service, occupy an ambiguous middle position: they benefit from open APIs but fear being squeezed between telco distribution muscle and bank balance sheet depth.",
+            "blind_spots": "Banks underestimate the KYC/AML compliance cost asymmetry. The RSP 2020 explicitly references the need for eKYC and digital onboarding; BCV's framework will require standardized compliance reporting across the switch. Banks are experienced at this; smaller fintechs and CCV (Cabo Verde Postal Service, legally a payment institution under Legislative Decree 9/2018) are not. This creates a compliance moat that banks cannot perceive as the competitive advantage it actually is.",
+            "emotional_reality": "Cautious opportunism mixed with structural anxiety. The framework offers new distribution reach across 10 islands without physical branches — exactly what the RSP 2020 identifies as a cost barrier — but each new access point is also a new competitor entry point."
+          },
+          {
+            "group": "Unbanked Population (the ~30% target)",
+            "perspective": "This group does not experience the framework as a policy proposal — they experience it, if at all, as a change in which agents are available at the market, whether a mobile top-up converts to a payment instrument, or whether a relative's remittance from the diaspora arrives faster and cheaper. The RSP 2020 explicitly notes that 'financial anonymity' enabled by cash is not merely a financial exclusion symptom but serves protective functions, particularly for women's economic autonomy. The framework's designers see anonymity as a problem; significant portions of the target population experience it as a feature.",
+            "blind_spots": "The unbanked population cannot see the regulatory architecture being constructed around them, cannot anticipate how mandatory KYC on the switch will affect their relationship to informal economic participation, and cannot evaluate the data sovereignty implications of a central bank-operated settlement layer that logs every transaction.",
+            "emotional_reality": "Indifference shading into wariness. For those on outer islands (Santo Antão, Fogo, Brava, São Nicolau) with inconsistent connectivity, the framework's theoretical benefits are inaccessible. The emotional reality is not opposition — it is the absence of perceived relevance. Adoption requires a trust infrastructure that does not yet exist."
+          },
+          {
+            "group": "Diaspora and Remittance Senders",
+            "perspective": "The Cabo Verdean diaspora — a critical economic actor given remittances' share of GDP — sees the framework primarily through the lens of transfer cost and reliability. The RSP 2020 identifies Western Union, MoneyGram, and RIA as the dominant remittance channels, operating through exclusive agent partnerships with CCV branches (34 nationwide). The framework potentially disrupts these exclusivity arrangements, which the diaspora would experience as lower fees and more options — if the last-mile payout infrastructure actually exists on their families' islands.",
+            "blind_spots": "The diaspora cannot see the exclusive remittance partnership structures that currently constrain payout options, as identified in the research context's citation of GFRID findings. They also cannot see that interoperability at the switch level does not automatically translate to competitive remittance pricing if exclusive agent contracts persist at the distribution layer.",
+            "emotional_reality": "Hope with prior disappointment. Diaspora communities have experienced Cabo Verde's payment modernization narrative before — the Vinti4 network, SICIL — without seeing their remittance costs structurally fall. This proposal activates hope but against a backdrop of accumulated skepticism about whether infrastructure changes reach them."
+          },
+          {
+            "group": "AfricaNenda Foundation (Technical Implementation Partner)",
+            "perspective": "AfricaNenda sees a proof-of-concept that has already validated technical feasibility (three banks connected for real-time P2P in the POC) being escalated to a production mandate. Their frame is technical solvability: the architecture works, the APIs can be standardized, the settlement layer can be built. They interpret stakeholder resistance primarily as a communication or incentive design problem — solvable with better engagement.",
+            "blind_spots": "AfricaNenda's structural blind spot is the political economy of mandatory participation. Their POC involved willing participants; mandatory enrollment of resistant MNOs or banks operates under a fundamentally different dynamic. The technical proof-of-concept does not prove institutional compliance will follow. Additionally, they cannot fully see the inter-island connectivity gaps that will create operationally tiered participation — islands with degraded connectivity will experience the 'real-time settlement' architecture as intermittently real-time, creating user experience failures that damage trust in the entire system.",
+            "emotional_reality": "Technical confidence that reads as naivety to political observers. AfricaNenda experiences the resistance as a friction to be engineered around, not a structural constraint. This creates a coherence gap between their problem definition and BCV's."
+          }
+        ],
+        "meaning_divergences": [
+          {
+            "element": "Mandatory connection to central switch",
+            "interpretations": [
+              {
+                "observer": "BCV",
+                "meaning": "Exercise of legitimate regulatory authority under Legislative Decree 7/2018; completion of sovereign infrastructure mandate."
+              },
+              {
+                "observer": "Telcos/MNOs",
+                "meaning": "Forced opening of proprietary customer relationships to competitors without compensation; effective expropriation of competitive moats."
+              },
+              {
+                "observer": "Commercial Banks",
+                "meaning": "Competitive equalization that may benefit them (broader reach) or harm them (MNOs gain near-banking access) depending on implementation details."
+              },
+              {
+                "observer": "AfricaNenda",
+                "meaning": "Technical integration milestone; proof that the architecture validated in POC can scale to production."
+              },
+              {
+                "observer": "Unbanked Population",
+                "meaning": "Invisible regulatory event; only becomes real if an agent or device in their local environment changes behavior."
+              }
+            ]
+          },
+          {
+            "element": "Real-time settlement requirement",
+            "interpretations": [
+              {
+                "observer": "BCV",
+                "meaning": "System integrity feature; reduces settlement risk and aligns with SGDL's existing central bank money settlement architecture."
+              },
+              {
+                "observer": "Telcos/MNOs",
+                "meaning": "Liquidity management burden; requires prefunding or credit lines at the central switch that smaller operators may struggle to maintain."
+              },
+              {
+                "observer": "Outer island users",
+                "meaning": "Functionally irrelevant or actively misleading if connectivity is insufficient to sustain real-time transaction confirmation; creates failed transaction experiences."
+              },
+              {
+                "observer": "Fintechs",
+                "meaning": "Infrastructure cost that favors capitalized incumbents over lean startups; real-time settlement requires robust technical infrastructure that incumbents already have."
+              }
+            ]
+          },
+          {
+            "element": "Financial inclusion of the unbanked",
+            "interpretations": [
+              {
+                "observer": "BCV / Government (aligned with PEDS 2030 and SDG vision per RSP 2020)",
+                "meaning": "Policy success metric; reduction of the ~30% unbanked population is the stated goal of the framework and aligns with national development strategy."
+              },
+              {
+                "observer": "Telcos/MNOs",
+                "meaning": "Market expansion narrative used to justify regulatory intervention; they already serve this population through prepaid mobile — the question is whether the switch adds value or just redistributes existing customers."
+              },
+              {
+                "observer": "Unbanked population (especially women)",
+                "meaning": "Ambivalent; RSP 2020 explicitly acknowledges that cash's 'financial anonymity' provides economic protection, particularly for women's asset accumulation. Formalization is not unambiguously desirable."
+              },
+              {
+                "observer": "Diaspora",
+                "meaning": "Means their families gain reliable digital payout channels for remittances, reducing dependence on exclusive Western Union/MoneyGram agent networks."
+              }
+            ]
+          },
+          {
+            "element": "Standardized APIs",
+            "interpretations": [
+              {
+                "observer": "BCV / AfricaNenda",
+                "meaning": "Interoperability enabler; technical prerequisite for the shared settlement layer to function."
+              },
+              {
+                "observer": "Telcos/MNOs",
+                "meaning": "Competitive intelligence exposure; standardized APIs make their service logic visible and replicable by competitors and new entrants."
+              },
+              {
+                "observer": "Fintechs",
+                "meaning": "Market access opportunity; standardized APIs lower the technical barrier for new entrants to connect to the switch and reach all participants."
+              },
+              {
+                "observer": "International digital banks (potential new entrants per research context)",
+                "meaning": "Entry invitation; a mandatory standardized API layer is exactly the regulatory signal needed to justify market entry investment."
+              }
+            ]
+          }
+        ],
+        "coherence_conflicts": [
+          {
+            "conflict": "BCV's public infrastructure logic vs. MNOs' private investment recovery logic",
+            "why_irreconcilable": "BCV's legitimacy derives from treating payment infrastructure as a public good subject to regulatory mandate. MNO legitimacy derives from shareholders expecting returns on mobile money infrastructure investment. These are not negotiating positions — they are structurally incompatible frames. No fee-sharing model or transition period fully resolves this because the underlying ontology of what the switch is (public utility vs. forced open-access to private assets) cannot be compromised into a coherent middle position.",
+            "consequence": "MNOs comply formally but minimize real integration: technical connectivity at the API level without commercial promotion, customer migration barriers left in place, and strategic underinvestment in switch-compatible features. The switch becomes technically operational but commercially inert — exactly the failure mode seen in early African interoperability mandates before enforcement escalation."
+          },
+          {
+            "conflict": "Financial formalization imperative vs. cash anonymity as protective mechanism",
+            "why_irreconcilable": "The RSP 2020 explicitly identifies cash's anonymity function as serving real economic protection purposes, particularly for women. The framework's entire value proposition requires pulling transactions out of informality and into a logged, KYC-compliant digital layer. These goals are structurally opposed: you cannot simultaneously preserve protective anonymity and achieve the AML/CFT compliance and fiscal formalization goals that justify the framework. Targeted exemptions (e.g., below-threshold transactions) partially address this but do not resolve the underlying tension for users who rely on larger informal transactions.",
+            "consequence": "Adoption stalls specifically among the demographic most cited as the inclusion target. Women and informal economy participants on outer islands maintain cash behavior not from ignorance but from rational self-protection. The framework achieves urban, already-semi-formal adoption while failing its stated inclusion mandate."
+          },
+          {
+            "conflict": "Universal real-time architecture vs. physically fragmented island infrastructure",
+            "why_irreconcilable": "Real-time settlement is a system-wide property — it either holds across all nodes or the system's integrity guarantees are undermined. But Cabo Verde's 10-island geography creates nodes with structurally different connectivity quality. The research context confirms varying connectivity across islands. An architecture that promises real-time behavior cannot deliver it uniformly, and the failure is not correctable by better execution — it is a substrate constraint (in MST terms, a Discrete Substrate Law problem: the physical infrastructure substrate has hard resolution limits that the settlement architecture's coherence demands exceed on certain islands).",
+            "consequence": "Transaction failures and delays on outer islands create a two-tier user experience: urban Santiago/São Vicente users experience a functional modern payment system while Brava, Santo Antão, and Fogo users experience an unreliable one. This fragments the market the framework was designed to unify and creates reputational damage that undermines adoption nationally."
+          },
+          {
+            "conflict": "AfricaNenda's technical solvability frame vs. BCV's institutional mandate execution frame",
+            "why_irreconcilable": "AfricaNenda treats stakeholder resistance as an engagement and incentive design problem. BCV treats it as a compliance problem subject to regulatory authority. Both cannot be simultaneously correct: if it is a compliance problem, technical elegance is irrelevant — enforcement is what matters. If it is an engagement problem, regulatory force creates resentment that undermines long-term system participation quality. The two frames prescribe opposite interventions.",
+            "consequence": "Governance ambiguity about who resolves non-compliance: AfricaNenda continues engagement processes while BCV waits for technical completion before asserting authority, creating a window in which resistant stakeholders can delay without consequence."
+          }
+        ],
+        "perception_risks": [
+          "MNOs experiencing mandatory API standardization as competitive intelligence exposure will implement technically compliant but commercially adversarial integrations — meeting the letter of the requirement while preserving customer lock-in through UI/UX design, fee structures on switch-routed transactions, and discouraging agent networks from promoting interoperable products. The switch becomes real in infrastructure but dead in practice.",
+          "BCV's confidence in its regulatory authority under the 2018 legislative package (Legislative Decrees 7, 8, 9/2018) may not translate to enforcement capacity at the operational level. The RSP 2020 identifies BCV as still in the process of building oversight frameworks — a regulator that experiences itself as authoritative but whose enforcement infrastructure has not been stress-tested against a major operator's sustained non-compliance.",
+          "The diaspora, whose remittance flows are critical to the framework's G2P and last-mile payout business case, will not activate as advocates for the system unless remittance costs visibly fall. If exclusive Western Union/MoneyGram agent contracts persist at the CCV branch network level (as noted in research context), switch-level interoperability will not reach them, and diaspora disillusionment will remove a key adoption driver.",
+          "The 'proof-of-concept success' narrative (AfricaNenda POC with 3 banks) will be interpreted by BCV and government as validation of full-scale deployment readiness. Willing POC participants behave differently from mandated production participants. This perception gap will cause timeline compression that skips the stakeholder remediation work needed to convert resistant operators into cooperative ones.",
+          "Outer island users who experience failed transactions due to connectivity gaps will attribute the failure to the payment system broadly, not to infrastructure limitations — damaging trust in digital payments at the precise moment the framework is trying to build it. This perception error (system failure vs. connectivity failure) is invisible to urban-based policymakers and will not appear in aggregate transaction data until adoption curves flatline.",
+          "The unbanked population's neutrality — which policymakers read as latent demand waiting to be unlocked — is partly structural indifference and partly rational cash preference. Designing adoption campaigns around the assumption of suppressed demand will miss the population segments where the real barrier is not access but rational preference for informal financial tools that the framework does not replicate."
+        ],
+        "synthesis": "The Cabo Verde mobile money interoperability framework is not experienced as a single coherent proposal by its stakeholders — it is experienced as at least five different interventions simultaneously: a regulatory completion exercise (BCV), a competitive threat (MNOs), a market access opportunity (banks and fintechs), an invisible background event (unbanked population), and a technical integration challenge (AfricaNenda). The RSP 2020 payment system report provides the ideological scaffolding — financial inclusion, digital transformation, PEDS 2030 alignment — but the document's own acknowledgment that cash anonymity serves protective functions, and that island geography creates structural cost barriers that have historically prevented PSP coverage, reveals the fault lines that the framework must cross. The legal architecture exists; the coherence gaps are perceptual and institutional.\n\nThe most dangerous perception risk is the false equivalence between the AfricaNenda POC's technical success and production-scale institutional compliance. The proof-of-concept involved three willing bank participants in a controlled environment. Mandatory enrollment of four MNOs with divergent commercial interests, operating across 10 islands with heterogeneous connectivity, is a categorically different problem — not a scaled version of the same problem. BCV's legitimate confidence in its regulatory authority under the 2018 legislative package may cause it to skip the stakeholder remediation phase that resistant operators require. When that phase is skipped, the result is not failure — it is formal compliance with commercial nullification: APIs connected, transactions technically routable, but no operator actively selling interoperability to customers.\n\nThe structural coherence conflict that cannot be engineered away is the incompatibility between the framework's financial formalization imperative and the protective value of financial informality for the population it is designed to serve. The RSP 2020 is unusually candid about this tension. If the switch requires full KYC compliance at all transaction levels — as AML/CFT obligations under BCV oversight demand — then the ~30% unbanked population who use cash partly to preserve economic autonomy from formal tracking will experience the framework as a surveillance mechanism, not an inclusion tool. This is not a communication failure; it is a design conflict that requires explicit tiered access decisions (threshold-based anonymity, simplified KYC tiers) before the perception risks it generates become adoption barriers at scale."
+      },
+      "pt": {
+        "scenario_summary": "Cabo Verde está a conceber um quadro de interoperabilidade de dinheiro móvel operado pelo banco central, que liga bancos, fintechs e operadoras de telecomunicações através de um switch de liquidação partilhado obrigatório, com liquidação em tempo real e APIs normalizadas, visando os ~30% da população não bancarizada em 10 ilhas.",
+        "observers": [
+          {
+            "group": "Banco de Cabo Verde (BCV)",
+            "perspective": "O BCV vê este quadro como a culminação lógica de duas décadas de modernização do sistema de pagamentos, edificando sobre o SICIL (2001), o SGDL (2008), o pacote legislativo de 2018 (Decretos Legislativos 7, 8, 9/2018) e a prova de conceito da AfricaNenda. Do seu ponto de vista, o quadro é a execução de um mandato regulatório — já operam a infraestrutura de liquidação, detêm a autoridade legal ao abrigo do Decreto Legislativo 7/2018 e demonstraram viabilidade técnica. A proposta é uma extensão de competência soberana já existente, não uma experiência.",
+            "blind_spots": "O BCV é estruturalmente incapaz de ver a lógica de sobrevivência comercial dos operadores privados. O seu orçamento de coerência é denominado em estabilidade sistémica e conformidade regulatória, não em margens de receita. Também tem visibilidade parcialmente limitada sobre a heterogeneidade da infraestrutura ao nível das ilhas: o RSP 2020 refere 72% de penetração da internet a nível nacional, mas esse agregado oculta disparidades inter-ilhas severas que criarão custos de participação assimétricos para os fornecedores menores nas ilhas mais remotas, como Santo Antão ou Brava.",
+            "emotional_reality": "Confiança a roçar a impaciência institucional. O BCV construiu o andaime legal e técnico durante anos; isto parece finalmente ter permissão para completar uma estrutura que já deveria existir. Há uma frustração latente com a fragmentação do mercado que persiste apesar da legislação habilitante."
+          },
+          {
+            "group": "Operadoras de Telecomunicações / MNOs (CV Móvel, Unitel T+, CVMultimédia, CVTelecom)",
+            "perspective": "As quatro MNOs vêem um switch obrigatório como a comodização forçada do seu ativo estrategicamente mais valioso: a relação exclusiva com o cliente construída através das carteiras de dinheiro móvel. A CV Móvel e a Unitel T+ em particular investiram em infraestrutura proprietária de dinheiro móvel (referenciada no RSP 2020 como soluções digitais Makeba e EcobankPay) com efeitos de rede que levaram anos a construir. A interoperabilidade dissolve esses fossos por design.",
+            "blind_spots": "As MNOs têm dificuldade em ver o crescimento do volume que os precedentes africanos demonstram. Os dados do NBER citados no contexto de investigação mostram reduções de taxas a par com aumentos nos volumes de transações após a interoperabilidade — mas isto exige uma confiança no equilíbrio futuro que parece abstrata face à pressão sobre as margens no presente. Também não conseguem ver como a sua recusa em cooperar aceleraria a ação regulatória, dado o mandato explícito do BCV ao abrigo do Decreto Legislativo 7/2018.",
+            "emotional_reality": "Resposta de ameaça. A proposta parece uma expropriação sem compensação — anos de investimento em aquisição de clientes a serem abertos a concorrentes por decreto regulatório. Há um receio genuíno de que as APIs normalizadas permitam aos bancos e fintechs atrair clientes de dinheiro móvel com produtos mais baratos ou melhor integrados."
+          },
+          {
+            "group": "Bancos Comerciais e Fintechs (incluindo a Makeba)",
+            "perspective": "Os bancos vêem a criação de um campo de jogo nivelado, mas interpretam-no com suspeição relativamente a quem o nivela realmente. O switch partilhado significa que as contas bancárias se tornam interoperáveis com as carteiras das MNOs — o que enquadram como uma oportunidade de aquisição (alcançar clientes não bancarizados através do switch) ou uma ameaça de desintermediação (as MNOs utilizam o switch para oferecer serviços quase bancários sem licença bancária). As fintechs como a Makeba, o primeiro serviço de dinheiro móvel de Cabo Verde, ocupam uma posição intermédia ambígua: beneficiam de APIs abertas mas temem ser esmagadas entre o músculo de distribuição das operadoras e a profundidade dos balanços dos bancos.",
+            "blind_spots": "Os bancos subestimam a assimetria dos custos de conformidade com KYC/AML. O RSP 2020 refere explicitamente a necessidade de eKYC e onboarding digital; o quadro do BCV exigirá relatórios de conformidade normalizados em todo o switch. Os bancos têm experiência nisto; as fintechs menores e a CCV (Correios de Cabo Verde, legalmente uma instituição de pagamento ao abrigo do Decreto Legislativo 9/2018) não têm. Isto cria um fosso de conformidade que os bancos não conseguem perceber como a vantagem competitiva que realmente é.",
+            "emotional_reality": "Oportunismo cauteloso misturado com ansiedade estrutural. O quadro oferece um novo alcance de distribuição pelas 10 ilhas sem agências físicas — exatamente o que o RSP 2020 identifica como uma barreira de custos — mas cada novo ponto de acesso é também um novo ponto de entrada para concorrentes."
+          },
+          {
+            "group": "População Não Bancarizada (os ~30% visados)",
+            "perspective": "Este grupo não experimenta o quadro como uma proposta de política — experimenta-o, quando muito, como uma mudança na disponibilidade dos agentes no mercado, se um carregamento de telemóvel se converte num instrumento de pagamento, ou se a remessa de um familiar da diáspora chega mais depressa e mais barata. O RSP 2020 refere explicitamente que o 'anonimato financeiro' proporcionado pelo dinheiro em espécie não é meramente um sintoma de exclusão financeira, mas serve funções protetoras, particularmente para a autonomia económica das mulheres. Os autores do quadro vêem o anonimato como um problema; partes significativas da população-alvo experimentam-no como uma funcionalidade.",
+            "blind_spots": "A população não bancarizada não consegue ver a arquitetura regulatória que está a ser construída à sua volta, não consegue antecipar como o KYC obrigatório no switch afetará a sua relação com a participação económica informal, e não consegue avaliar as implicações de soberania de dados de uma camada de liquidação operada pelo banco central que regista todas as transações.",
+            "emotional_reality": "Indiferença que tende para a desconfiança. Para os que vivem nas ilhas mais afastadas (Santo Antão, Fogo, Brava, São Nicolau) com conectividade inconsistente, os benefícios teóricos do quadro são inacessíveis. A realidade emocional não é oposição — é a ausência de relevância percebida. A adoção exige uma infraestrutura de confiança que ainda não existe."
+          },
+          {
+            "group": "Diáspora e Remetentes de Remessas",
+            "perspective": "A diáspora cabo-verdiana — um ator económico crítico dado o peso das remessas no PIB — vê o quadro principalmente através da lente do custo e fiabilidade das transferências. O RSP 2020 identifica a Western Union, a MoneyGram e a RIA como os canais de remessas dominantes, operando através de parcerias de agentes exclusivos com as agências da CCV (34 a nível nacional). O quadro pode potencialmente perturbar esses acordos de exclusividade, o que a diáspora experimentaria como taxas mais baixas e mais opções — se a infraestrutura de pagamento de última milha existir realmente nas ilhas das suas famílias.",
+            "blind_spots": "A diáspora não consegue ver as estruturas de parceria exclusiva de remessas que atualmente condicionam as opções de pagamento, conforme identificado no contexto de investigação através das conclusões do GFRID. Também não consegue ver que a interoperabilidade ao nível do switch não se traduz automaticamente em preços competitivos de remessas se os contratos de agentes exclusivos persistirem ao nível da distribuição.",
+            "emotional_reality": "Esperança com deceções anteriores. As comunidades da diáspora já experienciaram a narrativa de modernização dos pagamentos de Cabo Verde — a rede Vinti4, o SICIL — sem ver os seus custos de remessas a cair estruturalmente. Esta proposta ativa a esperança, mas contra um pano de fundo de ceticismo acumulado sobre se as mudanças de infraestrutura os alcançam."
+          },
+          {
+            "group": "Fundação AfricaNenda (Parceira de Implementação Técnica)",
+            "perspective": "A AfricaNenda vê uma prova de conceito que já validou a viabilidade técnica (três bancos ligados para P2P em tempo real na POC) a ser escalada para um mandato de produção. O seu enquadramento é a resolubilidade técnica: a arquitetura funciona, as APIs podem ser normalizadas, a camada de liquidação pode ser construída. Interpretam a resistência dos stakeholders principalmente como um problema de comunicação ou de design de incentivos — resolúvel com melhor envolvimento.",
+            "blind_spots": "O ponto cego estrutural da AfricaNenda é a economia política da participação obrigatória. A sua POC envolveu participantes voluntários; a inscrição obrigatória de MNOs ou bancos resistentes opera sob uma dinâmica fundamentalmente diferente. A prova de conceito técnica não prova que a conformidade institucional se seguirá. Além disso, não conseguem ver completamente as lacunas de conectividade inter-ilhas que criarão participação operacionalmente hierarquizada — as ilhas com conectividade degradada experimentarão a arquitetura de 'liquidação em tempo real' como intermitentemente em tempo real, criando falhas na experiência do utilizador que prejudicam a confiança em todo o sistema.",
+            "emotional_reality": "Confiança técnica que é lida como ingenuidade pelos observadores políticos. A AfricaNenda experimenta a resistência como um atrito a contornar por via de engenharia, não como uma restrição estrutural. Isto cria um fosso de coerência entre a sua definição do problema e a do BCV."
+          }
+        ],
+        "meaning_divergences": [
+          {
+            "element": "Ligação obrigatória ao switch central",
+            "interpretations": [
+              {
+                "observer": "BCV",
+                "meaning": "Exercício de autoridade regulatória legítima ao abrigo do Decreto Legislativo 7/2018; conclusão do mandato de infraestrutura soberana."
+              },
+              {
+                "observer": "Operadoras de Telecomunicações / MNOs",
+                "meaning": "Abertura forçada de relações proprietárias com clientes a concorrentes sem compensação; expropriação efetiva de fossos competitivos."
+              },
+              {
+                "observer": "Bancos Comerciais",
+                "meaning": "Equalização competitiva que pode beneficiá-los (maior alcance) ou prejudicá-los (as MNOs ganham acesso quase bancário) dependendo dos detalhes de implementação."
+              },
+              {
+                "observer": "AfricaNenda",
+                "meaning": "Marco de integração técnica; prova de que a arquitetura validada na POC pode escalar para produção."
+              },
+              {
+                "observer": "População Não Bancarizada",
+                "meaning": "Evento regulatório invisível; só se torna real se um agente ou dispositivo no seu ambiente local mudar de comportamento."
+              }
+            ]
+          },
+          {
+            "element": "Requisito de liquidação em tempo real",
+            "interpretations": [
+              {
+                "observer": "BCV",
+                "meaning": "Funcionalidade de integridade do sistema; reduz o risco de liquidação e alinha-se com a arquitetura de liquidação em dinheiro de banco central já existente do SGDL."
+              },
+              {
+                "observer": "Operadoras de Telecomunicações / MNOs",
+                "meaning": "Encargo de gestão de liquidez; exige pré-financiamento ou linhas de crédito no switch central que os operadores menores podem ter dificuldade em manter."
+              },
+              {
+                "observer": "Utilizadores das ilhas periféricas",
+                "meaning": "Funcionalmente irrelevante ou ativamente enganador se a conectividade for insuficiente para sustentar a confirmação de transações em tempo real; cria experiências de transações falhadas."
+              },
+              {
+                "observer": "Fintechs",
+                "meaning": "Custo de infraestrutura que favorece incumbentes capitalizados em detrimento de startups lean; a liquidação em tempo real exige infraestrutura técnica robusta que os incumbentes já possuem."
+              }
+            ]
+          },
+          {
+            "element": "Inclusão financeira da população não bancarizada",
+            "interpretations": [
+              {
+                "observer": "BCV / Governo (alinhado com o PEDS 2030 e a visão dos ODS conforme o RSP 2020)",
+                "meaning": "Métrica de sucesso da política; a redução dos ~30% da população não bancarizada é o objetivo declarado do quadro e alinha-se com a estratégia de desenvolvimento nacional."
+              },
+              {
+                "observer": "Operadoras de Telecomunicações / MNOs",
+                "meaning": "Narrativa de expansão de mercado usada para justificar intervenção regulatória; já servem esta população através de pré-pagamento móvel — a questão é se o switch acrescenta valor ou apenas redistribui clientes existentes."
+              },
+              {
+                "observer": "População não bancarizada (especialmente mulheres)",
+                "meaning": "Ambivalente; o RSP 2020 reconhece explicitamente que o 'anonimato financeiro' do dinheiro em espécie oferece proteção económica real, particularmente para a acumulação de ativos das mulheres. A formalização não é inequivocamente desejável."
+              },
+              {
+                "observer": "Diáspora",
+                "meaning": "Significa que as suas famílias ganham canais de pagamento digital fiáveis para remessas, reduzindo a dependência das redes exclusivas de agentes Western Union/MoneyGram."
+              }
+            ]
+          },
+          {
+            "element": "APIs normalizadas",
+            "interpretations": [
+              {
+                "observer": "BCV / AfricaNenda",
+                "meaning": "Facilitador de interoperabilidade; pré-requisito técnico para o funcionamento da camada de liquidação partilhada."
+              },
+              {
+                "observer": "Operadoras de Telecomunicações / MNOs",
+                "meaning": "Exposição de inteligência competitiva; as APIs normalizadas tornam a sua lógica de serviço visível e replicável por concorrentes e novos entrantes."
+              },
+              {
+                "observer": "Fintechs",
+                "meaning": "Oportunidade de acesso ao mercado; as APIs normalizadas reduzem a barreira técnica para novos entrantes se ligarem ao switch e alcançarem todos os participantes."
+              },
+              {
+                "observer": "Bancos digitais internacionais (potenciais novos entrantes conforme contexto de investigação)",
+                "meaning": "Convite à entrada; uma camada de API normalizada obrigatória é exatamente o sinal regulatório necessário para justificar o investimento de entrada no mercado."
+              }
+            ]
+          }
+        ],
+        "coherence_conflicts": [
+          {
+            "conflict": "Lógica de infraestrutura pública do BCV vs. lógica de recuperação de investimento privado das MNOs",
+            "why_irreconcilable": "A legitimidade do BCV deriva de tratar a infraestrutura de pagamentos como um bem público sujeito a mandato regulatório. A legitimidade das MNOs deriva de acionistas que esperam retorno sobre o investimento em infraestrutura de dinheiro móvel. Estes não são posições negociais — são enquadramentos estruturalmente incompatíveis. Nenhum modelo de partilha de receitas ou período de transição resolve plenamente este conflito, porque a ontologia subjacente do que é o switch (serviço público vs. acesso forçado a ativos privados) não pode ser comprometida numa posição intermédia coerente.",
+            "consequence": "As MNOs cumprem formalmente mas minimizam a integração real: conectividade técnica ao nível da API sem promoção comercial, barreiras à migração de clientes mantidas, e subinvestimento estratégico em funcionalidades compatíveis com o switch. O switch torna-se tecnicamente operacional mas comercialmente inerte — exatamente o modo de falha observado nos primeiros mandatos de interoperabilidade africanos antes da escalada da aplicação."
+          },
+          {
+            "conflict": "Imperativo de formalização financeira vs. anonimato em dinheiro como mecanismo de proteção",
+            "why_irreconcilable": "O RSP 2020 identifica explicitamente a função de anonimato do dinheiro em espécie como servindo propósitos reais de proteção económica, particularmente para as mulheres. A proposta de valor de todo o quadro exige retirar transações da informalidade e colocá-las numa camada digital registada e em conformidade com KYC. Estes objetivos são estruturalmente opostos: não se pode simultaneamente preservar o anonimato protetor e alcançar os objetivos de conformidade AML/CFT e formalização fiscal que justificam o quadro. Isenções direcionadas (por exemplo, transações abaixo de um limiar) abordam parcialmente isto, mas não resolvem a tensão subjacente para utilizadores que dependem de transações informais de maior valor.",
+            "consequence": "A adoção estagna especificamente no grupo demográfico mais citado como alvo de inclusão. As mulheres e os participantes na economia informal nas ilhas periféricas mantêm o comportamento de uso de dinheiro em espécie não por ignorância mas por autoproteção racional. O quadro alcança adoção urbana, já semi-formal, enquanto falha no seu mandato declarado de inclusão."
+          },
+          {
+            "conflict": "Arquitetura universal em tempo real vs. infraestrutura insular fisicamente fragmentada",
+            "why_irreconcilable": "A liquidação em tempo real é uma propriedade de todo o sistema — ou se mantém em todos os nós ou as garantias de integridade do sistema são comprometidas. Mas a geografia das 10 ilhas de Cabo Verde cria nós com qualidades de conectividade estruturalmente diferentes. O contexto de investigação confirma a variação de conectividade entre ilhas. Uma arquitetura que promete comportamento em tempo real não o pode entregar uniformemente, e a falha não é corrigível com melhor execução — é uma restrição de substrato (em termos do MST, um problema da Lei do Substrato Discreto: o substrato de infraestrutura física tem limites de resolução que as exigências de coerência da arquitetura de liquidação excedem em certas ilhas).",
+            "consequence": "Falhas e atrasos em transações nas ilhas periféricas criam uma experiência de utilizador a dois níveis: os utilizadores urbanos de Santiago/São Vicente experimentam um sistema de pagamentos moderno e funcional, enquanto os utilizadores de Brava, Santo Antão e Fogo experimentam um sistema não fiável. Isto fragmenta o mercado que o quadro foi concebido para unificar e cria danos reputacionais que minam a adoção a nível nacional."
+          },
+          {
+            "conflict": "Enquadramento de resolubilidade técnica da AfricaNenda vs. enquadramento de execução de mandato institucional do BCV",
+            "why_irreconcilable": "A AfricaNenda trata a resistência dos stakeholders como um problema de envolvimento e design de incentivos. O BCV trata-a como um problema de conformidade sujeito à autoridade regulatória. Ambos não podem estar simultaneamente corretos: se é um problema de conformidade, a elegância técnica é irrelevante — a aplicação é o que importa. Se é um problema de envolvimento, a força regulatória cria ressentimento que mina a qualidade de participação no sistema a longo prazo. Os dois enquadramentos prescrevem intervenções opostas.",
+            "consequence": "Ambiguidade de governação sobre quem resolve o incumprimento: a AfricaNenda continua os processos de envolvimento enquanto o BCV aguarda a conclusão técnica antes de afirmar autoridade, criando uma janela em que os stakeholders resistentes podem atrasar sem consequências."
+          }
+        ],
+        "perception_risks": [
+          "As MNOs que experimentam a normalização obrigatória de APIs como exposição de inteligência competitiva implementarão integrações tecnicamente conformes mas comercialmente adversariais — cumprindo a letra do requisito enquanto preservam o bloqueio de clientes através de design de UI/UX, estruturas de taxas em transações roteadas pelo switch, e desincentivando as redes de agentes de promover produtos interoperáveis. O switch torna-se real em infraestrutura mas inerte na prática.",
+          "A confiança do BCV na sua autoridade regulatória ao abrigo do pacote legislativo de 2018 (Decretos Legislativos 7, 8, 9/2018) pode não se traduzir em capacidade de aplicação ao nível operacional. O RSP 2020 identifica o BCV como ainda em processo de construção de quadros de supervisão — um regulador que se experimenta como autoritativo mas cuja infraestrutura de aplicação não foi testada contra o incumprimento sustentado de um operador principal.",
+          "A diáspora, cujos fluxos de remessas são críticos para o caso de negócio de G2P e pagamento de última milha do quadro, não se ativará como defensora do sistema a menos que os custos de remessas caiam visivelmente. Se os contratos exclusivos de agentes Western Union/MoneyGram persistirem ao nível da rede de agências da CCV (conforme referido no contexto de investigação), a interoperabilidade ao nível do switch não os alcançará, e a desilusão da diáspora removerá um impulsionador chave de adoção.",
+          "A narrativa de 'sucesso da prova de conceito' (POC da AfricaNenda com 3 bancos) será interpretada pelo BCV e pelo governo como validação da prontidão para implementação em escala completa. Os participantes voluntários de POC comportam-se de forma diferente dos participantes obrigatórios em produção. Este fosso de perceção causará compressão de calendário que salta o trabalho de remediação de stakeholders necessário para converter operadores resistentes em cooperantes.",
+          "Os utilizadores das ilhas periféricas que experimentam transações falhadas devido a lacunas de conectividade atribuirão a falha ao sistema de pagamentos em geral, não às limitações de infraestrutura — prejudicando a confiança nos pagamentos digitais no preciso momento em que o quadro está a tentar construí-la. Este erro de perceção (falha do sistema vs. falha de conectividade) é invisível para os decisores políticos de base urbana e não aparecerá nos dados agregados de transações até as curvas de adoção estagnarem.",
+          "A neutralidade da população não bancarizada — que os decisores políticos lêem como procura latente à espera de ser desbloqueada — é em parte indiferença estrutural e em parte preferência racional pelo dinheiro em espécie. Conceber campanhas de adoção com base no pressuposto de procura suprimida falhará nos segmentos populacionais onde a barreira real não é o acesso, mas a preferência racional por ferramentas financeiras informais que o quadro não replica."
+        ],
+        "synthesis": "O quadro de interoperabilidade de dinheiro móvel de Cabo Verde não é experienciado como uma proposta coerente única pelos seus stakeholders — é experienciado como pelo menos cinco intervenções diferentes em simultâneo: um exercício de conclusão regulatória (BCV), uma ameaça competitiva (MNOs), uma oportunidade de acesso ao mercado (bancos e fintechs), um evento de fundo invisível (população não bancarizada) e um desafio de integração técnica (AfricaNenda). O relatório do sistema de pagamentos RSP 2020 fornece o andaime ideológico — inclusão financeira, transformação digital, alinhamento com o PEDS 2030 — mas o próprio reconhecimento do documento de que o anonimato do dinheiro em espécie serve funções protetoras, e que a geografia insular cria barreiras de custos estruturais que historicamente impediram a cobertura dos PSP, revela as linhas de fratura que o quadro tem de cruzar. A arquitetura legal existe; os fossos de coerência são percetivos e institucionais.\n\nO risco de perceção mais perigoso é a falsa equivalência entre o sucesso técnico da POC da AfricaNenda e a conformidade institucional em escala de produção. A prova de conceito envolveu três participantes bancários voluntários num ambiente controlado. A inscrição obrigatória de quatro MNOs com interesses comerciais divergentes, a operar em 10 ilhas com conectividade heterogénea, é um problema categoricamente diferente — não uma versão escalada do mesmo problema. A confiança legítima do BCV na sua autoridade regulatória ao abrigo do pacote legislativo de 2018 pode levá-lo a saltar a fase de remediação de stakeholders que os operadores resistentes exigem. Quando essa fase é saltada, o resultado não é o fracasso — é a conformidade formal com a anulação comercial: APIs ligadas, transações tecnicamente roteáveis, mas nenhum operador a vender ativamente a interoperabilidade aos clientes.\n\nO conflito de coerência estrutural que não pode ser resolvido por via de engenharia é a incompatibilidade entre o imperativo de formalização financeira do quadro e o valor protetor da informalidade financeira para a população que se destina a servir. O RSP 2020 é invulgarmente cândido sobre esta tensão. Se o switch exigir conformidade KYC completa em todos os níveis de transação — como as obrigações AML/CFT sob supervisão do BCV exigem — então os ~30% da população não bancarizada que usa dinheiro em espécie em parte para preservar a autonomia económica do rastreio formal experimentará o quadro como um mecanismo de vigilância, não como uma ferramenta de inclusão. Isto não é uma falha de comunicação; é um conflito de design que requer decisões explícitas de acesso hierarquizado (anonimato baseado em limiar, níveis de KYC simplificado) antes que os riscos de perceção que gera se tornem barreiras de adoção em escala."
+      }
+    },
+    "mode": "consciousness",
+    "research_enriched": true,
+    "document_grounded": true
+  }
+}
