@@ -1027,14 +1027,14 @@ export default function Home() {
                     );
                     navigator.clipboard.writeText(json);
                   }}
-                  className="font-mono text-[10px] px-2 py-1 rounded border transition-all cursor-pointer hover:bg-white/5"
+                  className="font-mono text-[10px] uppercase px-3 py-1.5 rounded border transition-all cursor-pointer hover:bg-white/5"
                   style={{
-                    borderColor: "rgba(255,255,255,0.08)",
-                    color: "rgba(255,255,255,0.2)",
+                    borderColor: "rgba(255,255,255,0.15)",
+                    color: "rgba(255,255,255,0.5)",
                   }}
                   title="Copy featured JSON to clipboard"
                 >
-                  {}
+                  &#x1F4CB; Copy JSON
                 </button>
                 <button
                   onClick={() => window.print()}
