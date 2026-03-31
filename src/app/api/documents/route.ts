@@ -25,9 +25,22 @@ export async function POST(request: NextRequest) {
     const documentId = `doc_${randomBytes(8).toString("hex")}`;
     const documentName = file.name;
 
-    // Extract text from file
+    // Step 1: Extract text from file
+    let text: string;
+    let pageCount: number | null;
     const buffer = Buffer.from(await file.arrayBuffer());
-    const { text, pageCount } = await extractText(buffer, file.name);
+    try {
+      const result = await extractText(buffer, file.name);
+      text = result.text;
+      pageCount = result.pageCount;
+    } catch (e: unknown) {
+      const detail = e instanceof Error ? e.message : "unknown";
+      console.error("PDF extraction failed:", e);
+      return NextResponse.json(
+        { error: `Text extraction failed: ${detail}` },
+        { status: 500 }
+      );
+    }
 
     if (!text.trim()) {
       return NextResponse.json(
@@ -36,7 +49,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Chunk the text
+    // Step 2: Chunk the text
     const chunks = chunkText(text);
 
     if (chunks.length === 0) {
@@ -46,13 +59,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Embed all chunks
-    const embeddings = await embedBatch(chunks.map((c) => c.text));
+    // Step 3: Embed all chunks via OpenAI
+    let embeddings: number[][];
+    try {
+      embeddings = await embedBatch(chunks.map((c) => c.text));
+    } catch (e: unknown) {
+      const detail = e instanceof Error ? e.message : "unknown";
+      console.error("Embedding failed:", e);
+      return NextResponse.json(
+        { error: `Embedding failed: ${detail}` },
+        { status: 500 }
+      );
+    }
 
-    // Store in Upstash Vector
-    await upsertChunks(documentId, documentName, chunks, embeddings);
+    // Step 4: Store in Upstash Vector
+    try {
+      await upsertChunks(documentId, documentName, chunks, embeddings);
+    } catch (e: unknown) {
+      const detail = e instanceof Error ? e.message : "unknown";
+      console.error("Vector store failed:", e);
+      return NextResponse.json(
+        { error: `Vector storage failed: ${detail}` },
+        { status: 500 }
+      );
+    }
 
-    // Store document manifest in Vercel Blob
+    // Step 5: Store document manifest in Vercel Blob
     const manifest = {
       id: documentId,
       name: documentName,
@@ -62,10 +94,19 @@ export async function POST(request: NextRequest) {
       uploadedAt: new Date().toISOString(),
     };
 
-    await put(`documents/${documentId}.json`, JSON.stringify(manifest), {
-      access: "public",
-      contentType: "application/json",
-    });
+    try {
+      await put(`documents/${documentId}.json`, JSON.stringify(manifest), {
+        access: "public",
+        contentType: "application/json",
+      });
+    } catch (e: unknown) {
+      const detail = e instanceof Error ? e.message : "unknown";
+      console.error("Blob storage failed:", e);
+      return NextResponse.json(
+        { error: `Manifest storage failed: ${detail}` },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(manifest);
   } catch (error: unknown) {

@@ -1,5 +1,3 @@
-import { PDFParse } from "pdf-parse";
-
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 const ALLOWED_EXTENSIONS = [".pdf", ".txt", ".md"];
@@ -11,7 +9,7 @@ export interface ExtractionResult {
 
 /**
  * Extract text content from a file buffer.
- * Supports PDF (via pdf-parse) and plain text (.txt, .md).
+ * Supports PDF (via pdfjs-dist) and plain text (.txt, .md).
  */
 export async function extractText(
   buffer: Buffer,
@@ -43,14 +41,38 @@ export async function extractText(
 }
 
 async function extractPdf(buffer: Buffer): Promise<ExtractionResult> {
-  const parser = new PDFParse({ data: new Uint8Array(buffer) });
-  const result = await parser.getText();
-  const pageCount = result.total;
-  await parser.destroy();
-  return {
-    text: result.text,
-    pageCount,
-  };
+  // Dynamic import to avoid bundling issues in serverless
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
+  // Configure worker for serverless — point to the actual worker file
+  // Using new URL() with import.meta.url lets Next.js webpack resolve the path
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
+    import.meta.url
+  ).toString();
+
+  const doc = await pdfjs.getDocument({
+    data: new Uint8Array(buffer),
+    useSystemFonts: true,
+    disableFontFace: true,
+  }).promise;
+
+  let text = "";
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((item: any) => item.str || "")
+      .join(" ");
+    text += pageText + "\n";
+    page.cleanup();
+  }
+
+  const pageCount = doc.numPages;
+  doc.destroy();
+
+  return { text, pageCount };
 }
 
 function getExtension(filename: string): string {
