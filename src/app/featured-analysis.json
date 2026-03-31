@@ -1,0 +1,117 @@
+{
+  "analysis": {
+    "scenario_summary": "Cabo Verde is designing a central-bank-operated mobile money interoperability switch requiring all licensed payment providers to connect via standardized APIs with real-time settlement, targeting the ~30% unbanked population across 10 geographically dispersed islands.",
+    "constraints": [
+      {
+        "name": "Island Connectivity Fragmentation",
+        "type": "technical",
+        "description": "Cabo Verde's 10 islands have deeply unequal connectivity infrastructure. Outer islands (Brava, São Nicolau, Santo Antão) rely on satellite or microwave links with latency spikes and intermittent outages. Real-time gross settlement (RTGS) assumes sub-second message delivery; if the central switch mandates synchronous settlement, transactions on low-connectivity islands will either fail silently, time out, or be refused by the switch — structurally excluding the precise population the framework targets.",
+        "severity": "blocking"
+      },
+      {
+        "name": "Provider Substrate Asymmetry",
+        "type": "economic",
+        "description": "The licensed provider ecosystem includes entities with radically different technical and financial substrates: CV Telecom and Unitel T+ have existing mobile money rails and customer bases, while smaller fintechs or credit unions may lack API engineering capacity or capital to absorb integration costs. SWIFT-style central switch integration has historically cost smaller institutions $200K–$500K USD in integration and compliance overhead. Mandatory connection without tiered on-ramping creates a structural barrier that consolidates the market to 2–3 dominant players, not inclusion.",
+        "severity": "blocking"
+      },
+      {
+        "name": "BCV Operational Capacity as Switch Operator",
+        "type": "institutional",
+        "description": "The Banco de Cabo Verde (BCV) as of its most recent published Annual Reports operates a supervisory and monetary policy mandate with limited payments infrastructure operations staff. Operating a real-time central switch requires 24/7 NOC (Network Operations Center) capabilities, incident response, and API versioning governance — functions that are institutionally distinct from central banking. There is no public evidence BCV has acquired this operational capacity, making this a hard institutional wall unless outsourced.",
+        "severity": "blocking"
+      },
+      {
+        "name": "CVEscudo Float Liquidity Constraints",
+        "type": "economic",
+        "description": "Real-time settlement requires pre-funded liquidity positions at the switch layer. In Cabo Verde's small economy (GDP ~$2B USD), the aggregate float required across all providers simultaneously operating in real-time settlement may exceed the available short-term liquidity of smaller providers, forcing them into permanent overdraft positions or exit. The CVE's peg to the Euro via the Acordo de Cooperação Cambial constrains BCV's ability to inject emergency liquidity.",
+        "severity": "limiting"
+      },
+      {
+        "name": "Regulatory Framework Completeness",
+        "type": "regulatory",
+        "description": "Cabo Verde's Lei n.º 62/IX/2019 governs payment systems broadly, and BCV has issued mobile payment guidelines, but a specific interoperability mandate with binding API standards, dispute resolution timelines, and switch access rules does not yet exist as published enforceable regulation. Without this, 'mandatory connection' has no legal teeth — providers can delay indefinitely through legal challenge or regulatory ambiguity.",
+        "severity": "blocking"
+      },
+      {
+        "name": "Unbanked Population Device and Literacy Baseline",
+        "type": "cultural",
+        "description": "The ~30% unbanked population is disproportionately rural, older, and concentrated on less-connected islands. Feature phone penetration in these demographics remains significant. An interoperability framework that standardizes on smartphone app or internet-based APIs will reach the banked population first and the unbanked last, inverting the stated inclusion goal. USSD-layer interoperability is technically inferior but socially necessary.",
+        "severity": "shaping"
+      },
+      {
+        "name": "API Standardization Governance Gap",
+        "type": "technical",
+        "description": "Standardized APIs require a versioning authority, deprecation schedules, and a dispute resolution mechanism for interpretation conflicts. No existing Cabo Verdean institution is structured to perform this function. Without it, each provider will implement the 'standard' differently, and the switch will fragment into bilateral workarounds — replicating the pre-interoperability state under a nominally unified architecture.",
+        "severity": "limiting"
+      }
+    ],
+    "branches": [
+      {
+        "name": "Full Real-Time Synchronous Settlement Switch (as designed)",
+        "status": "dead",
+        "status_reason": "This branch requires simultaneous resolution of island connectivity, BCV operational capacity, provider liquidity, and regulatory mandate — all blocking constraints. The structural substrate (connectivity, institutional ops capacity) cannot support synchronous RTGS across all 10 islands at current infrastructure levels. No amount of execution quality resolves a missing fiber cable or a missing NOC.",
+        "stress_test": null,
+        "prerequisite": null
+      },
+      {
+        "name": "Deferred Net Settlement with Asynchronous Island Queuing",
+        "status": "live",
+        "status_reason": "Replacing real-time gross settlement with deferred net settlement (DNS) cycles — e.g., 4x daily — removes the synchronous connectivity requirement for outer islands. Transactions queue locally and settle at defined windows. This matches the actual substrate capacity of Cabo Verde's connectivity infrastructure and reduces provider liquidity requirements from continuous to batch. Ghana's GhIPSS and Tanzania's TIPS both used DNS as a viable intermediate architecture.",
+        "stress_test": "Under adversarial pressure, DNS creates a 6-hour settlement gap during which providers can manipulate float positions, double-spend against pending settlements, or exit the network before a net settlement cycle completes. A single large-volume provider insolvency during a settlement window creates cascade exposure for all counterparties in that cycle. Fraud detection must operate at the queue layer, not only at settlement.",
+        "prerequisite": "BCV must define and publish legally binding DNS cycle rules, intraday exposure limits per provider, and mandatory collateral/guarantee structures before any provider connects."
+      },
+      {
+        "name": "Outsourced Switch Operation to Regional Operator",
+        "status": "conditional",
+        "status_reason": "BCV's institutional capacity constraint is removed if switch operation is contracted to an experienced payments infrastructure operator — candidates include Montran, Temenos, or a regional body like BCEAO's GIM-UEMOA (though Cabo Verde is not ECOWAS). This is structurally viable but requires BCV to accept operational dependency on a third party for critical national infrastructure, which has sovereignty and procurement implications.",
+        "stress_test": "Under adversarial conditions, a sole-source outsource operator holds systemic leverage over Cabo Verde's entire payment infrastructure. Contract renegotiation, operator insolvency, or geopolitical pressure on the operator's home jurisdiction creates a single-point-of-failure with no domestic fallback. The 2012 SWIFT disconnection of Iranian banks is the extreme-case precedent.",
+        "prerequisite": "BCV must retain contractual override rights, maintain a domestic disaster recovery node with 72-hour autonomous operation capability, and the National Assembly must authorize the outsourcing of critical infrastructure operation via explicit legislation."
+      },
+      {
+        "name": "Tiered Access Model: Full API for Large Providers, USSD Gateway for Small Providers",
+        "status": "conditional",
+        "status_reason": "A two-tier architecture allows CV Telecom and banks to connect via full REST/ISO 20022 APIs while credit unions, cooperatives, and small fintechs access the switch through a USSD gateway layer managed by BCV or a delegated operator. This resolves both the provider substrate asymmetry and the unbanked population device constraint simultaneously.",
+        "stress_test": "USSD gateway becomes a bottleneck under volume load — USSD sessions are stateful, concurrent session limits are set by the telco (not BCV), and CV Telecom as the dominant telco has a structural conflict of interest in setting session pricing for competitors using the gateway. Under competitive pressure, CV Telecom can technically comply while commercially throttling the gateway.",
+        "prerequisite": "BCV must negotiate non-discriminatory USSD access terms with all licensed telcos under published tariff caps before the framework launches, with an arbitration mechanism that does not require court proceedings."
+      },
+      {
+        "name": "Voluntary Interoperability with Bilateral Agreements Pre-Mandate",
+        "status": "dead",
+        "status_reason": "Cabo Verde's provider market is too small and too asymmetric for voluntary bilateral interoperability to reach equilibrium. CV Telecom has no structural incentive to interoperate with smaller wallets — interoperability reduces lock-in and network effects that currently benefit the dominant provider. Tanzania's m-Pesa required regulatory mandate; Ghana required explicit GhIPSS compulsion. Voluntary regimes in sub-10 provider markets default to the dominant player's preferred non-interoperation.",
+        "stress_test": null,
+        "prerequisite": null
+      },
+      {
+        "name": "Phased Island-by-Island Rollout (Santiago First)",
+        "status": "live",
+        "status_reason": "Santiago (Praia) accounts for roughly 55% of Cabo Verde's population and has the most developed connectivity and provider infrastructure. Launching mandatory switch connection on Santiago first allows BCV to stress-test the operational model, build institutional capacity incrementally, and generate observable data on failure modes before extending to structurally weaker islands. This is not a workaround — it is a structurally necessary sequencing given substrate heterogeneity.",
+        "stress_test": "Under adversarial pressure, Santiago-only launch creates a two-tier national payment system that entrenches exclusion of outer islands for the duration of the rollout. Providers have rational incentive to concentrate transaction volume on Santiago indefinitely, lobbying for extension delays. The 'phased rollout' becomes a permanent state. Binding rollout milestones with regulatory consequences for delay must be embedded in the framework from inception.",
+        "prerequisite": "BCV must publish a legally binding island extension schedule with no-extension clauses and automatic license review triggers if milestones are missed."
+      }
+    ],
+    "early_warnings": [
+      "BCV posts a tender for switch technology procurement without first publishing the API standardization specification — indicates the technology is being selected before the standard exists, guaranteeing vendor-captured architecture.",
+      "Provider integration timelines extend beyond 18 months without a published explanation — indicates either technical complexity exceeding provider substrate or covert resistance by dominant providers.",
+      "CV Telecom's USSD session rejection rates for competitor wallet transactions rise above baseline without a corresponding rise in own-wallet rejections — indicates technical throttling of gateway access.",
+      "BCV's published DNS net settlement reports show one provider consistently at or near their intraday exposure limit — indicates imminent liquidity failure or intentional float manipulation.",
+      "Outer island transaction volumes remain below 5% of national mobile money volume 24 months post-launch — indicates the unbanked inclusion goal has already failed regardless of nominal switch uptime.",
+      "More than one small provider applies for license surrender or merger within 12 months of mandatory switch connection — indicates integration costs are consolidating the market, not expanding it.",
+      "BCV issues more than two API standard version updates in the first year without a deprecation schedule — indicates governance of the standard has collapsed into ad hoc patching.",
+      "A provider begins operating an informal bilateral settlement arrangement outside the switch for high-value transactions — indicates the switch's latency or cost structure has made it uncompetitive for exactly the transaction types that generate float."
+    ],
+    "recommendations": [
+      "Replace real-time gross settlement with legally codified deferred net settlement (minimum 4 daily cycles) as the baseline architecture, with RTGS reserved as an optional upgrade for providers who can structurally support it — this removes the connectivity wall without abandoning the settlement framework.",
+      "BCV must publish a binding, versioned API specification before any procurement tender is issued; the specification must include USSD fallback as a first-class interface, not an afterthought — failure to do this inverts the inclusion goal.",
+      "Establish an independent Payments Infrastructure Operations Unit — either within BCV under a separate budget line or as a state-owned special purpose vehicle — with a dedicated NOC, before the switch goes live; do not operate national critical infrastructure with supervisory-grade staffing.",
+      "Negotiate and publish non-discriminatory USSD access tariffs with all licensed telcos as a regulatory precondition to framework launch; include an automatic arbitration clause that resolves disputes within 30 days without court proceedings.",
+      "Embed legally binding island extension milestones in the framework regulation itself, with automatic license review consequences for dominant providers who fail to support outer-island coverage by specified dates — prevent phased rollout from becoming permanent exclusion.",
+      "Commission a provider-specific substrate assessment before setting mandatory connection timelines; any provider whose integration cost exceeds 15% of their annual revenue should receive a BCV-administered technical assistance grant to prevent market consolidation.",
+      "Conduct a formal DNS intraday exposure simulation using actual 12-month transaction data from existing providers before go-live, to set collateral requirements at empirically defensible levels rather than estimated ones.",
+      "Insert a contractual sovereignty clause in any outsourced switch operation agreement requiring the vendor to maintain a domestically hosted disaster recovery node capable of 72-hour autonomous operation, with BCV retaining cryptographic override keys."
+    ],
+    "conventional_analysis_sufficient": false,
+    "conventional_analysis_note": null
+  },
+  "mode": "stress",
+  "research_enriched": false
+}

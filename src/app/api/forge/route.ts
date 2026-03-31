@@ -3,6 +3,49 @@ import { NextRequest, NextResponse } from "next/server";
 
 const client = new Anthropic();
 
+/* ── Perplexity research step ── */
+async function researchContext(scenario: string): Promise<string | null> {
+  const apiKey = process.env.PERPLEXITY_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const res = await fetch("https://api.perplexity.ai/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "sonar",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a research assistant. Provide factual, well-sourced context about the scenario described. Focus on: existing regulations and legal frameworks, comparable implementations in similar countries, infrastructure data and statistics, known challenges and outcomes from similar initiatives, key institutions and stakeholders involved. Be specific and cite sources. Keep response under 1500 words.",
+          },
+          {
+            role: "user",
+            content: `Research the following scenario and provide real-world context, data, and precedents:\n\n${scenario}`,
+          },
+        ],
+        max_tokens: 2000,
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("Perplexity API error:", res.status, await res.text());
+      return null;
+    }
+
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch (e) {
+    console.error("Perplexity research failed:", e);
+    return null;
+  }
+}
+
+/* ── System prompts ── */
 const BASE_SYSTEM = `You are FORGE, a structural decision intelligence engine built on the Multi-Simulation Thesis (MST) by Augusto Bartolomeu.
 
 MST framework principles:
@@ -18,7 +61,8 @@ RULES:
 - Never generate optimistic projections. Find the walls.
 - If conventional analysis is sufficient, say so explicitly. Do not manufacture complexity.
 - Separate constraint analysis from interpretation. Present what is structurally real; leave judgment to the humans.
-- Be specific to the context given. Generic advice is worthless.`;
+- Be specific to the context given. Generic advice is worthless.
+- When research context is provided, USE IT. Reference real regulations, real precedents, real data. Do not ignore factual context in favor of generic analysis.`;
 
 const MODE_PROMPTS: Record<string, string> = {
   ancestor: `SIMULATION PURPOSE: ANCESTOR SIMULATION — Reality as inherited memory.
@@ -199,7 +243,7 @@ Return ONLY valid JSON.`,
 
 export async function POST(request: NextRequest) {
   try {
-    const { scenario, mode } = await request.json();
+    const { scenario, mode, research = true } = await request.json();
 
     if (!scenario || typeof scenario !== "string" || !scenario.trim()) {
       return NextResponse.json(
@@ -212,6 +256,22 @@ export async function POST(request: NextRequest) {
     const modePrompt = MODE_PROMPTS[selectedMode];
     const outputSchema = OUTPUT_SCHEMAS[selectedMode];
 
+    // Step 1: Research context via Perplexity (if enabled)
+    let researchData: string | null = null;
+    if (research) {
+      researchData = await researchContext(scenario.trim());
+    }
+
+    // Step 2: Build the user message with research context
+    let userMessage = `Scenario to analyze:\n\n${scenario.trim()}`;
+
+    if (researchData) {
+      userMessage += `\n\n--- RESEARCH CONTEXT (real-world data gathered before analysis) ---\n\n${researchData}\n\n--- END RESEARCH CONTEXT ---\n\nUse the research context above to ground your analysis in real-world facts, regulations, and precedents. Reference specific data points, laws, and comparable cases where relevant.`;
+    }
+
+    userMessage += `\n\n${outputSchema}`;
+
+    // Step 3: Run FORGE analysis via Claude
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4000,
@@ -219,7 +279,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `Scenario to analyze:\n\n${scenario.trim()}\n\n${outputSchema}`,
+          content: userMessage,
         },
       ],
     });
@@ -248,6 +308,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       analysis: parsed,
       mode: selectedMode,
+      research_enriched: !!researchData,
       usage: {
         input_tokens: message.usage.input_tokens,
         output_tokens: message.usage.output_tokens,

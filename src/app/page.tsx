@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import featuredData from "./featured-analysis.json";
 
 /* ── Mode types ── */
 const PURPOSES = [
@@ -583,13 +584,19 @@ function Badge({
 
 /* ── Main page ── */
 export default function Home() {
-  const [scenario, setScenario] = useState("");
+  const [scenario, setScenario] = useState(EXAMPLE_SCENARIOS[0].text);
   const [purpose, setPurpose] = useState<PurposeId>("stress");
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [activeMode, setActiveMode] = useState<PurposeId | null>(null);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(
+    featuredData.analysis as unknown as AnalysisResult
+  );
+  const [activeMode, setActiveMode] = useState<PurposeId | null>(
+    featuredData.mode as PurposeId
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeStep, setActiveStep] = useState("");
+  const [researchEnabled, setResearchEnabled] = useState(true);
+  const [researchEnriched, setResearchEnriched] = useState(false);
 
   const forge = async () => {
     if (!scenario.trim() || loading) return;
@@ -597,8 +604,12 @@ export default function Home() {
     setError("");
     setAnalysis(null);
     setActiveMode(null);
+    setResearchEnriched(false);
 
-    const steps = LOADING_STEPS[purpose];
+    const researchSteps = researchEnabled
+      ? ["Researching real-world context via Perplexity..."]
+      : [];
+    const steps = [...researchSteps, ...LOADING_STEPS[purpose]];
     let stepIndex = 0;
     setActiveStep(steps[0]);
     const interval = setInterval(() => {
@@ -606,13 +617,17 @@ export default function Home() {
       if (stepIndex < steps.length) {
         setActiveStep(steps[stepIndex]);
       }
-    }, 3000);
+    }, researchEnabled ? 4000 : 3000);
 
     try {
       const res = await fetch("/api/forge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario: scenario.trim(), mode: purpose }),
+        body: JSON.stringify({
+          scenario: scenario.trim(),
+          mode: purpose,
+          research: researchEnabled,
+        }),
       });
 
       const data = await res.json();
@@ -624,6 +639,7 @@ export default function Home() {
 
       setAnalysis(data.analysis);
       setActiveMode(data.mode);
+      setResearchEnriched(data.research_enriched || false);
     } catch (e: unknown) {
       const message =
         e instanceof Error ? e.message : "Failed to connect to analysis engine";
@@ -775,6 +791,40 @@ export default function Home() {
           />
         </div>
 
+        {/* Research toggle */}
+        <div className="mb-5 flex items-center gap-3">
+          <button
+            onClick={() => setResearchEnabled(!researchEnabled)}
+            className="flex items-center gap-2 font-mono text-xs transition-all cursor-pointer"
+            style={{
+              color: researchEnabled ? "#00f5c8" : "rgba(255,255,255,0.3)",
+            }}
+          >
+            <div
+              className="w-8 h-4 rounded-full relative transition-all"
+              style={{
+                background: researchEnabled
+                  ? "rgba(0,245,200,0.3)"
+                  : "rgba(255,255,255,0.1)",
+              }}
+            >
+              <div
+                className="w-3 h-3 rounded-full absolute top-0.5 transition-all"
+                style={{
+                  background: researchEnabled ? "#00f5c8" : "rgba(255,255,255,0.3)",
+                  left: researchEnabled ? 17 : 2,
+                }}
+              />
+            </div>
+            Deep Research
+          </button>
+          <span className="text-[10px] text-white/20 font-mono">
+            {researchEnabled
+              ? "Perplexity will gather real-world data before analysis"
+              : "Analysis uses training data only"}
+          </span>
+        </div>
+
         {/* Forge button */}
         <button
           onClick={forge}
@@ -831,7 +881,47 @@ export default function Home() {
 
         {/* Results */}
         {analysis && (
-          <div>
+          <div id="forge-report">
+            {/* Report header with badges and PDF button */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                {researchEnriched && (
+                  <span
+                    className="font-mono text-[10px] uppercase px-2 py-0.5 rounded"
+                    style={{
+                      background: "rgba(0,245,200,0.12)",
+                      color: "#00f5c8",
+                      border: "1px solid rgba(0,245,200,0.3)",
+                    }}
+                  >
+                    &#x1F50D; Research-Enriched
+                  </span>
+                )}
+                {activeMode && (
+                  <span
+                    className="font-mono text-[10px] uppercase px-2 py-0.5 rounded"
+                    style={{
+                      background: `${modeColor[activeMode]}15`,
+                      color: modeColor[activeMode],
+                      border: `1px solid ${modeColor[activeMode]}33`,
+                    }}
+                  >
+                    {PURPOSES.find((p) => p.id === activeMode)?.label}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => window.print()}
+                className="font-mono text-[10px] uppercase px-3 py-1.5 rounded border transition-all cursor-pointer hover:bg-white/5"
+                style={{
+                  borderColor: "rgba(255,255,255,0.15)",
+                  color: "rgba(255,255,255,0.5)",
+                }}
+              >
+                &#x1F4C4; Download PDF
+              </button>
+            </div>
+
             {/* Summary */}
             <div className="mb-8">
               <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-2">
@@ -875,6 +965,70 @@ export default function Home() {
           100% {
             width: 0%;
             margin-left: 100%;
+          }
+        }
+
+        @media print {
+          body {
+            background: white !important;
+            color: black !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          /* Hide everything except the report */
+          .fixed,
+          textarea,
+          button:not([data-print]),
+          .mb-7:has(button),
+          .mb-6:has(button),
+          .mb-5:has(button) {
+            display: none !important;
+          }
+
+          /* Show only the report */
+          #forge-report {
+            max-width: 100% !important;
+            padding: 0 !important;
+          }
+
+          #forge-report * {
+            color: black !important;
+            border-color: #ddd !important;
+          }
+
+          #forge-report .font-mono {
+            color: #333 !important;
+          }
+
+          /* Hide the PDF button in print */
+          #forge-report button {
+            display: none !important;
+          }
+
+          /* Print header */
+          #forge-report::before {
+            content: "FORGE — Structural Decision Intelligence | by Augusto Bartolomeu";
+            display: block;
+            font-family: monospace;
+            font-size: 10px;
+            color: #999 !important;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+          }
+
+          /* Keep badge colors in print */
+          #forge-report span[style*="background"] {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          /* Page margins */
+          @page {
+            margin: 1.5cm;
           }
         }
       `}</style>
