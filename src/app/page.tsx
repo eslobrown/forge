@@ -2,31 +2,135 @@
 
 import { useState } from "react";
 
-interface Constraint {
-  name: string;
-  type: string;
-  description: string;
-  severity: "blocking" | "limiting" | "shaping";
-}
+/* ── Mode types ── */
+const PURPOSES = [
+  {
+    id: "ancestor",
+    label: "Ancestor Simulation",
+    glyph: "\u2295",
+    desc: "Reality as inherited memory",
+  },
+  {
+    id: "consciousness",
+    label: "Consciousness Lab",
+    glyph: "\u25CE",
+    desc: "Reality as observer experiment",
+  },
+  {
+    id: "stress",
+    label: "Stress Test",
+    glyph: "\u26A1",
+    desc: "Reality under overflow load",
+  },
+  {
+    id: "narrative",
+    label: "Narrative Engine",
+    glyph: "\u221E",
+    desc: "Reality as generated story",
+  },
+] as const;
 
-interface Branch {
-  name: string;
-  status: "dead" | "live" | "conditional";
-  status_reason: string;
-  stress_test: string | null;
-  prerequisite: string | null;
-}
+type PurposeId = (typeof PURPOSES)[number]["id"];
 
-interface Analysis {
+/* ── Shared types ── */
+interface StressAnalysis {
   scenario_summary: string;
-  constraints: Constraint[];
-  branches: Branch[];
+  constraints: {
+    name: string;
+    type: string;
+    description: string;
+    severity: "blocking" | "limiting" | "shaping";
+  }[];
+  branches: {
+    name: string;
+    status: "dead" | "live" | "conditional";
+    status_reason: string;
+    stress_test: string | null;
+    prerequisite: string | null;
+  }[];
   early_warnings: string[];
   recommendations: string[];
   conventional_analysis_sufficient: boolean;
   conventional_analysis_note?: string;
 }
 
+interface AncestorAnalysis {
+  scenario_summary: string;
+  lineage: {
+    event: string;
+    period: string;
+    consequence: string;
+    visibility: string;
+  }[];
+  hidden_forks: {
+    fork_point: string;
+    path_taken: string;
+    path_foreclosed: string;
+    recoverable: boolean;
+  }[];
+  path_dependencies: string[];
+  inherited_assumptions: {
+    assumption: string;
+    still_valid: boolean;
+    risk_if_unexamined: string;
+  }[];
+  synthesis: string;
+}
+
+interface ConsciousnessAnalysis {
+  scenario_summary: string;
+  observers: {
+    group: string;
+    perspective: string;
+    blind_spots: string;
+    emotional_reality: string;
+  }[];
+  meaning_divergences: {
+    element: string;
+    interpretations: { observer: string; meaning: string }[];
+  }[];
+  coherence_conflicts: {
+    conflict: string;
+    why_irreconcilable: string;
+    consequence: string;
+  }[];
+  perception_risks: string[];
+  synthesis: string;
+}
+
+interface NarrativeAnalysis {
+  scenario_summary: string;
+  official_narrative: {
+    story: string;
+    promised_outcome: string;
+    protagonist: string;
+  };
+  structural_narrative: {
+    story: string;
+    probable_outcome: string;
+    actual_beneficiary: string;
+  };
+  narrative_gaps: {
+    gap: string;
+    what_is_obscured: string;
+    consequence: string;
+  }[];
+  stakeholder_stories: {
+    group: string;
+    their_story: string;
+    role_assigned: string;
+  }[];
+  future_narrative: string;
+  synthesis: string;
+}
+
+type AnalysisResult =
+  | StressAnalysis
+  | AncestorAnalysis
+  | ConsciousnessAnalysis
+  | NarrativeAnalysis;
+
+/* ── Constants ── */
 const EXAMPLE_SCENARIOS = [
   {
     label: "Mobile Money Interoperability",
@@ -34,7 +138,7 @@ const EXAMPLE_SCENARIOS = [
   },
   {
     label: "National Digital ID Rollout",
-    text: "A small island nation of 600,000 people is planning to roll out a national digital identity system. The system would replace physical ID cards with a mobile-first digital credential, used for government services, banking KYC, and potentially voting. The government wants to build on open-source standards (OpenID Connect) and host the infrastructure locally rather than depending on foreign cloud providers. Budget is limited to €2M for the first phase.",
+    text: "A small island nation of 600,000 people is planning to roll out a national digital identity system. The system would replace physical ID cards with a mobile-first digital credential, used for government services, banking KYC, and potentially voting. The government wants to build on open-source standards (OpenID Connect) and host the infrastructure locally rather than depending on foreign cloud providers. Budget is limited to \u20AC2M for the first phase.",
   },
   {
     label: "AI Governance Framework",
@@ -42,27 +146,447 @@ const EXAMPLE_SCENARIOS = [
   },
 ];
 
-const severityColor = {
+const severityColor: Record<string, string> = {
   blocking: "#ef4444",
   limiting: "#f59e0b",
   shaping: "#3b82f6",
 };
 
-const statusColor = {
+const statusColor: Record<string, string> = {
   dead: "#ef4444",
   live: "#22c55e",
   conditional: "#f59e0b",
 };
 
-const statusIcon = {
+const statusIcon: Record<string, string> = {
   dead: "\u2716",
   live: "\u2714",
   conditional: "\u25C6",
 };
 
+const roleColor: Record<string, string> = {
+  protagonist: "#22c55e",
+  displaced: "#ef4444",
+  invisible: "#6b7280",
+  antagonist: "#f59e0b",
+};
+
+const modeColor: Record<PurposeId, string> = {
+  ancestor: "#00f5c8",
+  consciousness: "#a78bfa",
+  stress: "#f59e0b",
+  narrative: "#00f5c8",
+};
+
+/* ── Loading step labels per mode ── */
+const LOADING_STEPS: Record<PurposeId, string[]> = {
+  ancestor: [
+    "Tracing system lineage...",
+    "Identifying hidden forks...",
+    "Mapping path dependencies...",
+    "Reconstructing inherited memory...",
+  ],
+  consciousness: [
+    "Mapping observer perspectives...",
+    "Detecting meaning divergence...",
+    "Analyzing coherence conflicts...",
+    "Resolving perceptual landscape...",
+  ],
+  stress: [
+    "Extracting structural constraints...",
+    "Mapping decision branches...",
+    "Running adversarial stress tests...",
+    "Synthesizing findings...",
+  ],
+  narrative: [
+    "Reading official narrative...",
+    "Extracting structural story...",
+    "Mapping narrative gaps...",
+    "Revealing the untold story...",
+  ],
+};
+
+/* ── Render helpers per mode ── */
+function StressResults({ data }: { data: StressAnalysis }) {
+  return (
+    <div className="space-y-8">
+      <Section label={`${data.constraints.length} Structural Constraints Identified`}>
+        <div className="space-y-2">
+          {data.constraints.map((c, i) => (
+            <div
+              key={i}
+              className="rounded-lg border px-4 py-3"
+              style={{
+                borderColor: `${severityColor[c.severity]}33`,
+                background: `${severityColor[c.severity]}08`,
+              }}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Badge color={severityColor[c.severity]}>{c.severity}</Badge>
+                <span className="font-mono text-[10px] uppercase text-white/30">{c.type}</span>
+              </div>
+              <div className="text-sm font-semibold text-white/90 mb-1">{c.name}</div>
+              <div className="text-xs text-white/50 leading-relaxed">{c.description}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section label={`${data.branches.length} Decision Branches Mapped`}>
+        <div className="space-y-3">
+          {data.branches.map((b, i) => (
+            <div
+              key={i}
+              className="rounded-lg border px-4 py-4"
+              style={{
+                borderColor: `${statusColor[b.status]}33`,
+                background: `${statusColor[b.status]}06`,
+              }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span style={{ color: statusColor[b.status], fontSize: 14 }}>
+                  {statusIcon[b.status]}
+                </span>
+                <span className="text-sm font-bold text-white/90">{b.name}</span>
+                <Badge color={statusColor[b.status]} className="ml-auto">
+                  {b.status} branch
+                </Badge>
+              </div>
+              <p className="text-xs text-white/60 leading-relaxed mb-2">{b.status_reason}</p>
+              {b.stress_test && (
+                <SubSection label="Stress Test Result">
+                  <p className="text-xs text-white/50 leading-relaxed">{b.stress_test}</p>
+                </SubSection>
+              )}
+              {b.prerequisite && (
+                <SubSection label="Critical Prerequisite">
+                  <p className="text-xs text-amber-400/70 leading-relaxed">{b.prerequisite}</p>
+                </SubSection>
+              )}
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {data.early_warnings.length > 0 && (
+        <Section label="Early Warning Signals">
+          <div className="space-y-1">
+            {data.early_warnings.map((w, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs text-amber-400/60 leading-relaxed">
+                <span className="mt-0.5">&#x26A0;</span>
+                <span>{w}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {data.recommendations.length > 0 && (
+        <Section label="Recommendations">
+          <div className="space-y-1">
+            {data.recommendations.map((r, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs text-[#00f5c8]/70 leading-relaxed">
+                <span className="mt-0.5">&#x2192;</span>
+                <span>{r}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+    </div>
+  );
+}
+
+function AncestorResults({ data }: { data: AncestorAnalysis }) {
+  return (
+    <div className="space-y-8">
+      <Section label={`${data.lineage.length} Lineage Events Traced`}>
+        <div className="space-y-2">
+          {data.lineage.map((l, i) => (
+            <div key={i} className="rounded-lg border border-white/10 px-4 py-3 bg-white/[0.02]">
+              <div className="flex items-center gap-2 mb-1">
+                <Badge color={l.visibility === "hidden" ? "#f59e0b" : l.visibility === "forgotten" ? "#ef4444" : "#22c55e"}>
+                  {l.visibility}
+                </Badge>
+                <span className="font-mono text-[10px] text-white/30">{l.period}</span>
+              </div>
+              <div className="text-sm font-semibold text-white/90 mb-1">{l.event}</div>
+              <div className="text-xs text-white/50 leading-relaxed">{l.consequence}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section label={`${data.hidden_forks.length} Hidden Forks Identified`}>
+        <div className="space-y-2">
+          {data.hidden_forks.map((f, i) => (
+            <div key={i} className="rounded-lg border border-white/10 px-4 py-3 bg-white/[0.02]">
+              <div className="flex items-center gap-2 mb-1">
+                <Badge color={f.recoverable ? "#22c55e" : "#ef4444"}>
+                  {f.recoverable ? "recoverable" : "foreclosed"}
+                </Badge>
+              </div>
+              <div className="text-sm font-semibold text-white/90 mb-1">{f.fork_point}</div>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <div>
+                  <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Path Taken</div>
+                  <p className="text-xs text-white/50 leading-relaxed">{f.path_taken}</p>
+                </div>
+                <div>
+                  <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Path Foreclosed</div>
+                  <p className="text-xs text-white/50 leading-relaxed">{f.path_foreclosed}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {data.path_dependencies.length > 0 && (
+        <Section label="Path Dependencies">
+          <div className="space-y-1">
+            {data.path_dependencies.map((p, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs text-amber-400/60 leading-relaxed">
+                <span className="mt-0.5">&#x1F517;</span>
+                <span>{p}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {data.inherited_assumptions.length > 0 && (
+        <Section label="Inherited Assumptions">
+          <div className="space-y-2">
+            {data.inherited_assumptions.map((a, i) => (
+              <div key={i} className="rounded-lg border border-white/10 px-4 py-3 bg-white/[0.02]">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge color={a.still_valid ? "#22c55e" : "#ef4444"}>
+                    {a.still_valid ? "still valid" : "outdated"}
+                  </Badge>
+                </div>
+                <div className="text-sm text-white/90 mb-1">{a.assumption}</div>
+                <div className="text-xs text-white/50 leading-relaxed">{a.risk_if_unexamined}</div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      <Section label="Synthesis">
+        <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line">{data.synthesis}</p>
+      </Section>
+    </div>
+  );
+}
+
+function ConsciousnessResults({ data }: { data: ConsciousnessAnalysis }) {
+  return (
+    <div className="space-y-8">
+      <Section label={`${data.observers.length} Observer Perspectives Mapped`}>
+        <div className="space-y-2">
+          {data.observers.map((o, i) => (
+            <div key={i} className="rounded-lg border border-[#a78bfa33] px-4 py-3 bg-[#a78bfa08]">
+              <div className="text-sm font-semibold text-white/90 mb-2">{o.group}</div>
+              <div className="text-xs text-white/60 leading-relaxed mb-2">{o.perspective}</div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Blind Spots</div>
+                  <p className="text-xs text-white/50 leading-relaxed">{o.blind_spots}</p>
+                </div>
+                <div>
+                  <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Emotional Reality</div>
+                  <p className="text-xs text-[#a78bfa]/70 leading-relaxed">{o.emotional_reality}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {data.meaning_divergences.length > 0 && (
+        <Section label="Meaning Divergences">
+          <div className="space-y-3">
+            {data.meaning_divergences.map((d, i) => (
+              <div key={i} className="rounded-lg border border-white/10 px-4 py-3 bg-white/[0.02]">
+                <div className="text-sm font-semibold text-white/90 mb-2">{d.element}</div>
+                <div className="space-y-1">
+                  {d.interpretations.map((interp, j) => (
+                    <div key={j} className="flex gap-2 text-xs">
+                      <span className="text-[#a78bfa] font-mono shrink-0">{interp.observer}:</span>
+                      <span className="text-white/50">{interp.meaning}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {data.coherence_conflicts.length > 0 && (
+        <Section label="Coherence Conflicts">
+          <div className="space-y-2">
+            {data.coherence_conflicts.map((c, i) => (
+              <div key={i} className="rounded-lg border border-[#ef444433] px-4 py-3 bg-[#ef444408]">
+                <div className="text-sm font-semibold text-white/90 mb-1">{c.conflict}</div>
+                <SubSection label="Why Irreconcilable">
+                  <p className="text-xs text-white/50 leading-relaxed">{c.why_irreconcilable}</p>
+                </SubSection>
+                <SubSection label="Consequence">
+                  <p className="text-xs text-[#ef4444]/70 leading-relaxed">{c.consequence}</p>
+                </SubSection>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {data.perception_risks.length > 0 && (
+        <Section label="Perception Risks">
+          <div className="space-y-1">
+            {data.perception_risks.map((r, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs text-amber-400/60 leading-relaxed">
+                <span className="mt-0.5">&#x26A0;</span>
+                <span>{r}</span>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      <Section label="Synthesis">
+        <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line">{data.synthesis}</p>
+      </Section>
+    </div>
+  );
+}
+
+function NarrativeResults({ data }: { data: NarrativeAnalysis }) {
+  return (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-lg border border-[#22c55e33] px-4 py-4 bg-[#22c55e06]">
+          <div className="font-mono text-[10px] text-[#22c55e] uppercase tracking-[0.15em] mb-2">
+            Official Narrative
+          </div>
+          <p className="text-xs text-white/60 leading-relaxed mb-2">{data.official_narrative.story}</p>
+          <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Promised Outcome</div>
+          <p className="text-xs text-white/50 mb-2">{data.official_narrative.promised_outcome}</p>
+          <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Protagonist</div>
+          <p className="text-xs text-[#22c55e]/70">{data.official_narrative.protagonist}</p>
+        </div>
+        <div className="rounded-lg border border-[#ef444433] px-4 py-4 bg-[#ef444406]">
+          <div className="font-mono text-[10px] text-[#ef4444] uppercase tracking-[0.15em] mb-2">
+            Structural Narrative
+          </div>
+          <p className="text-xs text-white/60 leading-relaxed mb-2">{data.structural_narrative.story}</p>
+          <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Probable Outcome</div>
+          <p className="text-xs text-white/50 mb-2">{data.structural_narrative.probable_outcome}</p>
+          <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Actual Beneficiary</div>
+          <p className="text-xs text-[#ef4444]/70">{data.structural_narrative.actual_beneficiary}</p>
+        </div>
+      </div>
+
+      {data.narrative_gaps.length > 0 && (
+        <Section label="Narrative Gaps">
+          <div className="space-y-2">
+            {data.narrative_gaps.map((g, i) => (
+              <div key={i} className="rounded-lg border border-white/10 px-4 py-3 bg-white/[0.02]">
+                <div className="text-sm font-semibold text-white/90 mb-1">{g.gap}</div>
+                <div className="grid grid-cols-2 gap-3 mt-2">
+                  <div>
+                    <div className="font-mono text-[9px] text-white/30 uppercase mb-1">What Is Obscured</div>
+                    <p className="text-xs text-white/50 leading-relaxed">{g.what_is_obscured}</p>
+                  </div>
+                  <div>
+                    <div className="font-mono text-[9px] text-white/30 uppercase mb-1">Consequence</div>
+                    <p className="text-xs text-[#ef4444]/70 leading-relaxed">{g.consequence}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {data.stakeholder_stories.length > 0 && (
+        <Section label="Stakeholder Stories">
+          <div className="space-y-2">
+            {data.stakeholder_stories.map((s, i) => (
+              <div key={i} className="rounded-lg border border-white/10 px-4 py-3 bg-white/[0.02]">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm font-semibold text-white/90">{s.group}</span>
+                  <Badge color={roleColor[s.role_assigned] || "#6b7280"}>{s.role_assigned}</Badge>
+                </div>
+                <p className="text-xs text-white/50 leading-relaxed">{s.their_story}</p>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      <Section label="Future Narrative">
+        <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line">{data.future_narrative}</p>
+      </Section>
+
+      <Section label="The Real Story">
+        <p className="text-sm text-white/90 leading-relaxed italic">{data.synthesis}</p>
+      </Section>
+    </div>
+  );
+}
+
+/* ── Shared UI components ── */
+function Section({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
+        {label}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function SubSection({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="mt-2 pt-2 border-t border-white/5">
+      <div className="font-mono text-[9px] text-white/30 uppercase mb-1">{label}</div>
+      {children}
+    </div>
+  );
+}
+
+function Badge({
+  color,
+  children,
+  className = "",
+}: {
+  color: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <span
+      className={`font-mono text-[10px] uppercase px-2 py-0.5 rounded ${className}`}
+      style={{
+        background: `${color}22`,
+        color: color,
+        border: `1px solid ${color}44`,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+/* ── Main page ── */
 export default function Home() {
   const [scenario, setScenario] = useState("");
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [purpose, setPurpose] = useState<PurposeId>("stress");
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [activeMode, setActiveMode] = useState<PurposeId | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeStep, setActiveStep] = useState("");
@@ -72,14 +596,9 @@ export default function Home() {
     setLoading(true);
     setError("");
     setAnalysis(null);
+    setActiveMode(null);
 
-    const steps = [
-      "Extracting structural constraints...",
-      "Mapping decision branches...",
-      "Running adversarial stress tests...",
-      "Synthesizing findings...",
-    ];
-
+    const steps = LOADING_STEPS[purpose];
     let stepIndex = 0;
     setActiveStep(steps[0]);
     const interval = setInterval(() => {
@@ -93,7 +612,7 @@ export default function Home() {
       const res = await fetch("/api/forge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario: scenario.trim() }),
+        body: JSON.stringify({ scenario: scenario.trim(), mode: purpose }),
       });
 
       const data = await res.json();
@@ -104,6 +623,7 @@ export default function Home() {
       }
 
       setAnalysis(data.analysis);
+      setActiveMode(data.mode);
     } catch (e: unknown) {
       const message =
         e instanceof Error ? e.message : "Failed to connect to analysis engine";
@@ -114,6 +634,8 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  const activePurpose = PURPOSES.find((p) => p.id === purpose);
 
   return (
     <div
@@ -136,15 +658,14 @@ export default function Home() {
       <div className="max-w-3xl mx-auto px-6 py-12 relative">
         {/* Header */}
         <div className="text-center mb-12">
-          <div
-            className="font-mono text-xs tracking-[0.3em] text-[#00f5c8] opacity-70 uppercase mb-3"
-          >
-            Structural Decision Intelligence
+          <div className="font-mono text-xs tracking-[0.3em] text-[#00f5c8] opacity-70 uppercase mb-3">
+            MST &middot; Discrete Substrate Architecture
           </div>
           <h1
             className="text-5xl font-black tracking-tight font-mono mb-2"
             style={{
-              background: "linear-gradient(135deg, #fff 30%, #a78bfa 70%, #00f5c8)",
+              background:
+                "linear-gradient(135deg, #fff 30%, #a78bfa 70%, #00f5c8)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
@@ -152,8 +673,52 @@ export default function Home() {
             FORGE
           </h1>
           <p className="text-sm text-white/40 italic">
-            by Augusto Bartolomeu
+            by Augusto Bartolomeu &middot; Reality Branch Explorer
           </p>
+        </div>
+
+        {/* Simulation Purpose selector */}
+        <div className="mb-7">
+          <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
+            Simulation Purpose
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {PURPOSES.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setPurpose(p.id)}
+                className="text-left rounded-lg border px-4 py-3 transition-all cursor-pointer flex items-center gap-3"
+                style={{
+                  borderColor:
+                    purpose === p.id
+                      ? modeColor[p.id]
+                      : "rgba(255,255,255,0.1)",
+                  background:
+                    purpose === p.id
+                      ? `${modeColor[p.id]}0D`
+                      : "rgba(255,255,255,0.02)",
+                }}
+              >
+                <span className="text-lg opacity-90">{p.glyph}</span>
+                <div>
+                  <div
+                    className="text-xs font-semibold font-mono"
+                    style={{
+                      color:
+                        purpose === p.id
+                          ? modeColor[p.id]
+                          : "rgba(255,255,255,0.6)",
+                    }}
+                  >
+                    {p.label}
+                  </div>
+                  <div className="text-[10px] text-white/30 mt-0.5">
+                    {p.desc}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Example scenarios */}
@@ -177,7 +742,9 @@ export default function Home() {
                       ? "rgba(0,245,200,0.08)"
                       : "rgba(255,255,255,0.02)",
                   color:
-                    scenario === ex.text ? "#00f5c8" : "rgba(255,255,255,0.5)",
+                    scenario === ex.text
+                      ? "#00f5c8"
+                      : "rgba(255,255,255,0.5)",
                 }}
               >
                 {ex.label}
@@ -197,7 +764,7 @@ export default function Home() {
             onKeyDown={(e) => {
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) forge();
             }}
-            placeholder="Describe a policy, proposal, or framework to stress-test..."
+            placeholder="Enter a scenario to forge across reality branches..."
             className="w-full min-h-[120px] rounded-lg border px-4 py-3 text-sm font-serif resize-vertical outline-none"
             style={{
               background: "rgba(255,255,255,0.04)",
@@ -220,11 +787,16 @@ export default function Home() {
             border: "none",
             color: loading ? "#00f5c8" : "#000",
             opacity: !scenario.trim() ? 0.4 : 1,
-            cursor: loading || !scenario.trim() ? "not-allowed" : "pointer",
-            boxShadow: loading ? "none" : "0 0 30px rgba(0,245,200,0.3)",
+            cursor:
+              loading || !scenario.trim() ? "not-allowed" : "pointer",
+            boxShadow: loading
+              ? "none"
+              : "0 0 30px rgba(0,245,200,0.3)",
           }}
         >
-          {loading ? "Analyzing..." : "Forge Analysis"}
+          {loading
+            ? "Initializing Substrate..."
+            : `${activePurpose?.glyph} Forge Reality Branches`}
         </button>
 
         {/* Error */}
@@ -259,188 +831,32 @@ export default function Home() {
 
         {/* Results */}
         {analysis && (
-          <div className="space-y-8">
+          <div>
             {/* Summary */}
-            <div>
+            <div className="mb-8">
               <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-2">
                 Scenario Under Analysis
               </div>
               <p className="text-sm text-white/70 italic leading-relaxed">
-                {analysis.scenario_summary}
+                {(analysis as { scenario_summary: string }).scenario_summary}
               </p>
             </div>
 
-            {/* Conventional analysis check */}
-            {analysis.conventional_analysis_sufficient && (
-              <div
-                className="rounded-lg px-4 py-3 border"
-                style={{
-                  borderColor: "rgba(59,130,246,0.4)",
-                  background: "rgba(59,130,246,0.06)",
-                }}
-              >
-                <div className="font-mono text-xs text-blue-400 font-bold mb-1">
-                  STAND DOWN
-                </div>
-                <p className="text-sm text-white/70">
-                  {analysis.conventional_analysis_note}
-                </p>
-              </div>
+            {/* Mode-specific results */}
+            {activeMode === "stress" && <StressResults data={analysis as StressAnalysis} />}
+            {activeMode === "ancestor" && <AncestorResults data={analysis as AncestorAnalysis} />}
+            {activeMode === "consciousness" && (
+              <ConsciousnessResults data={analysis as ConsciousnessAnalysis} />
             )}
-
-            {/* Constraints */}
-            <div>
-              <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
-                {analysis.constraints.length} Structural Constraints Identified
-              </div>
-              <div className="space-y-2">
-                {analysis.constraints.map((c, i) => (
-                  <div
-                    key={i}
-                    className="rounded-lg border px-4 py-3"
-                    style={{
-                      borderColor: `${severityColor[c.severity]}33`,
-                      background: `${severityColor[c.severity]}08`,
-                    }}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className="font-mono text-[10px] uppercase px-2 py-0.5 rounded"
-                        style={{
-                          background: `${severityColor[c.severity]}22`,
-                          color: severityColor[c.severity],
-                          border: `1px solid ${severityColor[c.severity]}44`,
-                        }}
-                      >
-                        {c.severity}
-                      </span>
-                      <span
-                        className="font-mono text-[10px] uppercase text-white/30"
-                      >
-                        {c.type}
-                      </span>
-                    </div>
-                    <div className="text-sm font-semibold text-white/90 mb-1">
-                      {c.name}
-                    </div>
-                    <div className="text-xs text-white/50 leading-relaxed">
-                      {c.description}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Branches */}
-            <div>
-              <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
-                {analysis.branches.length} Decision Branches Mapped
-              </div>
-              <div className="space-y-3">
-                {analysis.branches.map((b, i) => (
-                  <div
-                    key={i}
-                    className="rounded-lg border px-4 py-4"
-                    style={{
-                      borderColor: `${statusColor[b.status]}33`,
-                      background: `${statusColor[b.status]}06`,
-                    }}
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span
-                        style={{ color: statusColor[b.status], fontSize: 14 }}
-                      >
-                        {statusIcon[b.status]}
-                      </span>
-                      <span className="text-sm font-bold text-white/90">
-                        {b.name}
-                      </span>
-                      <span
-                        className="font-mono text-[10px] uppercase px-2 py-0.5 rounded ml-auto"
-                        style={{
-                          background: `${statusColor[b.status]}22`,
-                          color: statusColor[b.status],
-                          border: `1px solid ${statusColor[b.status]}44`,
-                        }}
-                      >
-                        {b.status} branch
-                      </span>
-                    </div>
-                    <p className="text-xs text-white/60 leading-relaxed mb-2">
-                      {b.status_reason}
-                    </p>
-                    {b.stress_test && (
-                      <div className="mt-2 pt-2 border-t border-white/5">
-                        <div className="font-mono text-[9px] text-white/30 uppercase mb-1">
-                          Stress Test Result
-                        </div>
-                        <p className="text-xs text-white/50 leading-relaxed">
-                          {b.stress_test}
-                        </p>
-                      </div>
-                    )}
-                    {b.prerequisite && (
-                      <div className="mt-2 pt-2 border-t border-white/5">
-                        <div className="font-mono text-[9px] text-white/30 uppercase mb-1">
-                          Critical Prerequisite
-                        </div>
-                        <p className="text-xs text-amber-400/70 leading-relaxed">
-                          {b.prerequisite}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Early Warnings */}
-            {analysis.early_warnings.length > 0 && (
-              <div>
-                <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
-                  Early Warning Signals
-                </div>
-                <div className="space-y-1">
-                  {analysis.early_warnings.map((w, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-2 text-xs text-amber-400/60 leading-relaxed"
-                    >
-                      <span className="mt-0.5">&#x26A0;</span>
-                      <span>{w}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recommendations */}
-            {analysis.recommendations.length > 0 && (
-              <div>
-                <div className="font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
-                  Recommendations
-                </div>
-                <div className="space-y-1">
-                  {analysis.recommendations.map((r, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-2 text-xs text-[#00f5c8]/70 leading-relaxed"
-                    >
-                      <span className="mt-0.5">&#x2192;</span>
-                      <span>{r}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {activeMode === "narrative" && <NarrativeResults data={analysis as NarrativeAnalysis} />}
 
             {/* Footer */}
-            <div
-              className="pt-6 mt-8 border-t border-white/5 text-center font-mono text-[10px] text-white/20"
-            >
-              FORGE &middot; Structural Decision Intelligence
+            <div className="pt-6 mt-8 border-t border-white/5 text-center font-mono text-[10px] text-white/20 leading-relaxed">
+              MST v5 &middot; Discrete Substrate Law &middot; Universal Refresh
+              Cycle
               <br />
-              Multi-Simulation Thesis &middot; Augusto Bartolomeu
+              &quot;Dust is random. Code is intentional.&quot; &mdash; Augusto
+              Bartolomeu
             </div>
           </div>
         )}
@@ -448,9 +864,18 @@ export default function Home() {
 
       <style jsx global>{`
         @keyframes loading {
-          0% { width: 0%; margin-left: 0; }
-          50% { width: 60%; margin-left: 20%; }
-          100% { width: 0%; margin-left: 100%; }
+          0% {
+            width: 0%;
+            margin-left: 0;
+          }
+          50% {
+            width: 60%;
+            margin-left: 20%;
+          }
+          100% {
+            width: 0%;
+            margin-left: 100%;
+          }
         }
       `}</style>
     </div>
