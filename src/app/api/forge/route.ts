@@ -243,7 +243,7 @@ Return ONLY valid JSON.`,
 
 export async function POST(request: NextRequest) {
   try {
-    const { scenario, mode, research = true } = await request.json();
+    const { scenario, mode, research = true, lang = "en" } = await request.json();
 
     if (!scenario || typeof scenario !== "string" || !scenario.trim()) {
       return NextResponse.json(
@@ -271,11 +271,17 @@ export async function POST(request: NextRequest) {
 
     userMessage += `\n\n${outputSchema}`;
 
-    // Step 3: Run FORGE analysis via Claude
+    // Step 3: Build language instruction
+    const langInstruction =
+      lang === "pt"
+        ? "\n\nCRITICAL: Write ALL text content in Portuguese (European Portuguese, not Brazilian). All field values — descriptions, summaries, recommendations, narratives — must be in Portuguese. JSON keys remain in English."
+        : "";
+
+    // Step 4: Run FORGE analysis via Claude
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 4000,
-      system: `${BASE_SYSTEM}\n\n${modePrompt}`,
+      system: `${BASE_SYSTEM}\n\n${modePrompt}${langInstruction}`,
       messages: [
         {
           role: "user",

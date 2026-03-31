@@ -605,6 +605,7 @@ export default function Home() {
   const [activeStep, setActiveStep] = useState("");
   const [researchEnabled, setResearchEnabled] = useState(true);
   const [researchEnriched, setResearchEnriched] = useState(false);
+  const [lang, setLang] = useState<"en" | "pt">("en");
 
   const forge = async () => {
     if (!scenario.trim() || loading) return;
@@ -635,6 +636,7 @@ export default function Home() {
           scenario: scenario.trim(),
           mode: purpose,
           research: researchEnabled,
+          lang,
         }),
       });
 
@@ -799,38 +801,66 @@ export default function Home() {
           />
         </div>
 
-        {/* Research toggle */}
-        <div className="mb-5 flex items-center gap-3">
-          <button
-            onClick={() => setResearchEnabled(!researchEnabled)}
-            className="flex items-center gap-2 font-mono text-xs transition-all cursor-pointer"
-            style={{
-              color: researchEnabled ? "#00f5c8" : "rgba(255,255,255,0.3)",
-            }}
-          >
-            <div
-              className="w-8 h-4 rounded-full relative transition-all"
+        {/* Controls row: Research toggle + Language toggle */}
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setResearchEnabled(!researchEnabled)}
+              className="flex items-center gap-2 font-mono text-xs transition-all cursor-pointer"
               style={{
-                background: researchEnabled
-                  ? "rgba(0,245,200,0.3)"
-                  : "rgba(255,255,255,0.1)",
+                color: researchEnabled ? "#00f5c8" : "rgba(255,255,255,0.3)",
               }}
             >
               <div
-                className="w-3 h-3 rounded-full absolute top-0.5 transition-all"
+                className="w-8 h-4 rounded-full relative transition-all"
                 style={{
-                  background: researchEnabled ? "#00f5c8" : "rgba(255,255,255,0.3)",
-                  left: researchEnabled ? 17 : 2,
+                  background: researchEnabled
+                    ? "rgba(0,245,200,0.3)"
+                    : "rgba(255,255,255,0.1)",
                 }}
-              />
-            </div>
-            Deep Research
-          </button>
-          <span className="text-[10px] text-white/20 font-mono">
-            {researchEnabled
-              ? "Perplexity will gather real-world data before analysis"
-              : "Analysis uses training data only"}
-          </span>
+              >
+                <div
+                  className="w-3 h-3 rounded-full absolute top-0.5 transition-all"
+                  style={{
+                    background: researchEnabled ? "#00f5c8" : "rgba(255,255,255,0.3)",
+                    left: researchEnabled ? 17 : 2,
+                  }}
+                />
+              </div>
+              Deep Research
+            </button>
+            <span className="text-[10px] text-white/20 font-mono">
+              {researchEnabled
+                ? "Perplexity will gather real-world data before analysis"
+                : "Analysis uses training data only"}
+            </span>
+          </div>
+
+          {/* Language toggle */}
+          <div className="flex items-center gap-1 font-mono text-[11px]">
+            <button
+              onClick={() => setLang("en")}
+              className="px-2 py-1 rounded transition-all cursor-pointer"
+              style={{
+                background: lang === "en" ? "rgba(0,245,200,0.12)" : "transparent",
+                color: lang === "en" ? "#00f5c8" : "rgba(255,255,255,0.3)",
+                border: lang === "en" ? "1px solid rgba(0,245,200,0.3)" : "1px solid transparent",
+              }}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLang("pt")}
+              className="px-2 py-1 rounded transition-all cursor-pointer"
+              style={{
+                background: lang === "pt" ? "rgba(167,139,250,0.12)" : "transparent",
+                color: lang === "pt" ? "#a78bfa" : "rgba(255,255,255,0.3)",
+                border: lang === "pt" ? "1px solid rgba(167,139,250,0.3)" : "1px solid transparent",
+              }}
+            >
+              PT
+            </button>
+          </div>
         </div>
 
         {/* Forge button */}
