@@ -270,7 +270,7 @@ function StressResults({ data }: { data: StressAnalysis }) {
       </Section>
 
       {data.early_warnings.length > 0 && (
-        <Section label="Early Warning Signals">
+        <Section label="Early Warning Signals" newPage>
           <div className="space-y-1">
             {data.early_warnings.map((w, i) => (
               <div key={i} className="flex items-start gap-2 text-xs text-amber-400/60 leading-relaxed">
@@ -283,7 +283,7 @@ function StressResults({ data }: { data: StressAnalysis }) {
       )}
 
       {data.recommendations.length > 0 && (
-        <Section label="Recommendations">
+        <Section label="Recommendations" newPage>
           <div className="space-y-1">
             {data.recommendations.map((r, i) => (
               <div key={i} className="flex items-start gap-2 text-xs text-[#00f5c8]/70 leading-relaxed">
@@ -357,7 +357,7 @@ function AncestorResults({ data }: { data: AncestorAnalysis }) {
       )}
 
       {data.inherited_assumptions.length > 0 && (
-        <Section label="Inherited Assumptions">
+        <Section label="Inherited Assumptions" newPage>
           <div className="space-y-2">
             {data.inherited_assumptions.map((a, i) => (
               <div key={i} className="rounded-lg border border-white/10 px-4 py-3 bg-white/[0.02]">
@@ -426,7 +426,7 @@ function ConsciousnessResults({ data }: { data: ConsciousnessAnalysis }) {
       )}
 
       {data.coherence_conflicts.length > 0 && (
-        <Section label="Coherence Conflicts">
+        <Section label="Coherence Conflicts" newPage>
           <div className="space-y-2">
             {data.coherence_conflicts.map((c, i) => (
               <div key={i} className="rounded-lg border border-[#ef444433] px-4 py-3 bg-[#ef444408]">
@@ -527,7 +527,7 @@ function NarrativeResults({ data }: { data: NarrativeAnalysis }) {
         </Section>
       )}
 
-      <Section label="Future Narrative">
+      <Section label="Future Narrative" newPage>
         <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line">{data.future_narrative}</p>
       </Section>
 
@@ -539,9 +539,17 @@ function NarrativeResults({ data }: { data: NarrativeAnalysis }) {
 }
 
 /* ── Shared UI components ── */
-function Section({ label, children }: { label: string; children: React.ReactNode }) {
+function Section({
+  label,
+  children,
+  newPage = false,
+}: {
+  label: string;
+  children: React.ReactNode;
+  newPage?: boolean;
+}) {
   return (
-    <div className="print-section">
+    <div className={`print-section${newPage ? " print-new-page" : ""}`}>
       <div className="section-header font-mono text-[10px] text-white/40 uppercase tracking-[0.15em] mb-3">
         {label}
       </div>
@@ -982,8 +990,24 @@ export default function Home() {
           }
 
           @page {
-            margin: 2cm 2.5cm;
+            margin: 2.5cm 2.5cm 3cm 2.5cm;
             size: A4 portrait;
+
+            @bottom-left {
+              content: "\u00A9 2026 Augusto Bartolomeu  \u00B7  FORGE  \u00B7  Multi-Simulation Thesis";
+              font-family: monospace;
+              font-size: 7px;
+              color: #999;
+              letter-spacing: 0.05em;
+            }
+
+            @bottom-right {
+              content: "page " counter(page) " of " counter(pages);
+              font-family: monospace;
+              font-size: 7px;
+              color: #999;
+              letter-spacing: 0.05em;
+            }
           }
 
           /* ── Hide all UI controls ── */
@@ -1184,9 +1208,12 @@ export default function Home() {
             margin-bottom: 6px !important;
           }
 
-          /* ── Page breaks for long reports ── */
-          .space-y-8 > .print-section:nth-child(n+3) {
-            page-break-before: auto;
+          /* ── Page breaks ── */
+          .print-new-page {
+            page-break-before: always !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            border-top: none !important;
           }
         }
       `}</style>
