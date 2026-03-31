@@ -41,15 +41,30 @@ export async function extractText(
 }
 
 async function extractPdf(buffer: Buffer): Promise<ExtractionResult> {
+  // Polyfill DOMMatrix for Node.js serverless (pdfjs-dist requires it)
+  if (typeof globalThis.DOMMatrix === "undefined") {
+    // Minimal stub — only basic properties are needed for text extraction
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    globalThis.DOMMatrix = class DOMMatrix {
+      a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+      m11 = 1; m12 = 0; m13 = 0; m14 = 0;
+      m21 = 0; m22 = 1; m23 = 0; m24 = 0;
+      m31 = 0; m32 = 0; m33 = 1; m34 = 0;
+      m41 = 0; m42 = 0; m43 = 0; m44 = 1;
+      is2D = true; isIdentity = true;
+      multiply() { return new DOMMatrix(); }
+      translate() { return new DOMMatrix(); }
+      scale() { return new DOMMatrix(); }
+      inverse() { return new DOMMatrix(); }
+      transformPoint(p: any) { return p || { x: 0, y: 0, z: 0, w: 1 }; }
+    } as any;
+  }
+
   // Dynamic import to avoid bundling issues in serverless
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
-  // Configure worker for serverless — point to the actual worker file
-  // Using new URL() with import.meta.url lets Next.js webpack resolve the path
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
-    import.meta.url
-  ).toString();
+  // Disable worker — run in main thread for serverless compatibility
+  pdfjs.GlobalWorkerOptions.workerSrc = "";
 
   const doc = await pdfjs.getDocument({
     data: new Uint8Array(buffer),
