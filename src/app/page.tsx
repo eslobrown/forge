@@ -1352,7 +1352,7 @@ export default function Home() {
             size: A4 portrait;
 
             @bottom-left {
-              content: "\u00A9 2026 Augusto Bartolomeu";
+              content: "© 2026 Augusto Bartolomeu";
               font-family: monospace;
               font-size: 7px;
               color: #999;
