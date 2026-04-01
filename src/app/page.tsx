@@ -706,7 +706,7 @@ export default function Home() {
     setDocumentChunksUsed(null);
 
     const researchSteps = researchEnabled
-      ? ["Researching real-world context via Perplexity..."]
+      ? ["Researching real-world context..."]
       : [];
     const steps = [...researchSteps, ...LOADING_STEPS[purpose]];
     let stepIndex = 0;
@@ -1111,7 +1111,7 @@ export default function Home() {
             </button>
             <span className="text-[10px] text-white/20 font-mono">
               {researchEnabled
-                ? "Perplexity will gather real-world data before analysis"
+                ? "Gather real-world data before analysis"
                 : "Analysis uses training data only"}
             </span>
           </div>
