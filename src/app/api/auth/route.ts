@@ -1,12 +1,5 @@
 import { NextResponse } from "next/server";
-
-async function hashPassword(password: string): Promise<string> {
-  const data = new TextEncoder().encode(password);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
+import { AUTH_COOKIE, expectedToken } from "@/lib/auth-token";
 
 export async function POST(request: Request) {
   const { password } = await request.json();
@@ -15,10 +8,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid password" }, { status: 401 });
   }
 
-  const token = await hashPassword(process.env.SITE_PASSWORD);
+  // Same derivation the middleware checks against — see src/lib/auth-token.ts.
+  // Should be non-null (SITE_PASSWORD was just verified), but never issue a
+  // cookie we cannot derive: an empty cookie would not match anyway, and this
+  // keeps the failure a clean 401 rather than a redirect loop at /login.
+  const token = await expectedToken();
+  if (!token) {
+    return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+  }
+
   const response = NextResponse.json({ success: true });
 
-  response.cookies.set("forge_auth", token, {
+  response.cookies.set(AUTH_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",

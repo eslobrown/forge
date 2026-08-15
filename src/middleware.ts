@@ -1,16 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-
-const AUTH_COOKIE = "forge_auth";
-
-async function expectedToken(): Promise<string> {
-  const password = process.env.SITE_PASSWORD ?? "";
-  const data = new TextEncoder().encode(password);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
+import { AUTH_COOKIE, expectedToken, tokensMatch } from "@/lib/auth-token";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -20,8 +10,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(AUTH_COOKIE)?.value;
-  if (token && token === (await expectedToken())) {
+  // expectedToken() is null when SITE_PASSWORD is unset — deny rather than
+  // fall back to a guessable value. See src/lib/auth-token.ts.
+  const expected = await expectedToken();
+  if (expected && tokensMatch(request.cookies.get(AUTH_COOKIE)?.value, expected)) {
     return NextResponse.next();
   }
 
