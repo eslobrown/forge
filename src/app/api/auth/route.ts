@@ -2,7 +2,15 @@ import { NextResponse } from "next/server";
 import { AUTH_COOKIE, expectedToken } from "@/lib/auth-token";
 
 export async function POST(request: Request) {
-  const { password } = await request.json();
+  // This is the one endpoint the middleware lets through unauthenticated, so it
+  // receives whatever the internet sends it. An unparseable body threw here and
+  // surfaced as a 500; a malformed request is the client's error, not ours.
+  let password: unknown;
+  try {
+    ({ password } = await request.json());
+  } catch {
+    return NextResponse.json({ error: "Malformed request" }, { status: 400 });
+  }
 
   if (!process.env.SITE_PASSWORD || password !== process.env.SITE_PASSWORD) {
     return NextResponse.json({ error: "Invalid password" }, { status: 401 });
